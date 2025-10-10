@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* VMP Color Variables */
+  --color-primary: #22574A;
+  --color-secondary: #E8DCCA;
+  --color-accent: #D96E49;
+  --color-background: #FCFBF9;
+  --color-text: #555555;
+
+  /* Font Variables */
+  --font-inter: var(--font-inter);
+  --font-poppins: var(--font-poppins);
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  font-family: var(--font-inter);
+  background-color: var(--color-background);
+  color: var(--color-text);
+}
+
+/* Custom component classes */
+@layer components {
+  .btn-primary {
+    @apply bg-primary text-white hover:bg-primary/90 focus:ring-2 focus:ring-primary focus:ring-offset-2;
+  }
+
+  .input-field {
+    @apply appearance-none block w-full px-4 py-3 rounded-lg bg-white/50 border border-gray-300 placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
+  }
+}

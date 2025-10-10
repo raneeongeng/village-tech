@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Stitch Design</title>
+<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL'0, 'wght'400, 'GRAD'0, 'opsz'24
+        }
+    </style>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark">
+<div class="flex min-h-screen">
+<aside class="w-64 bg-white dark:bg-background-dark flex flex-col p-4 border-r border-gray-200 dark:border-gray-800">
+<div class="flex items-center gap-3 mb-8">
+<div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold text-lg">
+                    T
+                </div>
+<h1 class="text-xl font-bold text-gray-900 dark:text-white">TechCo</h1>
+</div>
+<nav class="flex flex-col gap-2">
+<a class="flex items-center gap-3 px-3 py-2 rounded text-gray-700 dark:text-gray-300 hover:bg-primary/10 dark:hover:bg-primary/20" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-gray-700 dark:text-gray-300 hover:bg-primary/10 dark:hover:bg-primary/20" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="text-sm font-medium">Users</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded bg-primary/10 dark:bg-primary/20 text-primary" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">apartment</span>
+<span class="text-sm font-medium">Villages</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-gray-700 dark:text-gray-300 hover:bg-primary/10 dark:hover:bg-primary/20" href="#">
+<span class="material-symbols-outlined">notifications</span>
+<span class="text-sm font-medium">Notifications</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-gray-700 dark:text-gray-300 hover:bg-primary/10 dark:hover:bg-primary/20" href="#">
+<span class="material-symbols-outlined">credit_card</span>
+<span class="text-sm font-medium">Payments</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-gray-700 dark:text-gray-300 hover:bg-primary/10 dark:hover:bg-primary/20" href="#">
+<span class="material-symbols-outlined">bar_chart</span>
+<span class="text-sm font-medium">Reports</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-gray-700 dark:text-gray-300 hover:bg-primary/10 dark:hover:bg-primary/20" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-sm font-medium">Settings</span>
+</a>
+</nav>
+<div class="mt-auto">
+<div class="flex items-center gap-3 p-3 border-t border-gray-200 dark:border-gray-800">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAoeOg3nmVG2wBCkLGbuyLsZrT0kjP8rm-ol1kYpzuvMc8o8lbQv5waPcBuD5_a3WvNDJ-GxSMl0upgOfXbGuXAktO7DmTTXtdXmaL9ipNrzKkg_CcwOfdj6FxHlSECpPnWXPQKJ7oLLHfzwo_myCknmxFCXNkoTbkz6EuvqaENtnA40oy6YouPJ76I86XWC7U6sU2mydhxRt-AoGHX6fgM71H-rHTyYipMoAoYobGtMu57eR5_u1S76yhZeKg7wC7fWruPetnF1uU");'></div>
+<div class="flex flex-col">
+<span class="text-sm font-medium text-gray-900 dark:text-white">Admin User</span>
+<span class="text-xs text-gray-500 dark:text-gray-400">superadmin@techco.io</span>
+</div>
+</div>
+</div>
+</aside>
+<div class="flex-1 flex flex-col">
+<header class="flex items-center justify-between bg-white dark:bg-background-dark p-6 border-b border-gray-200 dark:border-gray-800">
+<div class="flex items-center gap-4">
+<button class="text-gray-500 dark:text-gray-400">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="text-2xl font-bold text-gray-900 dark:text-white">Village Tenant Details</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="flex items-center gap-3">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAoeOg3nmVG2wBCkLGbuyLsZrT0kjP8rm-ol1kYpzuvMc8o8lbQv5waPcBuD5_a3WvNDJ-GxSMl0upgOfXbGuXAktO7DmTTXtdXmaL9ipNrzKkg_CcwOfdj6FxHlSECpPnWXPQKJ7oLLHfzwo_myCknmxFCXNkoTbkz6EuvqaENtnA40oy6YouPJ76I86XWC7U6sU2mydhxRt-AoGHX6fgM71H-rHTyYipMoAoYobGtMu57eR5_u1S76yhZeKg7wC7fWruPetnF1uU");'></div>
+<div class="flex flex-col text-right">
+<span class="text-sm font-semibold text-gray-800 dark:text-white">Jonathan Lee</span>
+<span class="text-xs text-gray-500 dark:text-gray-400">Superadmin</span>
+</div>
+</div>
+</div>
+</header>
+<main class="flex-1 p-6 space-y-6">
+<div class="bg-white dark:bg-background-dark p-6 rounded-lg border border-gray-200 dark:border-gray-800">
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
+<div>
+<h2 class="text-2xl font-bold text-gray-900 dark:text-white">Willow Creek</h2>
+<p class="text-sm text-gray-500 dark:text-gray-400">Tenant ID: VC12345</p>
+</div>
+<div class="flex items-center gap-2 mt-4 sm:mt-0">
+<span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">Active</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div class="lg:col-span-2 space-y-6">
+<div class="bg-white dark:bg-background-dark p-6 rounded-lg border border-gray-200 dark:border-gray-800">
+<h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Basic Information</h3>
+<div class="grid grid-cols-2 gap-4 text-sm">
+<div>
+<p class="text-gray-500 dark:text-gray-400">Created Date</p>
+<p class="font-medium text-gray-800 dark:text-gray-200">2023-08-15</p>
+</div>
+<div>
+<p class="text-gray-500 dark:text-gray-400">Region / Address</p>
+<p class="font-medium text-gray-800 dark:text-gray-200">North, 123 Willow Lane, Suburbia</p>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-background-dark p-6 rounded-lg border border-gray-200 dark:border-gray-800">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-lg font-semibold text-gray-900 dark:text-white">Admin Head Information</h3>
+<button class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700">Reassign Admin Head</button>
+</div>
+<div class="grid grid-cols-2 gap-4 text-sm">
+<div>
+<p class="text-gray-500 dark:text-gray-400">Full Name</p>
+<p class="font-medium text-gray-800 dark:text-gray-200">Ethan Harper</p>
+</div>
+<div>
+<p class="text-gray-500 dark:text-gray-400">Email Address</p>
+<p class="font-medium text-gray-800 dark:text-gray-200">ethan.harper@example.com</p>
+</div>
+<div>
+<p class="text-gray-500 dark:text-gray-400">Contact Number</p>
+<p class="font-medium text-gray-800 dark:text-gray-200">+1 234 567 890</p>
+</div>
+<div>
+<p class="text-gray-500 dark:text-gray-400">Status</p>
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">Active</span>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-background-dark p-6 rounded-lg border border-gray-200 dark:border-gray-800">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-lg font-semibold text-gray-900 dark:text-white">Danger Zone</h3>
+<button class="px-4 py-2 rounded-lg bg-red-600 text-white text-sm font-semibold hover:bg-red-700">Deactivate Tenant</button>
+</div>
+<p class="text-sm text-gray-500 dark:text-gray-400">Deactivating the tenant will revoke all access for its users and admins. This action can be reversed, but requires manual reactivation.</p>
+</div>
+<div class="bg-white dark:bg-background-dark p-6 rounded-lg border border-gray-200 dark:border-gray-800">
+<h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Recent Activity</h3>
+<div class="overflow-x-auto">
+<table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+<thead class="text-xs text-gray-700 dark:text-gray-300 uppercase bg-gray-50 dark:bg-gray-800/50">
+<tr>
+<th class="px-4 py-3" scope="col">Action</th>
+<th class="px-4 py-3" scope="col">Performed By</th>
+<th class="px-4 py-3" scope="col">Timestamp</th>
+</tr>
+</thead>
+<tbody>
+<tr class="bg-white dark:bg-background-dark border-b dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50">
+<td class="px-4 py-4 font-medium text-gray-900 dark:text-white">Admin Head Reassigned</td>
+<td class="px-4 py-4">Jonathan Lee (Superadmin)</td>
+<td class="px-4 py-4">2024-07-28 10:30 AM</td>
+</tr>
+<tr class="bg-white dark:bg-background-dark border-b dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50">
+<td class="px-4 py-4 font-medium text-gray-900 dark:text-white">New Member Added</td>
+<td class="px-4 py-4">Ethan Harper (Admin Head)</td>
+<td class="px-4 py-4">2024-07-27 05:15 PM</td>
+</tr>
+<tr class="bg-white dark:bg-background-dark hover:bg-gray-50 dark:hover:bg-gray-800/50">
+<td class="px-4 py-4 font-medium text-gray-900 dark:text-white">Tenant Activated</td>
+<td class="px-4 py-4">Jonathan Lee (Superadmin)</td>
+<td class="px-4 py-4">2023-08-15 09:00 AM</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="space-y-6">
+<div class="bg-white dark:bg-background-dark p-6 rounded-lg border border-gray-200 dark:border-gray-800">
+<h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Tenant Metadata Summary</h3>
+<div class="space-y-4">
+<div class="flex items-center justify-between p-4 rounded-lg bg-gray-50 dark:bg-gray-800/50">
+<div>
+<p class="text-sm text-gray-500 dark:text-gray-400">Total Members</p>
+<p class="text-2xl font-bold text-gray-900 dark:text-white">1,250</p>
+</div>
+<span class="material-symbols-outlined text-gray-400 dark:text-gray-500 text-3xl">group</span>
+</div>
+<div class="flex items-center justify-between p-4 rounded-lg bg-gray-50 dark:bg-gray-800/50">
+<div>
+<p class="text-sm text-gray-500 dark:text-gray-400">QR Codes Generated</p>
+<p class="text-2xl font-bold text-gray-900 dark:text-white">3,420</p>
+</div>
+<span class="material-symbols-outlined text-gray-400 dark:text-gray-500 text-3xl">qr_code_2</span>
+</div>
+<div class="flex items-center justify-between p-4 rounded-lg bg-gray-50 dark:bg-gray-800/50">
+<div>
+<p class="text-sm text-gray-500 dark:text-gray-400">Last Activity Date</p>
+<p class="text-2xl font-bold text-gray-900 dark:text-white">2024-07-28</p>
+</div>
+<span class="material-symbols-outlined text-gray-400 dark:text-gray-500 text-3xl">event</span>
+</div>
+<div class="flex items-center justify-between p-4 rounded-lg bg-gray-50 dark:bg-gray-800/50">
+<div>
+<p class="text-sm text-gray-500 dark:text-gray-400">Active Admins</p>
+<p class="text-2xl font-bold text-gray-900 dark:text-white">3</p>
+</div>
+<span class="material-symbols-outlined text-gray-400 dark:text-gray-500 text-3xl">shield_person</span>
+</div>
+<div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800/50">
+<p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Storage Usage</p>
+<div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+<div class="bg-primary h-2.5 rounded-full" style="width: 45%"></div>
+</div>
+<p class="text-sm font-medium text-gray-800 dark:text-gray-200 mt-2">4.5 GB / 10 GB</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+
+</body></html>

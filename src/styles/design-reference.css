@@ -1,0 +1,258 @@
+/* Design Reference Styles - Converted from design/login.html */
+
+/*
+ * This file contains styles extracted from the design reference (design/login.html)
+ * and adapted for use with the VMP color palette and component system.
+ */
+
+/* Original design reference colors (commented for reference) */
+/*
+--original-primary: #1173d4;
+--original-background-light: #f6f7f8;
+--original-background-dark: #101922;
+*/
+
+/* VMP color mappings */
+:root {
+  /* Design reference -> VMP color migrations */
+  --dr-primary: var(--color-primary); /* #1173d4 -> #22574A */
+  --dr-background-light: var(--color-background); /* #f6f7f8 -> #FCFBF9 */
+  --dr-background-dark: #101922; /* Keep dark theme */
+
+  /* Design reference specific variables */
+  --dr-form-bg: rgba(255, 255, 255, 0.5);
+  --dr-form-bg-dark: rgba(0, 0, 0, 0.2);
+  --dr-border-color: rgb(209, 213, 219);
+  --dr-border-color-dark: rgb(55, 65, 81);
+  --dr-text-gray: rgb(107, 114, 128);
+  --dr-text-gray-dark: rgb(156, 163, 175);
+}
+
+/* Design reference base layout */
+.dr-split-layout {
+  @apply flex flex-col md:flex-row min-h-screen;
+}
+
+.dr-form-section {
+  @apply w-full md:w-1/2 flex flex-col justify-center items-center p-8 lg:p-12 order-2 md:order-1;
+}
+
+.dr-branding-section {
+  @apply w-full md:w-1/2 flex items-center justify-center order-1 md:order-2 p-8 lg:p-12;
+  background-color: color-mix(in srgb, var(--dr-primary) 10%, transparent);
+}
+
+/* Form styling from design reference */
+.dr-form-container {
+  @apply w-full max-w-md;
+}
+
+.dr-form-header {
+  @apply text-center md:text-left mb-8;
+}
+
+.dr-form-title {
+  @apply text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white;
+}
+
+.dr-form-subtitle {
+  @apply mt-2 text-gray-600 dark:text-gray-400;
+}
+
+.dr-form {
+  @apply space-y-6;
+}
+
+/* Input field styling from design reference */
+.dr-input-group {
+  @apply space-y-1;
+}
+
+.dr-label {
+  @apply block text-sm font-medium text-gray-700 dark:text-gray-300;
+}
+
+.dr-input {
+  @apply appearance-none block w-full px-4 py-3 rounded-lg border placeholder-gray-400 dark:placeholder-gray-500 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:border-transparent;
+  background-color: var(--dr-form-bg);
+  border-color: var(--dr-border-color);
+  --tw-ring-color: var(--dr-primary);
+}
+
+.dr-input:focus {
+  --tw-ring-color: var(--dr-primary);
+}
+
+.dark .dr-input {
+  background-color: var(--dr-form-bg-dark);
+  border-color: var(--dr-border-color-dark);
+}
+
+/* Button styling from design reference */
+.dr-button-primary {
+  @apply w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-offset-2;
+  background-color: var(--dr-primary);
+  --tw-ring-color: var(--dr-primary);
+}
+
+.dr-button-primary:hover {
+  background-color: color-mix(in srgb, var(--dr-primary) 90%, black);
+}
+
+/* Social auth styling from design reference */
+.dr-divider {
+  @apply mt-6;
+}
+
+.dr-divider-line {
+  @apply relative;
+}
+
+.dr-divider-border {
+  @apply absolute inset-0 flex items-center;
+}
+
+.dr-divider-border-line {
+  @apply w-full border-t border-gray-300 dark:border-gray-700;
+}
+
+.dr-divider-text {
+  @apply relative flex justify-center text-sm;
+}
+
+.dr-divider-text span {
+  @apply px-2 text-gray-500 dark:text-gray-400;
+  background-color: var(--dr-background-light);
+}
+
+.dark .dr-divider-text span {
+  background-color: var(--dr-background-dark);
+}
+
+.dr-social-grid {
+  @apply mt-6 grid grid-cols-2 gap-3;
+}
+
+.dr-social-button {
+  @apply w-full inline-flex justify-center py-3 px-4 border rounded-lg shadow-sm text-sm font-medium hover:bg-gray-50 dark:hover:bg-white/5;
+  background-color: var(--dr-form-bg);
+  border-color: var(--dr-border-color);
+  color: var(--dr-text-gray);
+}
+
+.dark .dr-social-button {
+  background-color: var(--dr-form-bg-dark);
+  border-color: var(--dr-border-color-dark);
+  color: var(--dr-text-gray-dark);
+}
+
+/* Branding area styling from design reference */
+.dr-branding-content {
+  @apply text-center text-gray-900 dark:text-white;
+}
+
+.dr-branding-icon {
+  @apply inline-block p-4 rounded-full;
+  background-color: color-mix(in srgb, var(--dr-primary) 20%, transparent);
+}
+
+.dark .dr-branding-icon {
+  background-color: color-mix(in srgb, var(--dr-primary) 30%, transparent);
+}
+
+.dr-branding-icon svg {
+  @apply w-16 h-16;
+  color: var(--dr-primary);
+}
+
+.dr-branding-title {
+  @apply mt-6 text-3xl font-bold;
+}
+
+.dr-branding-description {
+  @apply mt-2 max-w-sm mx-auto;
+}
+
+/* Sign-up link styling */
+.dr-signup-link {
+  @apply mt-8 text-center text-sm text-gray-500 dark:text-gray-400;
+}
+
+.dr-signup-link a {
+  @apply font-medium hover:underline;
+  color: var(--dr-primary);
+}
+
+/* Responsive adjustments matching design reference */
+@media (max-width: 768px) {
+  .dr-form-section {
+    @apply order-1;
+  }
+
+  .dr-branding-section {
+    @apply order-2;
+  }
+
+  .dr-form-header {
+    @apply text-center;
+  }
+}
+
+/* Focus states and accessibility */
+.dr-input:focus-visible,
+.dr-button-primary:focus-visible,
+.dr-social-button:focus-visible {
+  @apply outline-2 outline-offset-2;
+  outline-color: var(--dr-primary);
+}
+
+/* Animation utilities matching design patterns */
+.dr-transition {
+  @apply transition-all duration-200 ease-in-out;
+}
+
+.dr-hover-lift:hover {
+  @apply transform -translate-y-0.5;
+}
+
+/* Loading state styles */
+.dr-loading {
+  @apply opacity-50 pointer-events-none;
+}
+
+.dr-spinner {
+  @apply animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent;
+}
+
+/* Error state styles */
+.dr-input-error {
+  @apply border-red-500 focus:ring-red-500;
+}
+
+.dr-error-text {
+  @apply text-sm text-red-600 dark:text-red-400 mt-1;
+}
+
+/* Success state styles */
+.dr-input-success {
+  @apply border-green-500 focus:ring-green-500;
+}
+
+/* Custom scroll styling for consistency */
+.dr-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--dr-primary) transparent;
+}
+
+.dr-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dr-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dr-scrollbar::-webkit-scrollbar-thumb {
+  background-color: var(--dr-primary);
+  border-radius: 3px;
+}

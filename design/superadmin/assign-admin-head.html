@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Create Village - Superadmin Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                        "foreground-light": "#111418",
+                        "foreground-dark": "#f6f7f8",
+                        "subtle-light": "#617589",
+                        "subtle-dark": "#a0b3c6",
+                        "border-light": "#dbe0e6",
+                        "border-dark": "#303e4c",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#1a2530",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.75rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .form-input,
+        .form-select,
+        .form-textarea {
+            --tw-ring-color: transparent;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-foreground-light dark:text-foreground-dark">
+<div class="flex min-h-screen">
+<aside class="w-64 flex-shrink-0 bg-surface-light dark:bg-surface-dark border-r border-border-light dark:border-border-dark p-4 flex flex-col">
+<div class="flex items-center gap-3 px-2 mb-8">
+<div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-white">reduce_capacity</span>
+</div>
+<h1 class="text-lg font-bold text-foreground-light dark:text-foreground-dark">VillagePlatform</h1>
+</div>
+<nav class="flex-1 flex flex-col gap-2">
+<a class="flex items-center gap-3 px-4 py-2 rounded text-subtle-light dark:text-subtle-dark hover:bg-primary/10 dark:hover:bg-primary/20 hover:text-primary font-medium" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 rounded text-subtle-light dark:text-subtle-dark hover:bg-primary/10 dark:hover:bg-primary/20 hover:text-primary font-medium" href="#">
+<span class="material-symbols-outlined">group</span>
+<span>Users</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 rounded text-primary bg-primary/10 dark:bg-primary/20 font-semibold" href="#">
+<span class="material-symbols-outlined">apartment</span>
+<span>Villages</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 rounded text-subtle-light dark:text-subtle-dark hover:bg-primary/10 dark:hover:bg-primary/20 hover:text-primary font-medium" href="#">
+<span class="material-symbols-outlined">notifications</span>
+<span>Notifications</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 rounded text-subtle-light dark:text-subtle-dark hover:bg-primary/10 dark:hover:bg-primary/20 hover:text-primary font-medium" href="#">
+<span class="material-symbols-outlined">payment</span>
+<span>Payments</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 rounded text-subtle-light dark:text-subtle-dark hover:bg-primary/10 dark:hover:bg-primary/20 hover:text-primary font-medium" href="#">
+<span class="material-symbols-outlined">bar_chart</span>
+<span>Reports</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 rounded text-subtle-light dark:text-subtle-dark hover:bg-primary/10 dark:hover:bg-primary/20 hover:text-primary font-medium" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+<div class="border-t border-border-light dark:border-border-dark pt-4 mt-4">
+<div class="flex items-center gap-3 px-2">
+<div class="w-10 h-10 rounded-full bg-cover bg-center" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuANjtNwh7ubwU1_mF5M6Hi7J92SE3waiK3yA5YxIzwTPK66VL9e-vXfRWCIFPYmRxHjS1H4gp64jF7AJ_Unl9ndu7ieP3CMhWHQyXq46MGyGZWd0eOSTcUhSgCKNpQIWNdjGlM4FFeudDXkruqIo9Q9rxhbT0tiv76gto20ppjWg1r7R0bTvB1xqTH3esrIGtjPBUrluU-bCwI2hmIRGZ__iTxarsIotCXbUJEZduMZLXn-XsUetasmpbTrfF8FSxhtHMQQeo7iaB4");'></div>
+<div>
+<p class="font-semibold text-foreground-light dark:text-foreground-dark">Olivia Rhye</p>
+<p class="text-sm text-subtle-light dark:text-subtle-dark">olivia@example.com</p>
+</div>
+<button class="ml-auto text-subtle-light dark:text-subtle-dark hover:text-primary">
+<span class="material-symbols-outlined">logout</span>
+</button>
+</div>
+</div>
+</aside>
+<div class="flex-1 flex flex-col">
+<header class="flex items-center justify-between h-20 px-8 border-b border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark sticky top-0 z-10">
+<div>
+<h2 class="text-xl font-bold text-foreground-light dark:text-foreground-dark">Create Village</h2>
+<nav aria-label="Breadcrumb" class="flex items-center text-sm font-medium text-subtle-light dark:text-subtle-dark">
+<ol class="list-none p-0 inline-flex">
+<li class="flex items-center">
+<a class="hover:text-primary" href="#">Home</a>
+<span class="material-symbols-outlined text-base mx-1">chevron_right</span>
+</li>
+<li class="flex items-center">
+<a class="hover:text-primary" href="#">Villages</a>
+<span class="material-symbols-outlined text-base mx-1">chevron_right</span>
+</li>
+<li>
+<span class="text-foreground-light dark:text-foreground-dark">Create</span>
+</li>
+</ol>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="relative w-10 h-10 flex items-center justify-center rounded-full bg-background-light dark:bg-background-dark hover:bg-primary/10 dark:hover:bg-primary/20">
+<span class="material-symbols-outlined text-subtle-light dark:text-subtle-dark">notifications</span>
+<div class="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full"></div>
+</button>
+<div class="w-10 h-10 rounded-full bg-cover bg-center" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuANjtNwh7ubwU1_mF5M6Hi7J92SE3waiK3yA5YxIzwTPK66VL9e-vXfRWCIFPYmRxHjS1H4gp64jF7AJ_Unl9ndu7ieP3CMhWHQyXq46MGyGZWd0eOSTcUhSgCKNpQIWNdjGlM4FFeudDXkruqIo9Q9rxhbT0tiv76gto20ppjWg1r7R0bTvB1xqTH3esrIGtjPBUrluU-bCwI2hmIRGZ__iTxarsIotCXbUJEZduMZLXn-XsUetasmpbTrfF8FSxhtHMQQeo7iaB4");'></div>
+</div>
+</header>
+<main class="flex-1 p-8 overflow-y-auto">
+<div class="max-w-5xl mx-auto">
+<div class="mb-8">
+<h3 class="text-2xl font-bold text-foreground-light dark:text-foreground-dark">Register a New Village Tenant</h3>
+<p class="text-subtle-light dark:text-subtle-dark mt-1">Follow the steps to create a new village.</p>
+</div>
+<div class="mb-8">
+<div class="flex items-center">
+<div class="flex items-center text-subtle-light dark:text-subtle-dark relative">
+<div class="rounded-full h-8 w-8 flex items-center justify-center bg-primary/20 text-primary">
+<span class="material-symbols-outlined">check</span>
+</div>
+<span class="ml-4 font-semibold">Village Information</span>
+</div>
+<div class="flex-auto border-t-2 border-primary mx-4"></div>
+<div class="flex items-center text-primary">
+<div class="rounded-full h-8 w-8 flex items-center justify-center bg-primary text-white">2</div>
+<span class="ml-4 font-semibold">Assign Admin Head</span>
+</div>
+</div>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark p-6 sm:p-8 rounded-lg border border-border-light dark:border-border-dark">
+<div>
+<div class="mb-6">
+<h4 class="text-lg font-semibold text-foreground-light dark:text-foreground-dark">Invite New Admin Head</h4>
+<p class="text-sm text-subtle-light dark:text-subtle-dark">Invite a new user to be the admin head for this village.</p>
+</div>
+<div class="space-y-6">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-6">
+<div class="lg:col-span-2">
+<label class="block text-sm font-medium text-subtle-light dark:text-subtle-dark mb-2" for="firstName">First Name</label>
+<input class="form-input w-full bg-background-light dark:bg-background-dark border-border-light dark:border-border-dark rounded h-12 px-4 text-foreground-light dark:text-foreground-dark placeholder:text-subtle-light dark:placeholder:text-subtle-dark focus:border-primary" id="firstName" placeholder="Enter first name" type="text"/>
+</div>
+<div>
+<label class="block text-sm font-medium text-subtle-light dark:text-subtle-dark mb-2" for="middleName">Middle Name</label>
+<input class="form-input w-full bg-background-light dark:bg-background-dark border-border-light dark:border-border-dark rounded h-12 px-4 text-foreground-light dark:text-foreground-dark placeholder:text-subtle-light dark:placeholder:text-subtle-dark focus:border-primary" id="middleName" placeholder="Enter middle name" type="text"/>
+</div>
+<div>
+<label class="block text-sm font-medium text-subtle-light dark:text-subtle-dark mb-2" for="lastName">Last Name</label>
+<input class="form-input w-full bg-background-light dark:bg-background-dark border-border-light dark:border-border-dark rounded h-12 px-4 text-foreground-light dark:text-foreground-dark placeholder:text-subtle-light dark:placeholder:text-subtle-dark focus:border-primary" id="lastName" placeholder="Enter last name" type="text"/>
+</div>
+<div class="lg:col-start-4">
+<label class="block text-sm font-medium text-subtle-light dark:text-subtle-dark mb-2" for="suffix">Suffix (Optional)</label>
+<input class="form-input w-full bg-background-light dark:bg-background-dark border-border-light dark:border-border-dark rounded h-12 px-4 text-foreground-light dark:text-foreground-dark placeholder:text-subtle-light dark:placeholder:text-subtle-dark focus:border-primary" id="suffix" placeholder="e.g. Jr., Sr." type="text"/>
+</div>
+<div class="lg:col-span-2">
+<label class="block text-sm font-medium text-subtle-light dark:text-subtle-dark mb-2" for="email">Email Address</label>
+<input class="form-input w-full bg-background-light dark:bg-background-dark border-border-light dark:border-border-dark rounded h-12 px-4 text-foreground-light dark:text-foreground-dark placeholder:text-subtle-light dark:placeholder:text-subtle-dark focus:border-primary" id="email" placeholder="Enter email address" type="email"/>
+</div>
+<div class="lg:col-span-2">
+<label class="block text-sm font-medium text-subtle-light dark:text-subtle-dark mb-2" for="contactNumber">Contact Number</label>
+<input class="form-input w-full bg-background-light dark:bg-background-dark border-border-light dark:border-border-dark rounded h-12 px-4 text-foreground-light dark:text-foreground-dark placeholder:text-subtle-light dark:placeholder:text-subtle-dark focus:border-primary" id="contactNumber" placeholder="Enter contact number" type="tel"/>
+</div>
+</div>
+<div class="flex justify-end gap-4 pt-6 mt-6 border-t border-border-light dark:border-border-dark">
+<button class="h-12 px-6 font-semibold rounded text-subtle-light dark:text-subtle-dark bg-background-light dark:bg-surface-dark hover:bg-border-light dark:hover:bg-border-dark transition-colors">Cancel</button>
+<button class="h-12 px-6 font-semibold rounded text-white bg-primary hover:bg-primary/90 transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined">send</span>
+<span>Invite</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-8 pt-6 border-t border-border-light dark:border-border-dark flex justify-between items-center">
+<button class="h-12 px-6 font-semibold rounded text-subtle-light dark:text-subtle-dark hover:bg-border-light dark:hover:bg-border-dark transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined">arrow_back</span>
+<span>Previous Step</span>
+</button>
+<div class="flex gap-4">
+<button class="h-12 px-6 font-semibold rounded text-subtle-light dark:text-subtle-dark bg-background-light dark:bg-surface-dark hover:bg-border-light dark:hover:bg-border-dark transition-colors">
+                            Save as Draft
+                        </button>
+<button class="h-12 px-6 font-semibold rounded text-white bg-primary hover:bg-primary/90 transition-colors flex items-center gap-2">
+<span>Create Village</span>
+<span class="material-symbols-outlined">done</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('form', () => ({
+            userType: 'existing',
+        }))
+    })
+    // Simple polyfill for Alpine.js for demo purposes
+    if (typeof Alpine === 'undefined') {
+        const script = document.createElement('script')
+        script.src = "https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js"
+        document.head.appendChild(script)
+    }
+</script>
+</body></html>
