@@ -99,8 +99,8 @@ export function useMockAuth() {
     role: {
       id: 'role-1',
       code: 'admin_head',
-      name: 'Admin Head',
-      description: 'Village administrator with full management permissions',
+      name: 'Head Admin',
+      description: 'Head Administrator with management permissions',
       color_code: '#007bff',
       icon: 'person-gear'
     },

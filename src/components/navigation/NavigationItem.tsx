@@ -58,45 +58,51 @@ export function NavigationItem({
   };
 
   const baseClasses = `
-    flex items-center w-full px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-200
+    flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200
+    ${item.badge ? 'justify-between' : ''}
     ${level > 0 ? 'ml-4' : ''}
     ${isDisabled
       ? 'text-gray-400 cursor-not-allowed opacity-60'
       : isActive
-      ? 'bg-primary-100 text-primary-900 border-r-2 border-primary-500'
-      : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+      ? 'bg-secondary text-primary'
+      : 'text-text hover:bg-secondary/50'
     }
     ${hasChildren && !isDisabled ? 'cursor-pointer' : ''}
     ${className}
   `;
 
   const iconClasses = `
-    flex-shrink-0 w-5 h-5 mr-3
+    material-icons-outlined mr-3
     ${isDisabled
       ? 'text-gray-300'
       : isActive
-      ? 'text-primary-600'
-      : 'text-gray-400'
+      ? 'text-primary'
+      : 'text-text'
     }
   `;
 
-  const content = (
+  const content = item.badge ? (
+    <>
+      <div className="flex items-center">
+        {item.icon && (
+          <span className={iconClasses}>
+            {item.icon}
+          </span>
+        )}
+        <span>{item.label}</span>
+      </div>
+      <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-accent rounded-full">
+        {item.badge}
+      </span>
+    </>
+  ) : (
     <>
       {item.icon && (
         <span className={iconClasses}>
-          {/* Icon will be rendered here - integrate with your icon system */}
-          <span data-icon={item.icon}>📄</span>
+          {item.icon}
         </span>
       )}
-
-      <span className="flex-1 text-left">{item.label}</span>
-
-      {item.metadata?.badge && (
-        <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-          {item.metadata.badge}
-        </span>
-      )}
-
+      <span>{item.label}</span>
       {hasChildren && (
         <span className={`ml-2 transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`}>
           ▶

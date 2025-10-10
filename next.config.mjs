@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: [],
+    domains: ['lh3.googleusercontent.com'],
   },
   // Temporarily disable standalone for simpler Docker build
   // output: 'standalone',

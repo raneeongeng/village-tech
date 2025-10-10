@@ -201,15 +201,15 @@ describe('Navigation Component', () => {
       render(<Navigation />);
 
       const dashboardItem = screen.getByText('Dashboard').closest('a');
-      expect(dashboardItem).toHaveClass('bg-primary-100');
+      expect(dashboardItem).toHaveClass('bg-secondary');
     });
 
     test('does not highlight inactive items', () => {
       render(<Navigation />);
 
       const usersItem = screen.getByText('Users').closest('a');
-      expect(usersItem).not.toHaveClass('bg-primary-100');
-      expect(usersItem).toHaveClass('text-gray-700');
+      expect(usersItem).not.toHaveClass('bg-secondary');
+      expect(usersItem).toHaveClass('text-text');
     });
   });
 

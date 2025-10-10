@@ -14,155 +14,248 @@ export interface NavigationItem {
 
 // All available navigation items
 const ALL_NAVIGATION_ITEMS: Record<string, NavigationItem> = {
+  // Common - Dashboard for all roles
   dashboard: {
     id: 'dashboard',
     label: 'Dashboard',
     href: '/dashboard',
-    icon: 'LayoutDashboard',
+    icon: 'dashboard',
     description: 'Overview and quick actions',
   },
 
   // Superadmin specific
   villages: {
     id: 'villages',
-    label: 'Villages',
+    label: 'Village List',
     href: '/villages',
-    icon: 'Building',
+    icon: 'holiday_village',
     description: 'Manage villages and tenants',
   },
   users: {
     id: 'users',
     label: 'Users',
     href: '/users',
-    icon: 'Users',
+    icon: 'group',
     description: 'Manage system users',
   },
-  payments: {
-    id: 'payments',
+  'superadmin-payments': {
+    id: 'superadmin-payments',
     label: 'Payments',
     href: '/payments',
-    icon: 'CreditCard',
+    icon: 'payment',
+    badge: '3',
     description: 'Payment processing and billing',
   },
-  notifications: {
-    id: 'notifications',
-    label: 'Notifications',
-    href: '/notifications',
-    icon: 'Bell',
-    description: 'System notifications',
+  reports: {
+    id: 'reports',
+    label: 'Reports',
+    href: '/reports',
+    icon: 'assessment',
+    description: 'Analytics and reports',
   },
 
-  // Admin specific
-  households: {
-    id: 'households',
-    label: 'Households',
-    href: '/households',
-    icon: 'Home',
-    description: 'Manage households and residents',
+  // Admin Head specific
+  'household-approvals': {
+    id: 'household-approvals',
+    label: 'Household Approvals',
+    href: '/household-approvals',
+    icon: 'approval',
+    description: 'Review and approve household applications',
   },
-  fees: {
-    id: 'fees',
-    label: 'Fees',
-    href: '/fees',
-    icon: 'DollarSign',
-    description: 'Fee management and collection',
+  'active-households': {
+    id: 'active-households',
+    label: 'Active Households',
+    href: '/active-households',
+    icon: 'home',
+    description: 'Manage active household records',
   },
-  security: {
-    id: 'security',
-    label: 'Security',
-    href: '/security',
-    icon: 'Shield',
-    description: 'Security management',
+  'fees-management': {
+    id: 'fees-management',
+    label: 'Fees Management',
+    href: '/fees-management',
+    icon: 'request_quote',
+    description: 'Configure and manage fees',
+  },
+  'payment-status': {
+    id: 'payment-status',
+    label: 'Payment Status',
+    href: '/payment-status',
+    icon: 'payment',
+    description: 'Monitor payment statuses',
   },
   rules: {
     id: 'rules',
     label: 'Rules',
     href: '/rules',
-    icon: 'FileText',
+    icon: 'rule',
     description: 'Community rules and regulations',
   },
   announcements: {
     id: 'announcements',
     label: 'Announcements',
     href: '/announcements',
-    icon: 'Megaphone',
+    icon: 'campaign',
     description: 'Community announcements',
   },
-  deliveries: {
-    id: 'deliveries',
-    label: 'Deliveries',
-    href: '/deliveries',
-    icon: 'Package',
-    description: 'Package and delivery management',
+  'construction-permits': {
+    id: 'construction-permits',
+    label: 'Construction Permits',
+    href: '/construction-permits',
+    icon: 'engineering',
+    description: 'Construction permit management',
   },
 
-  // Household specific
-  'my-household': {
-    id: 'my-household',
-    label: 'My Household',
-    href: '/my-household',
-    icon: 'Home',
-    description: 'Manage your household',
+  // Admin Officer specific
+  'household-records': {
+    id: 'household-records',
+    label: 'Household Records',
+    href: '/household-records',
+    icon: 'folder',
+    description: 'Household record management',
   },
-  requests: {
-    id: 'requests',
-    label: 'Requests',
-    href: '/requests',
-    icon: 'FileText',
-    description: 'Submit and track requests',
+  'sticker-requests': {
+    id: 'sticker-requests',
+    label: 'Sticker Requests',
+    href: '/sticker-requests',
+    icon: 'local_offer',
+    description: 'Process sticker requests',
   },
-  'my-access': {
-    id: 'my-access',
-    label: 'My Access',
-    href: '/my-access',
-    icon: 'Key',
-    description: 'Your access permissions',
+  'active-stickers': {
+    id: 'active-stickers',
+    label: 'Active Stickers',
+    href: '/active-stickers',
+    icon: 'verified',
+    description: 'Manage active stickers',
   },
-
-  // Security specific
-  guards: {
-    id: 'guards',
-    label: 'Guards',
-    href: '/guards',
-    icon: 'UserCheck',
-    description: 'Manage security personnel',
+  'officer-construction-permits': {
+    id: 'officer-construction-permits',
+    label: 'Construction Permits',
+    href: '/construction-permits',
+    icon: 'engineering',
+    description: 'Construction permit processing',
   },
-  incidents: {
-    id: 'incidents',
-    label: 'Incidents',
-    href: '/incidents',
-    icon: 'AlertTriangle',
-    description: 'Incident reports and management',
+  'manual-payments': {
+    id: 'manual-payments',
+    label: 'Manual Payments',
+    href: '/manual-payments',
+    icon: 'payments',
+    description: 'Process manual payments',
   },
-  'gate-logs': {
-    id: 'gate-logs',
-    label: 'Gate Logs',
-    href: '/gate-logs',
-    icon: 'ClipboardList',
-    description: 'Entry and exit logs',
-  },
-  visitors: {
-    id: 'visitors',
-    label: 'Visitors',
-    href: '/visitors',
-    icon: 'UserPlus',
-    description: 'Visitor management',
+  'resident-inquiries': {
+    id: 'resident-inquiries',
+    label: 'Resident Inquiries',
+    href: '/resident-inquiries',
+    icon: 'help',
+    description: 'Handle resident inquiries',
   },
 
-  // Common
-  reports: {
-    id: 'reports',
-    label: 'Reports',
-    href: '/reports',
-    icon: 'BarChart3',
-    description: 'Analytics and reports',
+  // Household Head specific
+  members: {
+    id: 'members',
+    label: 'Members',
+    href: '/members',
+    icon: 'people',
+    description: 'Manage household members',
   },
-  settings: {
-    id: 'settings',
-    label: 'Settings',
-    href: '/settings',
-    icon: 'Settings',
-    description: 'Application settings',
+  'visitor-management': {
+    id: 'visitor-management',
+    label: 'Visitor Management',
+    href: '/visitor-management',
+    icon: 'person_add',
+    description: 'Manage visitor access',
+  },
+  'active-guest-passes': {
+    id: 'active-guest-passes',
+    label: 'Active Guest Passes',
+    href: '/active-guest-passes',
+    icon: 'badge',
+    description: 'View active guest passes',
+  },
+  'household-sticker-requests': {
+    id: 'household-sticker-requests',
+    label: 'Sticker Requests',
+    href: '/sticker-requests',
+    icon: 'local_offer',
+    description: 'Submit sticker requests',
+  },
+  'service-requests': {
+    id: 'service-requests',
+    label: 'Service Requests',
+    href: '/service-requests',
+    icon: 'build',
+    description: 'Submit and track service requests',
+  },
+  'announcements-rules': {
+    id: 'announcements-rules',
+    label: 'Announcements & Rules',
+    href: '/announcements-rules',
+    icon: 'info',
+    description: 'View announcements and rules',
+  },
+  'fee-status': {
+    id: 'fee-status',
+    label: 'Fee Status',
+    href: '/fee-status',
+    icon: 'receipt',
+    description: 'View fee status and payments',
+  },
+
+  // Security Officer specific
+  'sticker-validation': {
+    id: 'sticker-validation',
+    label: 'Sticker Validation',
+    href: '/sticker-validation',
+    icon: 'verified_user',
+    description: 'Validate vehicle stickers',
+  },
+  'guest-registration': {
+    id: 'guest-registration',
+    label: 'Guest Registration',
+    href: '/guest-registration',
+    icon: 'how_to_reg',
+    description: 'Register guests',
+  },
+  'guest-approval-status': {
+    id: 'guest-approval-status',
+    label: 'Guest Approval Status',
+    href: '/guest-approval-status',
+    icon: 'pending_actions',
+    description: 'Check guest approval status',
+  },
+  'guest-pass-scan': {
+    id: 'guest-pass-scan',
+    label: 'Guest Pass Scan / Entry Log',
+    href: '/guest-pass-scan',
+    icon: 'qr_code_scanner',
+    description: 'Scan guest passes and log entries',
+  },
+  'delivery-logging': {
+    id: 'delivery-logging',
+    label: 'Delivery Logging',
+    href: '/delivery-logging',
+    icon: 'local_shipping',
+    description: 'Log deliveries and packages',
+  },
+  'construction-worker-entry': {
+    id: 'construction-worker-entry',
+    label: 'Construction Worker Entry',
+    href: '/construction-worker-entry',
+    icon: 'construction',
+    description: 'Log construction worker entries',
+  },
+  'incident-report': {
+    id: 'incident-report',
+    label: 'Incident Report',
+    href: '/incident-report',
+    icon: 'report',
+    description: 'Report incidents',
+  },
+  'shift-history': {
+    id: 'shift-history',
+    label: 'Shift History / Logs',
+    href: '/shift-history',
+    icon: 'history',
+    description: 'View shift history and logs',
   },
 }
 

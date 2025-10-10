@@ -1,10 +1,13 @@
 'use client'
 
-import { useMockAuth } from '@/hooks/useAuth'
+import { useAuth, useMockAuth } from '@/hooks/useAuth'
 import { useLayout } from '@/hooks/useLayout'
 import { getRoleDisplayName } from '@/lib/config/roles'
-import { Navigation } from '@/components/navigation'
+import { getNavigationForRole } from '@/lib/config/navigation'
 import * as LucideIcons from 'lucide-react'
+import Image from 'next/image'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 interface SidebarProps {
   isCollapsed?: boolean
@@ -12,80 +15,103 @@ interface SidebarProps {
 }
 
 export function Sidebar({ isCollapsed = false }: SidebarProps) {
-  const { user } = useMockAuth()
+  const { user: realUser } = useAuth()
+  const { user: mockUser } = useMockAuth()
   const { isMobile, setShowMobileSidebar } = useLayout()
+  const pathname = usePathname()
+
+  // Use real user if available, otherwise fall back to mock user for development
+  const user = realUser || mockUser
 
   if (!user) return null
 
+  const userRole = user.role?.code || 'household_head'
+  const navigationItems = getNavigationForRole(userRole)
+
+  // Development logging to verify role detection
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Sidebar: User role detected as:', userRole, 'Navigation items count:', navigationItems.length)
+  }
+
   return (
-    <div className={`bg-white border-r border-gray-200 flex flex-col transition-all duration-300 ${
-      isCollapsed ? 'w-16' : 'w-64'
-    }`}>
-      {/* Logo/Brand */}
-      <div className="flex items-center justify-between h-16 border-b border-gray-200 px-4">
-        <div className="flex items-center">
-          <div className="p-2 rounded-lg bg-primary/10">
-            <svg
-              className="w-6 h-6 text-primary"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path d="M12 2L2 7v10c0 5.55 3.84 9.74 9 11 5.16-1.26 9-5.45 9-11V7l-10-5z"/>
-            </svg>
-          </div>
-          {!isCollapsed && (
-            <span className="ml-2 text-lg font-semibold text-gray-900 font-heading">
-              Village Manager
-            </span>
-          )}
-        </div>
+    <aside className="w-64 flex flex-col bg-white border-r border-gray-200 transition-all duration-300">
+      {/* Branding Header */}
+      <div className="flex items-center justify-center h-16 border-b border-gray-200">
+        <h1 className="text-xl font-bold text-primary">VillageManager</h1>
         {/* Mobile Close Button */}
         {isMobile && (
           <button
             onClick={() => setShowMobileSidebar(false)}
-            className="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
+            className="absolute top-4 right-4 p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
           >
             <LucideIcons.X className="w-5 h-5" />
           </button>
         )}
       </div>
 
-      {/* Navigation */}
-      <div className="flex-1 px-3 py-4 overflow-y-auto">
-        <Navigation
-          variant="sidebar"
-          collapsible={isCollapsed}
-          onItemClick={(item) => {
-            if (isMobile) {
-              setShowMobileSidebar(false)
-            }
-          }}
-          className={isCollapsed ? 'navigation--collapsed' : ''}
-        />
-      </div>
+      {/* Navigation Menu */}
+      <nav className="flex-1 px-4 py-4 space-y-2">
+        {navigationItems.map((item) => {
+          const isActive = pathname === item.href
 
-      {/* User Info */}
-      <div className="border-t border-gray-200 p-4">
+          return (
+            <Link
+              key={item.id}
+              href={item.href}
+              className={`flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200 ${
+                item.badge ? 'justify-between' : ''
+              } ${
+                isActive
+                  ? 'bg-secondary text-primary'
+                  : 'text-text hover:bg-secondary/50'
+              }`}
+              onClick={() => {
+                if (isMobile) {
+                  setShowMobileSidebar(false)
+                }
+              }}
+            >
+              {item.badge ? (
+                <>
+                  <div className="flex items-center">
+                    <span className="material-icons-outlined mr-3">
+                      {item.icon}
+                    </span>
+                    <span>{item.label}</span>
+                  </div>
+                  <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-accent rounded-full">
+                    {item.badge}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="material-icons-outlined mr-3">
+                    {item.icon}
+                  </span>
+                  <span>{item.label}</span>
+                </>
+              )}
+            </Link>
+          )
+        })}
+      </nav>
+
+      {/* User Profile Footer */}
+      <div className="px-4 py-4 border-t border-gray-200">
         <div className="flex items-center">
-          <div className="flex-shrink-0">
-            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-              <span className="text-sm font-medium text-white">
-                {user.email?.charAt(0) || 'U'}
-              </span>
-            </div>
+          <Image
+            alt="user avatar"
+            className="h-10 w-10 rounded-full object-cover"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBAr8sWDFkQSgfV8UwhjtigPYRXG4P3ki_nSeVvDcjFr51cvnsNHNnOJWfAL3fBxepB1D2tgiXo8oyw9SDzLnsE5dMxbhMsDqaeVeoTZ8x3qVuEapAFPRTE0lEwDqCYM240PHut5DB1GwWhB2_jbkqdCWJ0KLvq8R7doRQt8we_U9PGc6juPXSp2MAx8758Lbavv-RjQXAbeRv6P6VwUX7in0_nlE_z6o0bb8qKcjXEUGodLolzzObs8toa4rdb3TuKpV0BHAoPmmY"
+            width={40}
+            height={40}
+          />
+          <div className="ml-3">
+            <p className="text-sm font-medium text-text">{getRoleDisplayName(user.role?.code)}</p>
+            <p className="text-xs text-gray-500">{user.email}</p>
           </div>
-          {!isCollapsed && (
-            <div className="ml-3 min-w-0 flex-1">
-              <p className="text-sm font-medium text-gray-900 truncate">
-                {user.email}
-              </p>
-              <p className="text-xs text-gray-500 truncate">
-                {getRoleDisplayName(user.role?.code)}
-              </p>
-            </div>
-          )}
         </div>
       </div>
-    </div>
+    </aside>
   )
 }

@@ -30,6 +30,11 @@ body {
   color: var(--color-text);
 }
 
+/* Material Icons */
+.material-icons-outlined {
+  font-feature-settings: 'liga';
+}
+
 /* Custom component classes */
 @layer components {
   .btn-primary {

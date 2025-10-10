@@ -2,7 +2,10 @@
   "permissions": {
     "allow": [
       "Bash(cd:*)",
-      "Bash(npm test -- tests/lib/navigation tests/components/navigation --passWithNoTests --silent)"
+      "Bash(npm test -- tests/lib/navigation tests/components/navigation --passWithNoTests --silent)",
+      "Bash(npm test:*)",
+      "Bash(npm run lint)",
+      "Bash(node:*)"
     ],
     "deny": [],
     "ask": []
