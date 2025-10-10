@@ -2,6 +2,7 @@
 
 import { useAuth, useMockAuth } from '@/hooks/useAuth'
 import { useLayout } from '@/hooks/useLayout'
+import { useContentView } from '@/hooks/useContentView'
 import { getRoleDisplayName } from '@/lib/config/roles'
 import { getNavigationForRole } from '@/lib/config/navigation'
 import * as LucideIcons from 'lucide-react'
@@ -18,6 +19,7 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
   const { user: realUser } = useAuth()
   const { user: mockUser } = useMockAuth()
   const { isMobile, setShowMobileSidebar } = useLayout()
+  const { activeView, setActiveView } = useContentView()
   const pathname = usePathname()
 
   // Use real user if available, otherwise fall back to mock user for development
@@ -52,24 +54,24 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
       {/* Navigation Menu */}
       <nav className="flex-1 px-4 py-4 space-y-2">
         {navigationItems.map((item) => {
-          const isActive = pathname === item.href
+          const isActive = activeView === item.id
 
           return (
-            <Link
+            <button
               key={item.id}
-              href={item.href}
-              className={`flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200 ${
+              onClick={() => {
+                setActiveView(item.id)
+                if (isMobile) {
+                  setShowMobileSidebar(false)
+                }
+              }}
+              className={`w-full flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200 ${
                 item.badge ? 'justify-between' : ''
               } ${
                 isActive
                   ? 'bg-secondary text-primary'
                   : 'text-text hover:bg-secondary/50'
               }`}
-              onClick={() => {
-                if (isMobile) {
-                  setShowMobileSidebar(false)
-                }
-              }}
             >
               {item.badge ? (
                 <>
@@ -91,7 +93,7 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
                   <span>{item.label}</span>
                 </>
               )}
-            </Link>
+            </button>
           )
         })}
       </nav>

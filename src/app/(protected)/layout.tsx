@@ -3,6 +3,7 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { LayoutProvider, useLayout } from '@/hooks/useLayout'
+import { ContentViewProvider } from '@/hooks/useContentView'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { Header } from '@/components/layout/Header'
 import { useAuth } from '@/hooks/useAuth'
@@ -80,7 +81,9 @@ export default function ProtectedLayout({
 }) {
   return (
     <LayoutProvider>
-      <LayoutContent>{children}</LayoutContent>
+      <ContentViewProvider>
+        <LayoutContent>{children}</LayoutContent>
+      </ContentViewProvider>
     </LayoutProvider>
   )
 }

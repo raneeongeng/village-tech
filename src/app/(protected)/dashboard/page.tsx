@@ -1,6 +1,7 @@
 'use client'
 
 import { useAuth } from '@/hooks/useAuth'
+import { useContentView } from '@/hooks/useContentView'
 import { hasPermission } from '@/lib/auth'
 import {
   Users,
@@ -14,6 +15,8 @@ import {
   CheckCircle,
   Clock
 } from 'lucide-react'
+import { InlineComingSoonResponsive } from '@/components/common/InlineComingSoon'
+import { getFeatureConfig } from '@/lib/navigation/featureNames'
 
 // Dashboard widgets based on user role
 function SuperAdminDashboard() {
@@ -318,6 +321,7 @@ function RecentActivityCard({ activities }: { activities: string[] }) {
 
 export default function DashboardPage() {
   const { user } = useAuth()
+  const { activeView, isComingSoon } = useContentView()
 
   if (!user) {
     return (
@@ -355,22 +359,69 @@ export default function DashboardPage() {
     }
   }
 
-  return (
-    <div className="max-w-7xl mx-auto">
-      {/* Welcome Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 font-heading">
-          Welcome back, {user.first_name}!
-        </h1>
-        <p className="text-gray-600 mt-2">
-          Logged in as <span className="font-medium" style={{ color: user.role.color_code }}>
-            {user.role.name}
-          </span>
+  // Render coming soon content if activeView is a coming soon feature
+  const renderComingSoon = () => {
+    const featureConfig = getFeatureConfig(activeView)
+    if (!featureConfig) {
+      return (
+        <InlineComingSoonResponsive
+          featureName="Feature"
+          icon="construction"
+          description="This feature is currently under development. Check back soon!"
+        />
+      )
+    }
+
+    return (
+      <InlineComingSoonResponsive
+        featureName={featureConfig.name}
+        icon={featureConfig.icon}
+        description={featureConfig.description}
+      />
+    )
+  }
+
+  // Main content renderer
+  const renderContent = () => {
+    if (isComingSoon) {
+      return renderComingSoon()
+    }
+
+    // Only show dashboard content if activeView is 'dashboard'
+    if (activeView === 'dashboard') {
+      return (
+        <>
+          {/* Welcome Header */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 font-heading">
+              Welcome back, {user.first_name}!
+            </h1>
+            <p className="text-gray-600 mt-2">
+              Logged in as <span className="font-medium" style={{ color: user.role.color_code }}>
+                {user.role.name}
+              </span>
+            </p>
+          </div>
+
+          {/* Role-based Dashboard Content */}
+          {renderDashboard()}
+        </>
+      )
+    }
+
+    // Fallback for unknown views
+    return (
+      <div className="text-center py-12">
+        <p className="text-lg text-gray-600">
+          Content not found for view: {activeView}
         </p>
       </div>
+    )
+  }
 
-      {/* Role-based Dashboard Content */}
-      {renderDashboard()}
+  return (
+    <div className="max-w-7xl mx-auto min-h-[600px]">
+      {renderContent()}
     </div>
   )
 }
