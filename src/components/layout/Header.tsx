@@ -44,16 +44,6 @@ export function Header({ onMenuClick, showMenuButton = false }: HeaderProps) {
           </button>
         )}
 
-        <div className="ml-4 lg:ml-0">
-          <h1 className="text-xl font-semibold text-gray-900 font-heading">
-            {getPageTitle()}
-          </h1>
-          {activeItem?.description && (
-            <p className="text-sm text-gray-500 mt-0.5">
-              {activeItem.description}
-            </p>
-          )}
-        </div>
       </div>
 
       <div className="flex items-center space-x-4">

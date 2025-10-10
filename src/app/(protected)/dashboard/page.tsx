@@ -17,42 +17,59 @@ import {
 } from 'lucide-react'
 import { InlineComingSoonResponsive } from '@/components/common/InlineComingSoon'
 import { getFeatureConfig } from '@/lib/navigation/featureNames'
+import { StatCard as DashboardStatCard } from '@/components/dashboard/StatCard'
+import { VillageTable } from '@/components/dashboard/VillageTable'
+import { useDashboardStats } from '@/hooks/useDashboardStats'
+import { useRecentVillages } from '@/hooks/useRecentVillages'
 
 // Dashboard widgets based on user role
 function SuperAdminDashboard() {
+  const { totalVillages, activeVillages, inactiveVillages, refetchAll } = useDashboardStats()
+  const { data: recentVillages, loading: villagesLoading, error: villagesError, refetch: refetchVillages } = useRecentVillages(5)
+
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900">System Overview</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard
+    <div className="space-y-8">
+      {/* Header with Create New Village Button */}
+      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+        <h1 className="text-3xl font-bold text-gray-900">Dashboard Overview</h1>
+        <button className="flex h-10 items-center justify-center gap-2 rounded-lg bg-primary px-5 text-sm font-medium text-white shadow-sm hover:bg-primary/90">
+          <span className="material-icons-outlined text-xl">add</span>
+          Create New Village
+        </button>
+      </div>
+
+      {/* Statistics Cards Grid */}
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <DashboardStatCard
+          title="Total Villages"
+          value={totalVillages.data ?? 0}
+          loading={totalVillages.loading}
+          error={totalVillages.error}
+          onRetry={() => refetchAll()}
+        />
+        <DashboardStatCard
           title="Active Villages"
-          value="12"
-          change="+2 this month"
-          icon={<Home className="w-6 h-6 text-green-600" />}
-          color="green"
+          value={activeVillages.data ?? 0}
+          loading={activeVillages.loading}
+          error={activeVillages.error}
+          onRetry={() => refetchAll()}
         />
-        <StatCard
-          title="Total Users"
-          value="1,248"
-          change="+89 this week"
-          icon={<Users className="w-6 h-6 text-blue-600" />}
-          color="blue"
-        />
-        <StatCard
-          title="System Health"
-          value="98.9%"
-          change="Uptime"
-          icon={<Activity className="w-6 h-6 text-purple-600" />}
-          color="purple"
-        />
-        <StatCard
-          title="Support Tickets"
-          value="23"
-          change="5 pending"
-          icon={<AlertCircle className="w-6 h-6 text-orange-600" />}
-          color="orange"
+        <DashboardStatCard
+          title="Inactive Villages"
+          value={inactiveVillages.data ?? 0}
+          loading={inactiveVillages.loading}
+          error={inactiveVillages.error}
+          onRetry={() => refetchAll()}
         />
       </div>
+
+      {/* Recent Villages Table */}
+      <VillageTable
+        villages={recentVillages}
+        loading={villagesLoading}
+        error={villagesError}
+        onRetry={refetchVillages}
+      />
     </div>
   )
 }
