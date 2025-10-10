@@ -1,8 +1,22 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { useContentView } from '@/hooks/useContentView'
-import { hasPermission } from '@/lib/auth'
+import { usePathname } from 'next/navigation'
+import { getNavigationForRole } from '@/lib/config/navigation'
+import { InlineComingSoonResponsive } from '@/components/common/InlineComingSoon'
+import { getFeatureConfig } from '@/lib/navigation/featureNames'
+import { StatCard as DashboardStatCard } from '@/components/dashboard/StatCard'
+import { VillageTable } from '@/components/dashboard/VillageTable'
+import { useDashboardStats } from '@/hooks/useDashboardStats'
+import { useRecentVillages } from '@/hooks/useRecentVillages'
+// Village List components
+import { useVillages } from '@/hooks/useVillages'
+import { useLookupValues } from '@/hooks/useLookupValues'
+import { VillageFilters } from '@/components/villages/VillageFilters'
+import { VillageTable as VillageListTable } from '@/components/villages/VillageTable'
+import { CreateVillageModal } from '@/components/villages/CreateVillageModal'
 import {
   Users,
   Home,
@@ -15,21 +29,6 @@ import {
   CheckCircle,
   Clock
 } from 'lucide-react'
-import { InlineComingSoonResponsive } from '@/components/common/InlineComingSoon'
-import { getFeatureConfig } from '@/lib/navigation/featureNames'
-import { StatCard as DashboardStatCard } from '@/components/dashboard/StatCard'
-import { VillageTable } from '@/components/dashboard/VillageTable'
-import { useDashboardStats } from '@/hooks/useDashboardStats'
-import { useRecentVillages } from '@/hooks/useRecentVillages'
-// Village List components
-import { useState, useEffect } from 'react'
-import { useVillages } from '@/hooks/useVillages'
-import { useLookupValues } from '@/hooks/useLookupValues'
-import { VillageFilters } from '@/components/villages/VillageFilters'
-import { VillageTable as VillageListTable } from '@/components/villages/VillageTable'
-import { CreateVillageModal } from '@/components/villages/CreateVillageModal'
-import { usePathname } from 'next/navigation'
-import { getNavigationForRole } from '@/lib/config/navigation'
 
 // Dashboard widgets based on user role
 function SuperAdminDashboard() {
@@ -345,7 +344,7 @@ function RecentActivityCard({ activities }: { activities: string[] }) {
   )
 }
 
-// Village List component for content view
+// Village List component
 function VillageListContent() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const {
@@ -366,7 +365,7 @@ function VillageListContent() {
   } = useLookupValues()
 
   const handleCreateSuccess = () => {
-    refetch() // Refresh the village list after successful creation
+    refetch()
   }
 
   const isLoading = loading || lookupLoading
@@ -439,7 +438,7 @@ function VillageListContent() {
   )
 }
 
-export default function DashboardPage() {
+export function ContentRenderer() {
   const { user } = useAuth()
   const { activeView, setActiveView, isComingSoon } = useContentView()
   const pathname = usePathname()
@@ -482,7 +481,7 @@ export default function DashboardPage() {
 
   const roleCode = user.role.code
 
-  // Render different dashboard based on user role
+  // Render dashboard based on user role
   const renderDashboard = () => {
     switch (roleCode) {
       case 'superadmin':
@@ -549,7 +548,7 @@ export default function DashboardPage() {
       return renderComingSoon()
     }
 
-    // Only show dashboard content if activeView is 'dashboard'
+    // Show dashboard content if activeView is 'dashboard'
     if (activeView === 'dashboard') {
       return (
         <>
@@ -587,4 +586,3 @@ export default function DashboardPage() {
     </div>
   )
 }
-

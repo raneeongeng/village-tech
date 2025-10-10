@@ -6,6 +6,7 @@ import { LayoutProvider, useLayout } from '@/hooks/useLayout'
 import { ContentViewProvider } from '@/hooks/useContentView'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { Header } from '@/components/layout/Header'
+import { ContentRenderer } from '@/components/layout/ContentRenderer'
 import { useAuth } from '@/hooks/useAuth'
 
 function LayoutContent({ children }: { children: React.ReactNode }) {
@@ -65,7 +66,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
           />
           <div className="flex-1 overflow-auto">
             <div className="p-4 lg:p-8">
-              {children}
+              <ContentRenderer />
             </div>
           </div>
         </main>

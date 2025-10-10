@@ -216,7 +216,9 @@ export function getFeatureDescription(itemId: string): string {
  * Check if a navigation item should show coming soon content
  */
 export function isComingSoonFeature(itemId: string): boolean {
-  return itemId !== 'dashboard' && FEATURE_CONFIG.hasOwnProperty(itemId)
+  // Exclude implemented features
+  const implementedFeatures = ['dashboard', 'villages']
+  return !implementedFeatures.includes(itemId) && FEATURE_CONFIG.hasOwnProperty(itemId)
 }
 
 /**

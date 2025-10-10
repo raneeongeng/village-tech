@@ -8,7 +8,7 @@ import { getNavigationForRole } from '@/lib/config/navigation'
 import * as LucideIcons from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 
 interface SidebarProps {
   isCollapsed?: boolean
@@ -21,6 +21,7 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
   const { isMobile, setShowMobileSidebar } = useLayout()
   const { activeView, setActiveView } = useContentView()
   const pathname = usePathname()
+  const router = useRouter()
 
   // Use real user if available, otherwise fall back to mock user for development
   const user = realUser || mockUser
@@ -56,15 +57,22 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
         {navigationItems.map((item) => {
           const isActive = activeView === item.id
 
+          const handleNavigation = () => {
+            // Update content view for seamless transition
+            setActiveView(item.id)
+
+            // Update URL without page reload
+            router.push(item.href, { scroll: false })
+
+            if (isMobile) {
+              setShowMobileSidebar(false)
+            }
+          }
+
           return (
             <button
               key={item.id}
-              onClick={() => {
-                setActiveView(item.id)
-                if (isMobile) {
-                  setShowMobileSidebar(false)
-                }
-              }}
+              onClick={handleNavigation}
               className={`w-full flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200 ${
                 item.badge ? 'justify-between' : ''
               } ${
