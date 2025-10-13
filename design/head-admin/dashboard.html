@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Village Management Dashboard</title>
+<link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+<link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Nunito:wght@400;500;700;900&amp;family=Poppins:wght@400;500;700;900" onload="this.rel='stylesheet'" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style type="text/tailwindcss">
+    :root {
+        --primary-color: #4A90E2;
+        --secondary-color: #50E3C2;
+        --accent-color: #F5A623;
+        --neutral-light: #F8F9FA;
+        --neutral-dark: #1A202C;
+        --text-light: #E2E8F0;
+        --text-dark: #2D3748;
+    }
+  </style>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+</head>
+<body class="bg-neutral-light dark:bg-neutral-dark font-['Nunito'] text-text-dark dark:text-text-light">
+<div class="flex h-screen">
+<div class="flex flex-col flex-1">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-gray-200 dark:border-gray-700 px-6 md:px-10 py-4 bg-white dark:bg-gray-800 shadow-sm">
+<div class="flex items-center gap-3">
+<div class="p-2 bg-blue-100 dark:bg-blue-900/50 text-[var(--primary-color)] rounded-lg">
+<span class="material-symbols-outlined">holiday_village</span>
+</div>
+<h1 class="text-xl font-bold text-gray-900 dark:text-white">Village Dashboard</h1>
+</div>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-sm font-medium text-[var(--primary-color)] dark:text-[var(--primary-color)]" href="#">Dashboard</a>
+<a class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-[var(--primary-color)] dark:hover:text-[var(--primary-color)] transition-colors" href="#">Households</a>
+<a class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-[var(--primary-color)] dark:hover:text-[var(--primary-color)] transition-colors" href="#">Fees</a>
+<a class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-[var(--primary-color)] dark:hover:text-[var(--primary-color)] transition-colors" href="#">Announcements</a>
+<a class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-[var(--primary-color)] dark:hover:text-[var(--primary-color)] transition-colors" href="#">Rules</a>
+</nav>
+<div class="flex items-center gap-4">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAMXpQ-7xl_wy8uwkcd31lIiUgZnCQQED1qXY1Rng4sqJd43mvDwMBKi4heuffyO-PMO12rRt7afGsx3L147B1lq0TM7e0aZVFpBEuCXNGOYfwRm9IrcAcBcyVjc4ltOyFN4kt1d4JxEioa2Wfg0aCsOdyCOMXezuwn6gLi2Nzi2vRCHuaglhge8rSqH0WmewixV4HV1WZsEaEaLQtaHwCAJdVbXPbcj_iF6bXWrKdh91Io3uE_frQqAsN6XQscSXPVREE0Wg_9uS8");'></div>
+</div>
+</header>
+<main class="flex-1 overflow-y-auto p-6 md:p-8">
+<div class="max-w-screen-xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+<div class="lg:col-span-2 space-y-8">
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+<div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-300 flex items-center gap-4">
+<div class="bg-blue-100 dark:bg-blue-900/50 text-blue-500 p-3 rounded-lg"><span class="material-symbols-outlined">pending_actions</span></div>
+<div>
+<p class="text-sm text-gray-500 dark:text-gray-400">Pending Applications</p>
+<p class="text-2xl font-bold text-gray-800 dark:text-white">5</p>
+</div>
+</div>
+<div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-300 flex items-center gap-4">
+<div class="bg-green-100 dark:bg-green-900/50 text-green-500 p-3 rounded-lg"><span class="material-symbols-outlined">payments</span></div>
+<div>
+<p class="text-sm text-gray-500 dark:text-gray-400">Fee Collection</p>
+<p class="text-2xl font-bold text-gray-800 dark:text-white">92%</p>
+</div>
+</div>
+<div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-300 flex items-center gap-4">
+<div class="bg-yellow-100 dark:bg-yellow-900/50 text-yellow-500 p-3 rounded-lg"><span class="material-symbols-outlined">gavel</span></div>
+<div>
+<p class="text-sm text-gray-500 dark:text-gray-400">Active Rules</p>
+<p class="text-2xl font-bold text-gray-800 dark:text-white">12</p>
+</div>
+</div>
+<div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-300 flex items-center gap-4">
+<div class="bg-purple-100 dark:bg-purple-900/50 text-purple-500 p-3 rounded-lg"><span class="material-symbols-outlined">campaign</span></div>
+<div>
+<p class="text-sm text-gray-500 dark:text-gray-400">Active Announcements</p>
+<p class="text-2xl font-bold text-gray-800 dark:text-white">3</p>
+</div>
+</div>
+<div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-300 flex items-center gap-4">
+<div class="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-500 p-3 rounded-lg"><span class="material-symbols-outlined">groups</span></div>
+<div>
+<p class="text-sm text-gray-500 dark:text-gray-400">Total Households</p>
+<p class="text-2xl font-bold text-gray-800 dark:text-white">256</p>
+</div>
+</div>
+<div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-300 flex items-center gap-4">
+<div class="bg-red-100 dark:bg-red-900/50 text-red-500 p-3 rounded-lg"><span class="material-symbols-outlined">local_police</span></div>
+<div>
+<p class="text-sm text-gray-500 dark:text-gray-400">Security Incidents</p>
+<p class="text-2xl font-bold text-gray-800 dark:text-white">1</p>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm">
+<h3 class="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-4">Fee Collection Performance</h3>
+<div class="h-60">
+<canvas id="feeChart"></canvas>
+</div>
+</div>
+<div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm">
+<h3 class="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-4">Household Growth</h3>
+<div class="h-60">
+<canvas id="householdChart"></canvas>
+</div>
+</div>
+</div>
+<div>
+<h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">Quick Actions</h3>
+<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+<a class="flex flex-col items-center justify-center text-center p-4 bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:bg-blue-50 dark:hover:bg-gray-700/50 transition-colors group" href="#">
+<span class="material-symbols-outlined text-3xl text-blue-500 mb-2">person_add</span>
+<span class="text-xs font-medium text-gray-600 dark:text-gray-300">Approve Household</span>
+</a>
+<a class="flex flex-col items-center justify-center text-center p-4 bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:bg-purple-50 dark:hover:bg-gray-700/50 transition-colors group" href="#">
+<span class="material-symbols-outlined text-3xl text-purple-500 mb-2">post_add</span>
+<span class="text-xs font-medium text-gray-600 dark:text-gray-300">Post Announcement</span>
+</a>
+<a class="flex flex-col items-center justify-center text-center p-4 bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:bg-green-50 dark:hover:bg-gray-700/50 transition-colors group" href="#">
+<span class="material-symbols-outlined text-3xl text-green-500 mb-2">receipt_long</span>
+<span class="text-xs font-medium text-gray-600 dark:text-gray-300">View Fee Records</span>
+</a>
+<a class="flex flex-col items-center justify-center text-center p-4 bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:bg-red-50 dark:hover:bg-gray-700/50 transition-colors group" href="#">
+<span class="material-symbols-outlined text-3xl text-red-500 mb-2">security</span>
+<span class="text-xs font-medium text-gray-600 dark:text-gray-300">Monitor Security</span>
+</a>
+<a class="flex flex-col items-center justify-center text-center p-4 bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:bg-yellow-50 dark:hover:bg-gray-700/50 transition-colors group" href="#">
+<span class="material-symbols-outlined text-3xl text-yellow-500 mb-2">edit_document</span>
+<span class="text-xs font-medium text-gray-600 dark:text-gray-300">Manage Rules</span>
+</a>
+</div>
+</div>
+</div>
+<div class="lg:col-span-1 space-y-8">
+<div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-lg font-semibold text-gray-700 dark:text-gray-200">Announcements</h3>
+<a class="text-sm font-medium text-[var(--primary-color)] hover:underline" href="#">View All</a>
+</div>
+<div class="space-y-4">
+<div class="border-b dark:border-gray-700 pb-3">
+<p class="font-semibold text-gray-800 dark:text-white">Community Hall Maintenance</p>
+<p class="text-sm text-gray-500 dark:text-gray-400">Scheduled for this weekend...</p>
+<p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Posted: Oct 26, 2023</p>
+</div>
+<div class="border-b dark:border-gray-700 pb-3">
+<p class="font-semibold text-gray-800 dark:text-white">Upcoming General Assembly</p>
+<p class="text-sm text-gray-500 dark:text-gray-400">All homeowners are invited...</p>
+<p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Posted: Oct 24, 2023</p>
+</div>
+<div>
+<p class="font-semibold text-gray-800 dark:text-white">New Garbage Collection Schedule</p>
+<p class="text-sm text-gray-500 dark:text-gray-400">Starting next month, the schedule will be...</p>
+<p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Posted: Oct 22, 2023</p>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm">
+<h3 class="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-4">Recent Activity</h3>
+<ul class="space-y-4">
+<li class="flex items-start gap-3">
+<div class="bg-green-100 dark:bg-green-900/50 text-green-500 p-2 rounded-full"><span class="material-symbols-outlined text-base">check</span></div>
+<div>
+<p class="text-sm text-gray-700 dark:text-gray-300"><span class="font-semibold">Household #102</span> paid monthly dues.</p>
+<p class="text-xs text-gray-400 dark:text-gray-500">2 hours ago</p>
+</div>
+</li>
+<li class="flex items-start gap-3">
+<div class="bg-blue-100 dark:bg-blue-900/50 text-blue-500 p-2 rounded-full"><span class="material-symbols-outlined text-base">person_add</span></div>
+<div>
+<p class="text-sm text-gray-700 dark:text-gray-300">New household application from <span class="font-semibold">John Doe</span>.</p>
+<p class="text-xs text-gray-400 dark:text-gray-500">5 hours ago</p>
+</div>
+</li>
+<li class="flex items-start gap-3">
+<div class="bg-purple-100 dark:bg-purple-900/50 text-purple-500 p-2 rounded-full"><span class="material-symbols-outlined text-base">campaign</span></div>
+<div>
+<p class="text-sm text-gray-700 dark:text-gray-300">New announcement posted: <span class="font-semibold">Community Hall Maintenance</span>.</p>
+<p class="text-xs text-gray-400 dark:text-gray-500">1 day ago</p>
+</div>
+</li>
+<li class="flex items-start gap-3">
+<div class="bg-red-100 dark:bg-red-900/50 text-red-500 p-2 rounded-full"><span class="material-symbols-outlined text-base">report</span></div>
+<div>
+<p class="text-sm text-gray-700 dark:text-gray-300">Security report filed for <span class="font-semibold">Gate 2</span>.</p>
+<p class="text-xs text-gray-400 dark:text-gray-500">2 days ago</p>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+<script>
+    const feeCtx = document.getElementById('feeChart').getContext('2d');
+    const householdCtx = document.getElementById('householdChart').getContext('2d');
+    const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+    const textColor = isDarkMode ? '#E2E8F0' : '#2D3748';
+    const feeGradient = feeCtx.createLinearGradient(0, 0, 0, 240);
+    feeGradient.addColorStop(0, 'rgba(80, 227, 194, 0.5)');
+    feeGradient.addColorStop(1, 'rgba(80, 227, 194, 0)');
+    const householdGradient = householdCtx.createLinearGradient(0, 0, 0, 240);
+    householdGradient.addColorStop(0, 'rgba(74, 144, 226, 0.5)');
+    householdGradient.addColorStop(1, 'rgba(74, 144, 226, 0)');
+    new Chart(feeCtx, {
+      type: 'line',
+      data: {
+        labels: ['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
+        datasets: [{
+          label: 'Collection Rate',
+          data: [85, 88, 90, 89, 93, 92],
+          backgroundColor: feeGradient,
+          borderColor: '#50E3C2',
+          borderWidth: 2,
+          pointBackgroundColor: '#50E3C2',
+          pointBorderColor: '#fff',
+          pointHoverBackgroundColor: '#fff',
+          pointHoverBorderColor: '#50E3C2',
+          tension: 0.4,
+          fill: true,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: gridColor },
+            ticks: { color: textColor }
+          },
+          x: {
+            grid: { display: false },
+            ticks: { color: textColor }
+          }
+        }
+      }
+    });
+    new Chart(householdCtx, {
+      type: 'bar',
+      data: {
+        labels: ['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
+        datasets: [{
+          label: 'New Households',
+          data: [3, 5, 4, 7, 6, 8],
+          backgroundColor: householdGradient,
+          borderColor: '#4A90E2',
+          borderWidth: 2,
+          borderRadius: 6,
+          hoverBackgroundColor: 'rgba(74, 144, 226, 0.7)'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: gridColor },
+            ticks: { color: textColor, stepSize: 2 }
+          },
+          x: {
+            grid: { display: false },
+            ticks: { color: textColor }
+          }
+        }
+      }
+    });
+  </script>
+
+</body></html>

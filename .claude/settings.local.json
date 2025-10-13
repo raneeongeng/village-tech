@@ -5,7 +5,18 @@
       "Bash(npm test -- tests/lib/navigation tests/components/navigation --passWithNoTests --silent)",
       "Bash(npm test:*)",
       "Bash(npm run lint)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "WebSearch",
+      "Bash(npm install:*)",
+      "Bash(git checkout:*)",
+      "Bash(npm run type-check:*)",
+      "Bash(grep:*)",
+      "Bash(find:*)",
+      "Bash(for dir in active-households announcements construction-permits fees-management guest-registration household-approvals household-records members payment-status payments reports rules sticker-requests sticker-validation users visitor-management)",
+      "Bash(do if [ -d \"src/app/$dir\" ])",
+      "Bash(then mv \"src/app/$dir\" \"src/app/(protected)/$dir\")",
+      "Bash(fi)",
+      "Bash(done)"
     ],
     "deny": [],
     "ask": []

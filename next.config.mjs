@@ -3,8 +3,8 @@ const nextConfig = {
   images: {
     domains: ['lh3.googleusercontent.com'],
   },
-  // Temporarily disable standalone for simpler Docker build
-  // output: 'standalone',
+  // Enable standalone output for Docker deployment
+  output: 'standalone',
   experimental: {
     // Enable server components by default
     serverComponentsExternalPackages: [],

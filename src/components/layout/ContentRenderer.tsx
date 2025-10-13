@@ -30,6 +30,7 @@ import {
   CheckCircle,
   Clock
 } from 'lucide-react'
+import { HeadAdminDashboard as HeadAdminDashboardComponent } from '@/components/dashboard/head-admin/HeadAdminDashboard'
 
 // Dashboard widgets based on user role
 function SuperAdminDashboard() {
@@ -84,61 +85,8 @@ function SuperAdminDashboard() {
 }
 
 function AdminHeadDashboard() {
-  return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900">Village Management</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard
-          title="Active Households"
-          value="156"
-          change="+3 this month"
-          icon={<Home className="w-6 h-6 text-green-600" />}
-          color="green"
-        />
-        <StatCard
-          title="Monthly Revenue"
-          value="₱245,000"
-          change="+12.5%"
-          icon={<DollarSign className="w-6 h-6 text-blue-600" />}
-          color="blue"
-        />
-        <StatCard
-          title="Security Alerts"
-          value="3"
-          change="2 resolved today"
-          icon={<Shield className="w-6 h-6 text-red-600" />}
-          color="red"
-        />
-        <StatCard
-          title="Pending Approvals"
-          value="8"
-          change="Guest passes & permits"
-          icon={<Clock className="w-6 h-6 text-orange-600" />}
-          color="orange"
-        />
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <QuickActionsCard
-          title="Management Actions"
-          actions={[
-            { label: "Approve Guest Passes", count: 5, href: "/guest-passes" },
-            { label: "Review Fee Payments", count: 12, href: "/fees" },
-            { label: "Security Incidents", count: 2, href: "/security" },
-            { label: "Village Rules Updates", count: 1, href: "/rules" },
-          ]}
-        />
-        <RecentActivityCard
-          activities={[
-            "New household registration approved",
-            "Monthly fee payment received from Lot 245",
-            "Security incident reported at Gate 2",
-            "Construction permit submitted for Lot 123",
-          ]}
-        />
-      </div>
-    </div>
-  )
+  // Use the new HeadAdminDashboard component with real data
+  return <HeadAdminDashboardComponent />
 }
 
 function AdminOfficerDashboard() {
@@ -620,6 +568,11 @@ export function ContentRenderer() {
 
     // Show dashboard content if activeView is 'dashboard'
     if (activeView === 'dashboard') {
+      // admin_head uses HeadAdminDashboard which has its own header
+      if (user.role.code === 'admin_head') {
+        return renderDashboard()
+      }
+
       return (
         <>
           {/* Welcome Header */}

@@ -21,6 +21,7 @@ import { StatCard as DashboardStatCard } from '@/components/dashboard/StatCard'
 import { VillageTable } from '@/components/dashboard/VillageTable'
 import { useDashboardStats } from '@/hooks/useDashboardStats'
 import { useRecentVillages } from '@/hooks/useRecentVillages'
+import { HeadAdminDashboard as HeadAdminDashboardComponent } from '@/components/dashboard/head-admin/HeadAdminDashboard'
 // Village List components
 import { useState, useEffect } from 'react'
 import { useVillages } from '@/hooks/useVillages'
@@ -84,59 +85,15 @@ function SuperAdminDashboard() {
 }
 
 function AdminHeadDashboard() {
+  // DEBUG: This should render the new HeadAdminDashboard component
+  console.log('🔴 AdminHeadDashboard function called - rendering HeadAdminDashboardComponent')
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900">Village Management</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard
-          title="Active Households"
-          value="156"
-          change="+3 this month"
-          icon={<Home className="w-6 h-6 text-green-600" />}
-          color="green"
-        />
-        <StatCard
-          title="Monthly Revenue"
-          value="₱245,000"
-          change="+12.5%"
-          icon={<DollarSign className="w-6 h-6 text-blue-600" />}
-          color="blue"
-        />
-        <StatCard
-          title="Security Alerts"
-          value="3"
-          change="2 resolved today"
-          icon={<Shield className="w-6 h-6 text-red-600" />}
-          color="red"
-        />
-        <StatCard
-          title="Pending Approvals"
-          value="8"
-          change="Guest passes & permits"
-          icon={<Clock className="w-6 h-6 text-orange-600" />}
-          color="orange"
-        />
+    <div>
+      <div className="bg-yellow-100 border-2 border-yellow-500 p-4 mb-4">
+        <p className="text-xl font-bold">🔴 DEBUG: New AdminHeadDashboard is loading!</p>
+        <p>If you see this yellow box, the code is updated. Component below should load.</p>
       </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <QuickActionsCard
-          title="Management Actions"
-          actions={[
-            { label: "Approve Guest Passes", count: 5, href: "/guest-passes" },
-            { label: "Review Fee Payments", count: 12, href: "/fees" },
-            { label: "Security Incidents", count: 2, href: "/security" },
-            { label: "Village Rules Updates", count: 1, href: "/rules" },
-          ]}
-        />
-        <RecentActivityCard
-          activities={[
-            "New household registration approved",
-            "Monthly fee payment received from Lot 245",
-            "Security incident reported at Gate 2",
-            "Construction permit submitted for Lot 123",
-          ]}
-        />
-      </div>
+      <HeadAdminDashboardComponent />
     </div>
   )
 }
@@ -352,11 +309,7 @@ function VillageListContent() {
     villages,
     loading,
     error,
-    pagination,
-    filters,
     refetch,
-    setFilters,
-    setPage,
   } = useVillages()
 
   const {
@@ -410,24 +363,42 @@ function VillageListContent() {
         </div>
       )}
 
-      {/* Filters */}
-      <VillageFilters
-        filters={filters}
-        onFiltersChange={setFilters}
-        villageStatuses={villageStatuses}
-        loading={isLoading}
-      />
-
-      {/* Village Table */}
-      <VillageListTable
-        villages={villages}
-        loading={loading}
-        error={error}
-        pagination={pagination}
-        villageStatuses={villageStatuses}
-        onPageChange={setPage}
-        onRefresh={refetch}
-      />
+      {/* Village Table - Simple version without pagination */}
+      <div className="bg-white rounded-lg border border-gray-200">
+        {loading ? (
+          <div className="p-8 text-center">Loading villages...</div>
+        ) : error ? (
+          <div className="p-8 text-center">
+            <p className="text-red-600">Error: {error.message}</p>
+            <button onClick={refetch} className="mt-4 text-primary hover:underline">Retry</button>
+          </div>
+        ) : !villages || villages.length === 0 ? (
+          <div className="p-8 text-center text-gray-500">No villages found</div>
+        ) : (
+          <table className="w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">Name</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">Status</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">Created</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {villages.map(village => (
+                <tr key={village.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 text-sm text-gray-900">{village.name}</td>
+                  <td className="px-6 py-4 text-sm">
+                    {villageStatuses?.find(s => s.id === village.status_id)?.name || 'Unknown'}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-500">
+                    {new Date(village.created_at).toLocaleDateString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
 
       {/* Create Village Modal */}
       <CreateVillageModal
@@ -551,6 +522,11 @@ export default function DashboardPage() {
 
     // Only show dashboard content if activeView is 'dashboard'
     if (activeView === 'dashboard') {
+      // admin_head uses HeadAdminDashboard which has its own header
+      if (user.role.code === 'admin_head') {
+        return renderDashboard()
+      }
+
       return (
         <>
           {/* Welcome Header */}
