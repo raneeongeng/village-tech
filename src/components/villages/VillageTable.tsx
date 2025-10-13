@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Village, PaginationData } from '@/types/village'
 import { updateVillageStatus } from '@/hooks/useCreateVillage'
 import { LookupValue } from '@/types/village'
@@ -132,7 +133,7 @@ function Pagination({ pagination, onPageChange }: {
   return (
     <div className="flex items-center justify-between px-6 py-3 bg-white border-t border-gray-200">
       <div className="text-sm text-gray-700">
-        Showing {startItem}-{endItem} of {totalCount}
+        Showing {startItem}-{endItem} of {totalCount} villages
       </div>
       <div className="flex items-center space-x-2">
         <button
@@ -178,6 +179,7 @@ export function VillageTable({
   onPageChange,
   onRefresh,
 }: VillageTableProps) {
+  const router = useRouter()
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean
     villageId: string
@@ -352,7 +354,10 @@ export function VillageTable({
                   }
                 </td>
                 <td className="px-6 py-4 text-right space-x-2">
-                  <button className="text-primary hover:underline">
+                  <button
+                    onClick={() => router.push(`/villages/${village.id}`)}
+                    className="text-primary hover:underline"
+                  >
                     View
                   </button>
                   {village.status?.code === 'active' ? (

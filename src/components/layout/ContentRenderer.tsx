@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { useContentView } from '@/hooks/useContentView'
 import { usePathname } from 'next/navigation'
@@ -17,6 +17,7 @@ import { useLookupValues } from '@/hooks/useLookupValues'
 import { VillageFilters } from '@/components/villages/VillageFilters'
 import { VillageTable as VillageListTable } from '@/components/villages/VillageTable'
 import { CreateVillageModal } from '@/components/villages/CreateVillageModal'
+import { VillageFilters as VillageFiltersType } from '@/types/village'
 import {
   Users,
   Home,
@@ -347,15 +348,18 @@ function RecentActivityCard({ activities }: { activities: string[] }) {
 // Village List component
 function VillageListContent() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [clientFilters, setClientFilters] = useState({
+    search: '',
+    statusId: '',
+    region: '',
+  })
+
+  // Load all villages without filters (server-side data loading)
   const {
-    villages,
+    villages: allVillages,
     loading,
     error,
-    pagination,
-    filters,
     refetch,
-    setFilters,
-    setPage,
   } = useVillages()
 
   const {
@@ -364,8 +368,74 @@ function VillageListContent() {
     error: lookupError,
   } = useLookupValues()
 
+  // Client-side filtering logic
+  const filteredVillages = useMemo(() => {
+    if (!allVillages) return null
+
+    return allVillages.filter(village => {
+      // Search filter (name or ID)
+      if (clientFilters.search) {
+        const searchTerm = clientFilters.search.toLowerCase()
+        const nameMatch = village.name.toLowerCase().includes(searchTerm)
+        const idMatch = village.id.toLowerCase().includes(searchTerm)
+        if (!nameMatch && !idMatch) return false
+      }
+
+      // Status filter
+      if (clientFilters.statusId && village.status_id !== clientFilters.statusId) {
+        return false
+      }
+
+      // Region filter
+      if (clientFilters.region && village.settings?.region !== clientFilters.region) {
+        return false
+      }
+
+      return true
+    })
+  }, [allVillages, clientFilters])
+
+  // Client-side pagination
+  const itemsPerPage = 10
+  const [currentPage, setCurrentPage] = useState(1)
+
+  const paginatedVillages = useMemo(() => {
+    if (!filteredVillages) return null
+
+    const startIndex = (currentPage - 1) * itemsPerPage
+    const endIndex = startIndex + itemsPerPage
+    return filteredVillages.slice(startIndex, endIndex)
+  }, [filteredVillages, currentPage])
+
+  const paginationData = useMemo(() => {
+    const totalCount = filteredVillages?.length || 0
+    return {
+      currentPage,
+      totalPages: Math.ceil(totalCount / itemsPerPage),
+      totalCount,
+      itemsPerPage,
+    }
+  }, [filteredVillages, currentPage])
+
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [clientFilters])
+
   const handleCreateSuccess = () => {
     refetch()
+  }
+
+  const handleFiltersChange = (newFilters: VillageFiltersType) => {
+    setClientFilters({
+      search: newFilters.search,
+      statusId: newFilters.statusId || '',
+      region: newFilters.region || '',
+    })
+  }
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
   }
 
   const isLoading = loading || lookupLoading
@@ -411,20 +481,20 @@ function VillageListContent() {
 
       {/* Filters */}
       <VillageFilters
-        filters={filters}
-        onFiltersChange={setFilters}
+        filters={clientFilters}
+        onFiltersChange={handleFiltersChange}
         villageStatuses={villageStatuses}
         loading={isLoading}
       />
 
       {/* Village Table */}
       <VillageListTable
-        villages={villages}
+        villages={paginatedVillages}
         loading={loading}
         error={error}
-        pagination={pagination}
+        pagination={paginationData}
         villageStatuses={villageStatuses}
-        onPageChange={setPage}
+        onPageChange={handlePageChange}
         onRefresh={refetch}
       />
 

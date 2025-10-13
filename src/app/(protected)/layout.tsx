@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { LayoutProvider, useLayout } from '@/hooks/useLayout'
 import { ContentViewProvider } from '@/hooks/useContentView'
 import { Sidebar } from '@/components/layout/Sidebar'
@@ -13,6 +13,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
   const { sidebarCollapsed, toggleSidebar, isMobile, showMobileSidebar, setShowMobileSidebar } = useLayout()
   const { user, isLoading, isAuthenticated } = useAuth()
   const router = useRouter()
+  const pathname = usePathname()
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -36,6 +37,9 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
   if (!isAuthenticated) {
     return null
   }
+
+  // Check if this is a specific page route (like village details)
+  const isSpecificRoute = pathname.startsWith('/villages/') && pathname !== '/villages'
 
   return (
     <div className="min-h-screen bg-background">
@@ -66,7 +70,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
           />
           <div className="flex-1 overflow-auto">
             <div className="p-4 lg:p-8">
-              <ContentRenderer />
+              {isSpecificRoute ? children : <ContentRenderer />}
             </div>
           </div>
         </main>

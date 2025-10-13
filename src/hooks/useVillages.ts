@@ -4,53 +4,26 @@ import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase/client'
 import { Village, VillageFilters, PaginationData, VillageListData, DEFAULT_VILLAGE_FILTERS, ITEMS_PER_PAGE } from '@/types/village'
 
-export function useVillages(): VillageListData {
+// Simplified interface for client-side filtering
+export interface SimpleVillageData {
+  villages: Village[] | null
+  loading: boolean
+  error: Error | null
+  refetch: () => Promise<void>
+}
+
+export function useVillages(): SimpleVillageData {
   const [villages, setVillages] = useState<Village[] | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
-  const [filters, setFilters] = useState<VillageFilters>(DEFAULT_VILLAGE_FILTERS)
-  const [pagination, setPagination] = useState<PaginationData>({
-    currentPage: 1,
-    totalPages: 0,
-    totalCount: 0,
-    itemsPerPage: ITEMS_PER_PAGE,
-  })
 
   const fetchVillages = useCallback(async () => {
     setLoading(true)
     setError(null)
 
     try {
-      // Build query for counting total records
-      let countQuery = supabase
-        .from('villages')
-        .select('*', { count: 'exact', head: true })
-
-      // Apply filters to count query
-      if (filters.search) {
-        countQuery = countQuery.or(`name.ilike.%${filters.search}%,id.ilike.%${filters.search}%`)
-      }
-      if (filters.statusId) {
-        countQuery = countQuery.eq('status_id', filters.statusId)
-      }
-      if (filters.region) {
-        countQuery = countQuery.eq('settings->>region', filters.region)
-      }
-
-      // Get total count
-      const { count: totalCount, error: countError } = await countQuery
-
-      if (countError) {
-        throw new Error('Failed to fetch village count')
-      }
-
-      // Calculate pagination
-      const totalPages = Math.ceil((totalCount || 0) / ITEMS_PER_PAGE)
-      const start = (pagination.currentPage - 1) * ITEMS_PER_PAGE
-      const end = start + ITEMS_PER_PAGE - 1
-
-      // Build main query with pagination
-      let query = supabase
+      // Fetch all villages without any filters for client-side filtering
+      const { data: villageData, error: villageError } = await supabase
         .from('villages')
         .select(`
           id,
@@ -61,20 +34,6 @@ export function useVillages(): VillageListData {
           updated_at
         `)
         .order('created_at', { ascending: false })
-        .range(start, end)
-
-      // Apply filters to main query
-      if (filters.search) {
-        query = query.or(`name.ilike.%${filters.search}%,id.ilike.%${filters.search}%`)
-      }
-      if (filters.statusId) {
-        query = query.eq('status_id', filters.statusId)
-      }
-      if (filters.region) {
-        query = query.eq('settings->>region', filters.region)
-      }
-
-      const { data: villageData, error: villageError } = await query
 
       if (villageError) {
         throw new Error('Failed to fetch villages')
@@ -156,12 +115,6 @@ export function useVillages(): VillageListData {
       }
 
       setVillages(villagesWithAdminHead)
-      setPagination({
-        currentPage: pagination.currentPage,
-        totalPages,
-        totalCount: totalCount || 0,
-        itemsPerPage: ITEMS_PER_PAGE,
-      })
       setLoading(false)
     } catch (err) {
       console.error('Error in fetchVillages:', err)
@@ -169,15 +122,6 @@ export function useVillages(): VillageListData {
       setVillages(null)
       setLoading(false)
     }
-  }, [filters, pagination.currentPage])
-
-  const setPage = useCallback((page: number) => {
-    setPagination(prev => ({ ...prev, currentPage: page }))
-  }, [])
-
-  const updateFilters = useCallback((newFilters: VillageFilters) => {
-    setFilters(newFilters)
-    setPagination(prev => ({ ...prev, currentPage: 1 })) // Reset to first page when filtering
   }, [])
 
   const refetch = useCallback(async () => {
@@ -192,10 +136,6 @@ export function useVillages(): VillageListData {
     villages,
     loading,
     error,
-    pagination,
-    filters,
     refetch,
-    setFilters: updateFilters,
-    setPage,
   }
 }

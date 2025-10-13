@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { VillageFilters as VillageFiltersType, REGIONS } from '@/types/village'
 import { LookupValue } from '@/types/village'
+import { useDebounce } from '@/hooks/useDebounce'
 
 interface VillageFiltersProps {
   filters: VillageFiltersType
@@ -17,31 +18,55 @@ export function VillageFilters({
   villageStatuses,
   loading = false
 }: VillageFiltersProps) {
-  const [localFilters, setLocalFilters] = useState<VillageFiltersType>(filters)
+  const [searchInput, setSearchInput] = useState(filters.search)
+  const [statusFilter, setStatusFilter] = useState(filters.statusId || '')
+  const [regionFilter, setRegionFilter] = useState(filters.region || '')
 
+  // Debounce search input to prevent excessive filtering
+  const debouncedSearch = useDebounce(searchInput, 300)
+
+  // Update local state when external filters change
   useEffect(() => {
-    setLocalFilters(filters)
+    setSearchInput(filters.search)
+    setStatusFilter(filters.statusId || '')
+    setRegionFilter(filters.region || '')
   }, [filters])
 
-  const handleInputChange = (field: keyof VillageFiltersType, value: string) => {
-    setLocalFilters(prev => ({
-      ...prev,
-      [field]: value,
-    }))
+  // Apply filters when debounced search or other filters change
+  useEffect(() => {
+    const newFilters: VillageFiltersType = {
+      search: debouncedSearch,
+      statusId: statusFilter,
+      region: regionFilter,
+    }
+
+    // Only call onFiltersChange if filters actually changed
+    if (
+      newFilters.search !== filters.search ||
+      newFilters.statusId !== filters.statusId ||
+      newFilters.region !== filters.region
+    ) {
+      onFiltersChange(newFilters)
+    }
+  }, [debouncedSearch, statusFilter, regionFilter, filters, onFiltersChange])
+
+  const handleSearchChange = (value: string) => {
+    setSearchInput(value)
   }
 
-  const handleApplyFilter = () => {
-    onFiltersChange(localFilters)
+  const handleStatusChange = (value: string) => {
+    setStatusFilter(value)
+  }
+
+  const handleRegionChange = (value: string) => {
+    setRegionFilter(value)
   }
 
   const handleReset = () => {
-    const resetFilters = {
-      search: '',
-      statusId: '',
-      region: '',
-    }
-    setLocalFilters(resetFilters)
-    onFiltersChange(resetFilters)
+    setSearchInput('')
+    setStatusFilter('')
+    setRegionFilter('')
+    // The useEffect will handle calling onFiltersChange
   }
 
   return (
@@ -59,8 +84,8 @@ export function VillageFilters({
             <input
               type="text"
               id="search"
-              value={localFilters.search}
-              onChange={(e) => handleInputChange('search', e.target.value)}
+              value={searchInput}
+              onChange={(e) => handleSearchChange(e.target.value)}
               placeholder="Search by village name or ID"
               className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
               disabled={loading}
@@ -75,8 +100,8 @@ export function VillageFilters({
           </label>
           <select
             id="status"
-            value={localFilters.statusId || ''}
-            onChange={(e) => handleInputChange('statusId', e.target.value)}
+            value={statusFilter}
+            onChange={(e) => handleStatusChange(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
             disabled={loading}
           >
@@ -96,8 +121,8 @@ export function VillageFilters({
           </label>
           <select
             id="region"
-            value={localFilters.region || ''}
-            onChange={(e) => handleInputChange('region', e.target.value)}
+            value={regionFilter}
+            onChange={(e) => handleRegionChange(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
             disabled={loading}
           >
@@ -115,29 +140,22 @@ export function VillageFilters({
       <div className="flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center">
         <div className="flex gap-3">
           <button
-            onClick={handleApplyFilter}
-            disabled={loading}
-            className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            Apply Filter
-          </button>
-          <button
             onClick={handleReset}
             disabled={loading}
             className="px-4 py-2 text-gray-600 hover:text-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            Reset
+            Reset Filters
           </button>
         </div>
 
         {/* Filter Summary */}
         <div className="text-sm text-gray-500">
-          {Object.values(localFilters).some(value => value && value !== '') && (
+          {(searchInput || statusFilter || regionFilter) && (
             <span>
               Active filters: {[
-                localFilters.search && 'Search',
-                localFilters.statusId && 'Status',
-                localFilters.region && 'Region'
+                searchInput && 'Search',
+                statusFilter && 'Status',
+                regionFilter && 'Region'
               ].filter(Boolean).join(', ')}
             </span>
           )}
