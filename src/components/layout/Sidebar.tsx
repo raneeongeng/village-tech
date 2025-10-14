@@ -50,7 +50,8 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
       {/* Navigation Menu */}
       <nav className="flex-1 px-4 py-4 space-y-2">
         {navigationItems.map((item) => {
-          const isActive = activeView === item.id
+          // Check if current pathname matches the navigation item
+          const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
 
           const handleNavigation = () => {
             // Update content view for seamless transition
