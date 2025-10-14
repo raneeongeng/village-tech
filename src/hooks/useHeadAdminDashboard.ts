@@ -220,7 +220,7 @@ export function useHeadAdminDashboard(villageId: string): HeadAdminDashboardData
             .from('households')
             .select('*', { count: 'exact', head: true })
             .eq('tenant_id', villageId)
-            .eq('status_id', pendingStatusId)
+            .eq('status_id', pendingStatusId) as any
         )
       } else {
         fetchPromises.push(Promise.resolve({ count: 0 }))
@@ -231,7 +231,7 @@ export function useHeadAdminDashboard(villageId: string): HeadAdminDashboardData
         supabase
           .from('households')
           .select('*', { count: 'exact', head: true })
-          .eq('tenant_id', villageId)
+          .eq('tenant_id', villageId) as any
       )
 
       // Household growth history
@@ -240,7 +240,7 @@ export function useHeadAdminDashboard(villageId: string): HeadAdminDashboardData
           .from('households')
           .select('created_at')
           .eq('tenant_id', villageId)
-          .gte('created_at', last6MonthsStart)
+          .gte('created_at', last6MonthsStart) as any
       )
 
       // Security incidents count (last 30 days)
@@ -249,7 +249,7 @@ export function useHeadAdminDashboard(villageId: string): HeadAdminDashboardData
           .from('incident_reports')
           .select('*', { count: 'exact', head: true })
           .eq('tenant_id', villageId)
-          .gte('occurred_at', last30Days)
+          .gte('occurred_at', last30Days) as any
       )
 
       const [
@@ -260,11 +260,11 @@ export function useHeadAdminDashboard(villageId: string): HeadAdminDashboardData
       ] = await Promise.all(fetchPromises)
 
       // Get active rules count
-      const { count: activeRules } = await supabase
+      const { count: activeRules } = await (supabase
         .from('village_rules')
         .select('*', { count: 'exact', head: true })
         .eq('tenant_id', villageId)
-        .eq('is_active', true)
+        .eq('is_active', true) as any)
 
       // Calculate fee collection rate (mock for now)
       const feeCollectionRate = 92

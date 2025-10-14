@@ -70,7 +70,7 @@ export function Header({ onMenuClick, showMenuButton = false }: HeaderProps) {
               </span>
             </div>
             <span className="ml-2 text-sm font-medium text-gray-700 hidden md:block">
-              {user ? `${user.first_name} ${user.last_name}` : user?.email}
+              {user?.first_name && user?.last_name ? `${user.first_name} ${user.last_name}` : user?.email}
             </span>
           </button>
 
@@ -78,7 +78,7 @@ export function Header({ onMenuClick, showMenuButton = false }: HeaderProps) {
             <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
               <div className="px-4 py-2 border-b border-gray-100">
                 <p className="text-sm font-medium text-gray-900">
-                  {user ? `${user.first_name} ${user.last_name}` : user?.email}
+                  {user?.first_name && user?.last_name ? `${user.first_name} ${user.last_name}` : user?.email}
                 </p>
                 <p className="text-xs text-gray-500">
                   {user?.email}

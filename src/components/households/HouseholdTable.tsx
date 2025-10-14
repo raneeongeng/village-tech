@@ -10,7 +10,6 @@ import {
   Household,
   HouseholdHead,
   HouseholdsTableProps,
-  PaginationInfo,
 } from '@/types/household'
 
 export function HouseholdTable({

@@ -298,7 +298,7 @@ export function getErrorSuggestions(error: NavigationError): string[] {
  * Check if an error is user-actionable
  */
 export function isErrorUserActionable(error: NavigationError): boolean {
-  return error.recoverable && error.suggestions && error.suggestions.length > 0;
+  return !!error.recoverable && !!error.suggestions && error.suggestions.length > 0;
 }
 
 /**

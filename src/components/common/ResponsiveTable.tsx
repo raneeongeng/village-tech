@@ -198,7 +198,7 @@ export function ResponsiveTable<T extends Record<string, any>>({
 }: ResponsiveTableProps<T>) {
 
   // Get cell value helper
-  const getCellValue = (item: T, column: TableColumn<T>) => {
+  const getCellValue = (item: T, column: TableColumn<T>): ReactNode => {
     if (column.render) {
       return column.render(item)
     }
@@ -207,7 +207,7 @@ export function ResponsiveTable<T extends Record<string, any>>({
       ? column.key.split('.').reduce((obj, key) => obj?.[key], item)
       : item[column.key as keyof T]
 
-    return value || '-'
+    return value as ReactNode || '-'
   }
 
   // Action button styles

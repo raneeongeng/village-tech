@@ -103,7 +103,9 @@ export class NavigationCache<T> {
     // Remove oldest entry if cache is full
     if (this.cache.size >= this.maxSize) {
       const firstKey = this.cache.keys().next().value;
-      this.cache.delete(firstKey);
+      if (firstKey) {
+        this.cache.delete(firstKey);
+      }
     }
 
     const entry: CacheEntry<T> = {
@@ -167,7 +169,7 @@ export class NavigationCache<T> {
    */
   private cleanup(): void {
     const now = Date.now();
-    for (const [key, entry] of this.cache.entries()) {
+    for (const [key, entry] of Array.from(this.cache.entries())) {
       if (now - entry.timestamp.getTime() > entry.ttl) {
         this.cache.delete(key);
       }

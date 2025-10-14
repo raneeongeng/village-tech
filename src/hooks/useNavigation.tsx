@@ -89,7 +89,7 @@ export function useNavigation(): UseNavigationReturn {
       user.role.code as UserRole,
       navigation.userPermissions,
       user.id,
-      user.tenant?.id
+      (user as any).tenant?.id
     );
 
     const result = canAccessItemSecure(item, permissionContext);

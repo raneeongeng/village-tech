@@ -64,31 +64,31 @@ export function useRecentHouseholds(limit: number = 5): UseRecentHouseholdsRetur
         created_at: household.created_at,
         updated_at: '', // Will be populated if needed
         // Joined data
-        village: household.villages ? {
+        village: household.villages && (household.villages as any)[0] ? {
           id: household.tenant_id,
-          name: household.villages.name,
+          name: (household.villages as any)[0].name,
           status_id: '',
           settings: {},
           created_at: '',
           updated_at: ''
         } : undefined,
-        household_head: household.household_head ? {
+        household_head: household.household_head && (household.household_head as any)[0] ? {
           id: household.household_head_id,
           tenant_id: household.tenant_id,
           email: '',
           role_id: '',
-          first_name: household.household_head.first_name,
-          last_name: household.household_head.last_name,
+          first_name: (household.household_head as any)[0].first_name,
+          last_name: (household.household_head as any)[0].last_name,
           is_active: true,
           created_at: '',
           updated_at: ''
         } : undefined,
-        status: household.status ? {
+        status: household.status && (household.status as any)[0] ? {
           id: household.status_id,
           category_id: '',
-          code: household.status.code,
-          name: household.status.name,
-          color_code: household.status.color_code || '#6c757d',
+          code: (household.status as any)[0].code,
+          name: (household.status as any)[0].name,
+          color_code: (household.status as any)[0].color_code || '#6c757d',
           is_active: true,
           sort_order: 0,
           created_at: '',

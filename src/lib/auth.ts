@@ -179,7 +179,7 @@ async function getUserProfile(userId: string): Promise<UserProfile> {
     throw new AuthError('User profile not found')
   }
 
-  const profile = data as UserProfile
+  const profile = data as any as UserProfile
 
   // Cache the profile in sessionStorage
   if (typeof window !== 'undefined') {

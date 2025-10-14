@@ -42,14 +42,14 @@ export function useVillages(): SimpleVillageData {
       // Fetch status lookup values for all villages
       let statusLookup: { [key: string]: any } = {}
       if (villageData && villageData.length > 0) {
-        const statusIds = [...new Set(villageData.map(v => v.status_id))]
+        const statusIds = Array.from(new Set(villageData.map(v => v.status_id)))
         const { data: statuses, error: statusError } = await supabase
           .from('lookup_values')
           .select('id, code, name, color_code')
           .in('id', statusIds)
 
         if (!statusError && statuses) {
-          statusLookup = statuses.reduce((acc, status) => {
+          statusLookup = statuses.reduce((acc: { [key: string]: any }, status: any) => {
             acc[status.id] = status
             return acc
           }, {})

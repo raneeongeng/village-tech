@@ -144,6 +144,7 @@ export function useVillageDetails(villageId: string): VillageDetailsData {
 
       const villageWithUsers: VillageDetails = {
         ...villageData,
+        lookup_values: (villageData.lookup_values as any)?.[0],
         users
       }
 

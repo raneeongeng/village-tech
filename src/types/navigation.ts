@@ -25,6 +25,8 @@ export interface NavigationItem {
   group?: string;
   /** Sort order within group or navigation level */
   order: number;
+  /** Optional badge to display (e.g., notification count) */
+  badge?: string | number;
   /** Optional nested navigation items (max depth: 2) */
   children?: NavigationItem[];
   /** Whether this item should be highlighted as active */
@@ -32,7 +34,6 @@ export interface NavigationItem {
   /** Additional metadata for the navigation item */
   metadata?: {
     description?: string;
-    badge?: string | number;
     external?: boolean;
   };
 }

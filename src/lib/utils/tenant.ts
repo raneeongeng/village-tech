@@ -86,7 +86,7 @@ export const MOCK_TENANTS: Tenant[] = [
         secondary_color: '#E8DCCA',
       },
     },
-  },
+  } as any,
   {
     id: '2',
     name: 'Sunset Heights',
@@ -102,7 +102,7 @@ export const MOCK_TENANTS: Tenant[] = [
         secondary_color: '#E8DCCA',
       },
     },
-  },
+  } as any,
   {
     id: '3',
     name: 'Riverside Commons',
@@ -118,7 +118,7 @@ export const MOCK_TENANTS: Tenant[] = [
         secondary_color: '#E8DCCA',
       },
     },
-  },
+  } as any,
 ]
 
 /**
@@ -127,7 +127,7 @@ export const MOCK_TENANTS: Tenant[] = [
 export async function getTenantBySubdomain(subdomain: string): Promise<Tenant | null> {
   // In production, this would query Supabase
   // For now, return mock data
-  const tenant = MOCK_TENANTS.find(t => t.subdomain === subdomain)
+  const tenant = MOCK_TENANTS.find(t => (t as any).subdomain === subdomain)
   return tenant || null
 }
 
@@ -137,24 +137,25 @@ export async function getTenantBySubdomain(subdomain: string): Promise<Tenant | 
 export async function getAllTenants(): Promise<Tenant[]> {
   // In production, this would query Supabase
   // For now, return mock data
-  return MOCK_TENANTS.filter(t => t.is_active)
+  return MOCK_TENANTS.filter(t => (t as any).is_active)
 }
 
 /**
  * Validate tenant access
  */
 export function validateTenantAccess(tenant: Tenant): boolean {
-  return tenant.is_active
+  return (tenant as any).is_active
 }
 
 /**
  * Get tenant-specific branding
  */
 export function getTenantBranding(tenant: Tenant) {
+  const t = tenant as any
   return {
-    primaryColor: tenant.settings?.branding?.primary_color || '#22574A',
-    secondaryColor: tenant.settings?.branding?.secondary_color || '#E8DCCA',
-    logoUrl: tenant.settings?.branding?.logo_url,
+    primaryColor: t.settings?.branding?.primary_color || '#22574A',
+    secondaryColor: t.settings?.branding?.secondary_color || '#E8DCCA',
+    logoUrl: t.settings?.branding?.logo_url,
   }
 }
 
@@ -169,12 +170,12 @@ export function formatTenantName(tenant: Tenant): string {
  * Check if tenant allows registration
  */
 export function canRegisterInTenant(tenant: Tenant): boolean {
-  return tenant.settings?.allow_registration || false
+  return (tenant as any).settings?.allow_registration || false
 }
 
 /**
  * Check if tenant requires approval
  */
 export function requiresApprovalInTenant(tenant: Tenant): boolean {
-  return tenant.settings?.require_approval || false
+  return (tenant as any).settings?.require_approval || false
 }

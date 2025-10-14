@@ -104,21 +104,25 @@ export interface HouseholdMemberFormData {
 }
 
 export interface NewHouseholdFormData {
-  // Address information
-  lotNumber: string
-  street: string
+  // Step 1: Address Information
+  address: {
+    lotNumber: string
+    street: string
+  }
 
-  // Household head information
-  firstName: string
-  middleName?: string
-  lastName: string
-  suffix?: string
-  phone: string
-  email: string
-  password: string
+  // Step 2: Household Head Information
+  householdHead: {
+    firstName: string
+    middleName?: string
+    lastName: string
+    suffix?: string
+    phone: string
+    email: string
+    password: string
+    confirmPassword: string
+  }
 
-  // Additional members (optional)
-  members: HouseholdMemberFormData[]
+  // Note: Members will be added separately after household creation
 }
 
 // =============================================================================
@@ -226,8 +230,8 @@ export interface UseCreateHouseholdResult {
 
   // Form updates
   updateFormData: (updates: Partial<NewHouseholdFormData>) => void
-  updateAddressInfo: (addressData: NewHouseholdFormData['address']) => void
-  updateHouseholdHeadInfo: (headData: NewHouseholdFormData['householdHead']) => void
+  updateAddressInfo: (addressData: { lotNumber: string; street: string }) => void
+  updateHouseholdHeadInfo: (headData: { firstName: string; middleName?: string; lastName: string; suffix?: string; phone: string; email: string; password: string; confirmPassword: string }) => void
   // updateMembersInfo removed - members managed separately
 
   // Validation

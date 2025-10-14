@@ -28,7 +28,7 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
 
   if (!user) return null
 
-  const userRole = user.role?.code || 'household_head'
+  const userRole = (user.role?.code || 'household_head') as any
   const navigationItems = getNavigationForRole(userRole)
 
   return (
@@ -113,7 +113,7 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
             height={40}
           />
           <div className="ml-3">
-            <p className="text-sm font-medium text-text">{getRoleDisplayName(user.role?.code)}</p>
+            <p className="text-sm font-medium text-text">{getRoleDisplayName(user.role?.code as any)}</p>
             <p className="text-xs text-gray-500">{user.email}</p>
           </div>
         </div>

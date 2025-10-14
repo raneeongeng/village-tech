@@ -10,11 +10,16 @@ interface MembersStepProps {
 }
 
 export function MembersStep({ hookData }: MembersStepProps) {
-  const { formData, updateMembersInfo } = hookData
+  const { formData } = hookData
   const { relationshipTypes, loading: lookupLoading } = useHouseholdLookupData()
   const [errors, setErrors] = useState<Record<string, Record<string, string>>>({})
 
-  const members = formData.members || []
+  // Note: Members step is deprecated - members are now managed separately after household creation
+  const members: any[] = []
+  const updateMembersInfo = (_members: any[]) => {
+    // Deprecated: This function is no longer used
+    console.warn('MembersStep: updateMembersInfo is deprecated')
+  }
 
   const addMember = () => {
     const newMember = {

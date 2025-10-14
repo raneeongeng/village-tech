@@ -19,7 +19,7 @@ export interface LookupValue {
 }
 
 // Extended user interface with VMP-specific fields
-export interface User extends SupabaseUser {
+export interface User extends Omit<SupabaseUser, 'role'> {
   id: string
   email: string
   first_name: string

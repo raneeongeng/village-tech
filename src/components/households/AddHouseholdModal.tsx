@@ -210,9 +210,9 @@ export function AddHouseholdModal({
                 </span>
                 <div>
                   <p className="text-sm font-medium text-red-800">{error.message}</p>
-                  {error.details && (
+                  {(error as any).details && (
                     <p className="text-sm text-red-600 mt-1">
-                      {error.details}
+                      {(error as any).details}
                     </p>
                   )}
                   {error.message === 'No tenant selected' && (

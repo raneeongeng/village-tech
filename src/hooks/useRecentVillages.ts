@@ -46,14 +46,14 @@ export function useRecentVillages(limit: number = 5): UseRecentVillagesReturn {
       let statusLookup: { [key: string]: any } = {}
 
       if (villages && villages.length > 0) {
-        const statusIds = [...new Set(villages.map(v => v.status_id))]
+        const statusIds = Array.from(new Set(villages.map(v => v.status_id)))
         const { data: statuses, error: statusError } = await supabase
           .from('lookup_values')
           .select('id, code, name, color_code')
           .in('id', statusIds)
 
         if (!statusError && statuses) {
-          statusLookup = statuses.reduce((acc, status) => {
+          statusLookup = statuses.reduce((acc: { [key: string]: any }, status: any) => {
             acc[status.id] = status
             return acc
           }, {})
