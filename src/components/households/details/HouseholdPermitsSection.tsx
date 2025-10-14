@@ -60,25 +60,17 @@ export function HouseholdPermitsSection({ permits }: HouseholdPermitsSectionProp
   }
 
   return (
-    <section>
-      <h3 className="text-lg font-semibold mb-4">Stickers &amp; Permits</h3>
+    <section className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+      <h3 className="text-xl font-semibold mb-4 text-gray-900">Stickers &amp; Permits</h3>
 
-      <div className="overflow-x-auto bg-background border border-gray-200 rounded-lg shadow-sm">
-        <table className="w-full text-sm text-left">
+      <div className="overflow-x-auto">
+        <table className="w-full text-left">
           <thead className="border-b border-gray-200">
-            <tr>
-              <th className="px-6 py-3 font-medium text-gray-900" scope="col">
-                Type
-              </th>
-              <th className="px-6 py-3 font-medium text-gray-900" scope="col">
-                Status
-              </th>
-              <th className="px-6 py-3 font-medium text-gray-900" scope="col">
-                Expiration
-              </th>
-              <th className="px-6 py-3 font-medium text-gray-900" scope="col">
-                Permit Number
-              </th>
+            <tr className="text-sm text-gray-600">
+              <th className="py-3 px-4 font-medium">Type</th>
+              <th className="py-3 px-4 font-medium">Status</th>
+              <th className="py-3 px-4 font-medium">Expiration</th>
+              <th className="py-3 px-4 font-medium">Permit Number</th>
             </tr>
           </thead>
           <tbody>
@@ -87,22 +79,20 @@ export function HouseholdPermitsSection({ permits }: HouseholdPermitsSectionProp
                 key={permit.id}
                 className={`${
                   index < permits.length - 1 ? 'border-b border-gray-200' : ''
-                } hover:bg-primary/5 transition-colors`}
+                } hover:bg-gray-50`}
               >
-                <td className="px-6 py-4 font-medium text-gray-900">
-                  {permit.type}
+                <td className="py-4 px-4">
+                  <p className="font-medium text-gray-900">{permit.type}</p>
                   {permit.description && (
-                    <div className="text-xs text-gray-500 mt-1">
-                      {permit.description}
-                    </div>
+                    <p className="text-sm text-gray-600">{permit.description}</p>
                   )}
                 </td>
-                <td className="px-6 py-4">
+                <td className="py-4 px-4">
                   <span className={getStatusBadge(permit.status)}>
                     {getStatusText(permit.status)}
                   </span>
                 </td>
-                <td className="px-6 py-4 text-gray-500">
+                <td className="py-4 px-4 text-gray-600">
                   {formatDate(permit.expires_at)}
                   {permit.expires_at && isExpiringSoon(permit.expires_at) && (
                     <div className="flex items-center gap-1 mt-1">
@@ -111,7 +101,7 @@ export function HouseholdPermitsSection({ permits }: HouseholdPermitsSectionProp
                     </div>
                   )}
                 </td>
-                <td className="px-6 py-4 text-gray-500">
+                <td className="py-4 px-4 text-gray-600">
                   {permit.permit_number || '—'}
                 </td>
               </tr>
@@ -120,7 +110,7 @@ export function HouseholdPermitsSection({ permits }: HouseholdPermitsSectionProp
         </table>
 
         {permits.length === 0 && (
-          <div className="px-6 py-8 text-center text-gray-500">
+          <div className="py-8 text-center text-gray-500">
             <div className="flex flex-col items-center gap-2">
               <span className="material-icons-outlined text-gray-300 text-3xl">description</span>
               <p>No permits or stickers found for this household.</p>

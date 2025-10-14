@@ -30,29 +30,26 @@ export function HouseholdDetailsPage({
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="p-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="flex items-center gap-4 mb-2">
-            <button
-              onClick={onBack}
-              className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors"
-            >
-              <span className="material-icons-outlined text-gray-600">arrow_back</span>
-            </button>
-            <h1 className="text-3xl font-bold text-gray-900">Household Profile</h1>
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center space-x-4">
+          <button
+            onClick={onBack}
+            className="p-2 rounded-full bg-white shadow-sm hover:bg-gray-100 transition-colors"
+          >
+            <span className="material-icons-outlined text-gray-600">arrow_back</span>
+          </button>
+          <div>
+            <h2 className="text-3xl font-bold text-gray-900">Household Profile</h2>
+            <p className="text-gray-600">Manage household details, members, permits, and fees.</p>
           </div>
-          <p className="text-gray-500 ml-14">
-            Manage household details, members, permits, and fees.
-          </p>
         </div>
-
         <button
           onClick={onRefresh}
-          className="flex items-center gap-2 px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
+          className="flex items-center px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50 transition-colors"
         >
-          <span className="material-icons-outlined text-sm">refresh</span>
+          <span className="material-icons-outlined mr-2 text-lg">refresh</span>
           Refresh
         </button>
       </div>
@@ -74,11 +71,6 @@ export function HouseholdDetailsPage({
         {/* Permits & Stickers Section */}
         <HouseholdPermitsSection
           permits={household.permits || []}
-        />
-
-        {/* Fees Section */}
-        <HouseholdFeesSection
-          fees={household.fees || []}
         />
       </div>
     </div>

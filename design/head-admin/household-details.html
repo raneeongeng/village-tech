@@ -2,181 +2,232 @@
 <html lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Village Management Platform</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
-<script id="tailwind-config">
+<title>Household Profile</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<script>
         tailwind.config = {
             darkMode: "class",
             theme: {
                 extend: {
                     colors: {
-                        "primary": "#1791cf",
-                        "background-light": "#f6f7f8",
-                        "background-dark": "#111c21",
+                        primary: "#4F46E5",
+                        "background-light": "#F8F9FA",
+                        "background-dark": "#111827",
+                        "card-light": "#FFFFFF",
+                        "card-dark": "#1F2937",
+                        "text-light": "#1F2937",
+                        "text-dark": "#F9FAFB",
+                        "text-secondary-light": "#6B7280",
+                        "text-secondary-dark": "#9CA3AF",
+                        "border-light": "#E5E7EB",
+                        "border-dark": "#374151"
                     },
                     fontFamily: {
-                        "display": ["Inter"]
+                        sans: ["Inter", "sans-serif"],
                     },
                     borderRadius: {
-                        "DEFAULT": "0.25rem",
-                        "lg": "0.5rem",
-                        "xl": "0.75rem",
-                        "full": "9999px"
+                        DEFAULT: "0.5rem",
                     },
                 },
             },
-        }
+        };
     </script>
-<style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24
-        }
-    </style>
 </head>
-<body class="font-display bg-background-light dark:bg-background-dark text-black dark:text-white">
-<div class="flex flex-col min-h-screen">
-<header class="bg-background-light dark:bg-background-dark/50 backdrop-blur-sm sticky top-0 z-10">
-<div class="container mx-auto px-4 sm:px-6 lg:px-8">
-<div class="flex items-center justify-between h-16 border-b border-gray-200 dark:border-gray-700">
-<div class="flex items-center gap-4">
-<div class="text-primary">
-<svg class="h-8 w-8" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-<path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8h5z"></path>
-</svg>
+<body class="font-sans bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark">
+<div class="flex h-screen">
+<aside class="w-64 bg-card-light dark:bg-card-dark border-r border-border-light dark:border-border-dark flex flex-col">
+<div class="p-6">
+<h1 class="text-2xl font-bold text-primary">VillageManager</h1>
 </div>
-<h1 class="text-xl font-bold">Village Connect</h1>
-</div>
-<nav class="hidden md:flex items-center gap-8">
-<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Dashboard</a>
-<a class="text-sm font-medium text-primary" href="#">Households</a>
-<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Residents</a>
-<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Amenities</a>
-<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Events</a>
-<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Documents</a>
+<nav class="flex-1 px-4 py-2 space-y-2">
+<a class="flex items-center px-4 py-2 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-text-secondary-light dark:text-text-secondary-dark" href="#">
+<span class="material-icons mr-3">dashboard</span>
+                    Dashboard
+                </a>
+<a class="flex items-center px-4 py-2 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-text-secondary-light dark:text-text-secondary-dark" href="#">
+<span class="material-icons mr-3">fact_check</span>
+                    Household Approvals
+                </a>
+<a class="flex items-center px-4 py-2 text-sm font-medium rounded-lg bg-primary/10 dark:bg-primary/20 text-primary" href="#">
+<span class="material-icons mr-3">people</span>
+                    Active Households
+                </a>
+<a class="flex items-center px-4 py-2 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-text-secondary-light dark:text-text-secondary-dark" href="#">
+<span class="material-icons mr-3">receipt_long</span>
+                    Fees Management
+                </a>
+<a class="flex items-center px-4 py-2 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-text-secondary-light dark:text-text-secondary-dark" href="#">
+<span class="material-icons mr-3">payment</span>
+                    Payment Status
+                </a>
+<a class="flex items-center px-4 py-2 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-text-secondary-light dark:text-text-secondary-dark" href="#">
+<span class="material-icons mr-3">gavel</span>
+                    Rules
+                </a>
+<a class="flex items-center px-4 py-2 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-text-secondary-light dark:text-text-secondary-dark" href="#">
+<span class="material-icons mr-3">campaign</span>
+                    Announcements
+                </a>
+<a class="flex items-center px-4 py-2 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-text-secondary-light dark:text-text-secondary-dark" href="#">
+<span class="material-icons mr-3">construction</span>
+                    Construction Permits
+                </a>
 </nav>
-<div class="flex items-center gap-4">
-<button class="md:hidden p-2 rounded-full hover:bg-primary/20 dark:hover:bg-primary/30 transition-colors">
-<span class="material-symbols-outlined">menu</span>
+<div class="p-4 mt-auto border-t border-border-light dark:border-border-dark">
+<div class="flex items-center">
+<img alt="Head Admin avatar" class="w-10 h-10 rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCRHU6WxrurlUK5VUHygJF7TugVeh0UR1vMwE-DdatRLZdxStOQKHitDKCjyF7zj04FooHGNPoKWD9fHrV8hPJD-qUrMhHNaTUC1OSt2IBLapm0H-3a9tgkNBggWh2iGdYRMDBgtXGxPlAtLaFBR_E77pJ9rwpi1OkBIpy9CWNSgXDEcPe5PkmagwzzgGD7zEgxgA786y9uGwmO0INzd7vj3D9eA-XFUqCNlj7gQQNLXmHB9vjG7nuYF6WFIYA-Di0gju6Km_w6Gr9h"/>
+<div class="ml-3">
+<p class="text-sm font-semibold text-text-light dark:text-text-dark">Head Admin</p>
+<p class="text-xs text-text-secondary-light dark:text-text-secondary-dark">headsample@gmail.com</p>
+</div>
+</div>
+</div>
+</aside>
+<main class="flex-1 overflow-y-auto">
+<header class="sticky top-0 z-10 bg-card-light/80 dark:bg-card-dark/80 backdrop-blur-sm border-b border-border-light dark:border-border-dark p-4 flex justify-end items-center space-x-4">
+<button class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
+<span class="material-icons text-text-secondary-light dark:text-text-secondary-dark">search</span>
 </button>
-<div class="w-10 h-10 rounded-full bg-cover bg-center" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDUKGxzATfWGuzEs6tNBal02LK8rSAfMjxOfNOc9HJlYHZ6KbXDQos2LI5hMBOECB2tGI95WM_TtQBLcC4-K7wBO9iajUyfHiQ3JdQ0drA26tdRAG0EiIMGMP_8u5SFQeyaMkmOKDHXfz92naNJ3JT2LmvlliSrLcqEApsY_SKcZA2NJnlyNeabbpwi05b7TMAUtip-aGveZWXOaaEWrsNzCPgOc6B8xQjevi3V0C8sl05UbYb8EBcnGdpG-DG3odteEVaMB0kEH0I");'></div>
+<div class="relative">
+<button class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
+<span class="material-icons text-text-secondary-light dark:text-text-secondary-dark">notifications</span>
+</button>
+<span class="absolute top-1 right-1 flex h-2.5 w-2.5">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+</span>
 </div>
-</div>
+<div class="flex items-center space-x-2">
+<span class="text-sm font-medium text-text-secondary-light dark:text-text-secondary-dark">sample village</span>
+<img alt="Sample Village avatar" class="w-8 h-8 rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCP604_jCjQ_EihZkkvfgmJk1TFbOBKb02vZm00DVrmKfBopYF9mUdbsGhSYA_qaIvp--Xz3n1bRpJ3ftI_aFi43iT9bviDOigUdhzS6fnVA2mpTQadjA8Soj21JgPjlrVR344ZsSyspejTIfVzgF01XnRK4DQhDGSMrwrfqUHDp2yWGK-RbZ37I8Ih-dq98GBeCYzRpl1rl5KPAvLsM4SwD1oEr0CmjVMM8pz7H6HVC9QXqXRm1IKrl2K2NpOPjMCsz8NMPGA16yHZ"/>
 </div>
 </header>
-<main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-<div class="max-w-4xl mx-auto">
-<div class="mb-8">
-<h2 class="text-3xl font-bold tracking-tight">Household Profile</h2>
-<p class="text-gray-500 dark:text-gray-400 mt-1">Manage household details, members, permits, and fees.</p>
-</div>
-<div class="space-y-10">
-<section class="bg-background-light/50 dark:bg-background-dark/50 p-6 rounded-lg shadow-sm">
-<h3 class="text-lg font-semibold mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">Household Information</h3>
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-<div class="md:col-span-1">
-<p class="text-sm font-medium text-gray-500 dark:text-gray-400">Household Name</p>
-<p class="mt-1">The Smiths</p>
-</div>
-<div class="md:col-span-2">
-<p class="text-sm font-medium text-gray-500 dark:text-gray-400">Address</p>
-<p class="mt-1">123 Oak Street, Anytown, CA 91234</p>
-</div>
-<div class="md:col-span-1">
-<p class="text-sm font-medium text-gray-500 dark:text-gray-400">Contact</p>
-<p class="mt-1">smith.family@email.com</p>
+<div class="p-8">
+<div class="flex items-center justify-between mb-8">
+<div class="flex items-center space-x-4">
+<button class="p-2 rounded-full bg-card-light dark:bg-card-dark shadow-sm hover:bg-gray-100 dark:hover:bg-gray-700">
+<span class="material-icons text-text-secondary-light dark:text-text-secondary-dark">arrow_back</span>
+</button>
+<div>
+<h2 class="text-3xl font-bold text-text-light dark:text-text-dark">Household Profile</h2>
+<p class="text-text-secondary-light dark:text-text-secondary-dark">Manage household details, members, permits, and fees.</p>
 </div>
 </div>
-</section>
-<section>
-<h3 class="text-lg font-semibold mb-4">Members</h3>
-<div class="overflow-x-auto bg-background-light/50 dark:bg-background-dark/50 rounded-lg shadow-sm">
-<table class="w-full text-sm text-left">
-<thead class="border-b border-gray-200 dark:border-gray-700">
-<tr>
-<th class="px-6 py-3 font-medium" scope="col">Name</th>
-<th class="px-6 py-3 font-medium" scope="col">Role</th>
-<th class="px-6 py-3 font-medium" scope="col">Contact</th>
+<button class="flex items-center px-4 py-2 text-sm font-medium text-text-secondary-light dark:text-text-secondary-dark bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-lg shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700">
+<span class="material-icons mr-2 text-lg">refresh</span>
+                        Refresh
+                    </button>
+</div>
+<div class="bg-card-light dark:bg-card-dark p-6 rounded-lg shadow-sm mb-8 border border-border-light dark:border-border-dark">
+<h3 class="text-xl font-semibold mb-6 text-text-light dark:text-text-dark">Household Information</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<div>
+<p class="text-sm text-text-secondary-light dark:text-text-secondary-dark">Household Name</p>
+<p class="font-medium text-text-light dark:text-text-dark">The Sample Family</p>
+</div>
+<div>
+<p class="text-sm text-text-secondary-light dark:text-text-secondary-dark">Address</p>
+<p class="font-medium text-text-light dark:text-text-dark">Block 1 Lot 1 Rizal Street</p>
+</div>
+<div>
+<p class="text-sm text-text-secondary-light dark:text-text-secondary-dark">Status</p>
+<span class="inline-flex items-center px-3 py-1 text-sm font-medium text-green-700 bg-green-100 dark:text-green-200 dark:bg-green-900/50 rounded-full">
+<span class="w-2 h-2 mr-2 bg-green-500 rounded-full"></span>
+                                Active
+                            </span>
+</div>
+<div>
+<p class="text-sm text-text-secondary-light dark:text-text-secondary-dark">Head of Household</p>
+<p class="font-medium text-text-light dark:text-text-dark">Sample Sample</p>
+</div>
+<div>
+<p class="text-sm text-text-secondary-light dark:text-text-secondary-dark">Contact</p>
+<p class="font-medium text-text-light dark:text-text-dark">sample1@gmail.com</p>
+</div>
+<div>
+<p class="text-sm text-text-secondary-light dark:text-text-secondary-dark">Registered</p>
+<p class="font-medium text-text-light dark:text-text-dark">October 14, 2025</p>
+</div>
+<div>
+<p class="text-sm text-text-secondary-light dark:text-text-secondary-dark">Total Members</p>
+<p class="font-medium text-text-light dark:text-text-dark">1</p>
+</div>
+<div>
+<p class="text-sm text-text-secondary-light dark:text-text-secondary-dark">Approved</p>
+<p class="font-medium text-text-light dark:text-text-dark">October 14, 2025</p>
+</div>
+</div>
+</div>
+<div class="bg-card-light dark:bg-card-dark p-6 rounded-lg shadow-sm mb-8 border border-border-light dark:border-border-dark">
+<h3 class="text-xl font-semibold mb-4 text-text-light dark:text-text-dark">Members</h3>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead class="border-b border-border-light dark:border-border-dark">
+<tr class="text-sm text-text-secondary-light dark:text-text-secondary-dark">
+<th class="py-3 px-4 font-medium">Name</th>
+<th class="py-3 px-4 font-medium">Role</th>
+<th class="py-3 px-4 font-medium">Contact</th>
 </tr>
 </thead>
 <tbody>
-<tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors">
-<td class="px-6 py-4">Emily Smith</td>
-<td class="px-6 py-4 text-gray-500 dark:text-gray-400">Head of Household</td>
-<td class="px-6 py-4 text-gray-500 dark:text-gray-400">emily.smith@email.com</td>
-</tr>
-<tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors">
-<td class="px-6 py-4">David Smith</td>
-<td class="px-6 py-4 text-gray-500 dark:text-gray-400">Spouse</td>
-<td class="px-6 py-4 text-gray-500 dark:text-gray-400">david.smith@email.com</td>
-</tr>
-<tr class="hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors">
-<td class="px-6 py-4">Sophia Smith</td>
-<td class="px-6 py-4 text-gray-500 dark:text-gray-400">Child</td>
-<td class="px-6 py-4 text-gray-500 dark:text-gray-400">sophia.smith@email.com</td>
+<tr class="border-b border-border-light dark:border-border-dark hover:bg-gray-50 dark:hover:bg-gray-800/50">
+<td class="py-4 px-4">
+<div class="flex items-center space-x-2">
+<span class="font-medium text-text-light dark:text-text-dark">Sample Sample</span>
+<span class="px-2 py-0.5 text-xs font-semibold text-primary bg-primary/10 rounded-full">Primary</span>
+</div>
+</td>
+<td class="py-4 px-4 text-text-secondary-light dark:text-text-secondary-dark">Head of Household</td>
+<td class="py-4 px-4 text-text-secondary-light dark:text-text-secondary-dark">sample1@gmail.com</td>
 </tr>
 </tbody>
 </table>
 </div>
-</section>
-<section>
-<h3 class="text-lg font-semibold mb-4">Stickers &amp; Permits</h3>
-<div class="overflow-x-auto bg-background-light/50 dark:bg-background-dark/50 rounded-lg shadow-sm">
-<table class="w-full text-sm text-left">
-<thead class="border-b border-gray-200 dark:border-gray-700">
-<tr>
-<th class="px-6 py-3 font-medium" scope="col">Type</th>
-<th class="px-6 py-3 font-medium" scope="col">Status</th>
-<th class="px-6 py-3 font-medium" scope="col">Expiration</th>
+</div>
+<div class="bg-card-light dark:bg-card-dark p-6 rounded-lg shadow-sm border border-border-light dark:border-border-dark">
+<h3 class="text-xl font-semibold mb-4 text-text-light dark:text-text-dark">Stickers &amp; Permits</h3>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead class="border-b border-border-light dark:border-border-dark">
+<tr class="text-sm text-text-secondary-light dark:text-text-secondary-dark">
+<th class="py-3 px-4 font-medium">Type</th>
+<th class="py-3 px-4 font-medium">Status</th>
+<th class="py-3 px-4 font-medium">Expiration</th>
+<th class="py-3 px-4 font-medium">Permit Number</th>
 </tr>
 </thead>
 <tbody>
-<tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors">
-<td class="px-6 py-4">Parking Permit</td>
-<td class="px-6 py-4">
-<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">Active</span>
+<tr class="border-b border-border-light dark:border-border-dark hover:bg-gray-50 dark:hover:bg-gray-800/50">
+<td class="py-4 px-4">
+<p class="font-medium text-text-light dark:text-text-dark">Parking Permit</p>
+<p class="text-sm text-text-secondary-light dark:text-text-secondary-dark">Resident parking permit</p>
 </td>
-<td class="px-6 py-4 text-gray-500 dark:text-gray-400">2024-12-31</td>
+<td class="py-4 px-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300">
+                                            Active
+                                        </span>
+</td>
+<td class="py-4 px-4 text-text-secondary-light dark:text-text-secondary-dark">01/01/2025</td>
+<td class="py-4 px-4 text-text-secondary-light dark:text-text-secondary-dark">PKG-2024-001</td>
 </tr>
-<tr class="hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors">
-<td class="px-6 py-4">Pool Pass</td>
-<td class="px-6 py-4">
-<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">Active</span>
+<tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+<td class="py-4 px-4">
+<p class="font-medium text-text-light dark:text-text-dark">Pool Pass</p>
+<p class="text-sm text-text-secondary-light dark:text-text-secondary-dark">Access to community pool facilities</p>
 </td>
-<td class="px-6 py-4 text-gray-500 dark:text-gray-400">2024-09-01</td>
+<td class="py-4 px-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300">
+                                            Active
+                                        </span>
+</td>
+<td class="py-4 px-4 text-text-secondary-light dark:text-text-secondary-dark">09/02/2024</td>
+<td class="py-4 px-4 text-text-secondary-light dark:text-text-secondary-dark">POOL-2024-001</td>
 </tr>
 </tbody>
 </table>
 </div>
-</section>
-<section>
-<h3 class="text-lg font-semibold mb-4">Fees</h3>
-<div class="overflow-x-auto bg-background-light/50 dark:bg-background-dark/50 rounded-lg shadow-sm">
-<table class="w-full text-sm text-left">
-<thead class="border-b border-gray-200 dark:border-gray-700">
-<tr>
-<th class="px-6 py-3 font-medium" scope="col">Fee Type</th>
-<th class="px-6 py-3 font-medium" scope="col">Status</th>
-<th class="px-6 py-3 font-medium" scope="col">Amount Due</th>
-<th class="px-6 py-3 font-medium" scope="col">Due Date</th>
-</tr>
-</thead>
-<tbody>
-<tr class="hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors">
-<td class="px-6 py-4">HOA Dues</td>
-<td class="px-6 py-4">
-<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">Paid</span>
-</td>
-<td class="px-6 py-4 text-gray-500 dark:text-gray-400">$0.00</td>
-<td class="px-6 py-4 text-gray-500 dark:text-gray-400">2024-06-01</td>
-</tr>
-</tbody>
-</table>
-</div>
-</section>
 </div>
 </div>
 </main>

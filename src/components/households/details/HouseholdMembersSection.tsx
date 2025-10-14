@@ -37,22 +37,16 @@ export function HouseholdMembersSection({
   ]
 
   return (
-    <section>
-      <h3 className="text-lg font-semibold mb-4">Members</h3>
+    <section className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+      <h3 className="text-xl font-semibold mb-4 text-gray-900">Members</h3>
 
-      <div className="overflow-x-auto bg-background border border-gray-200 rounded-lg shadow-sm">
-        <table className="w-full text-sm text-left">
+      <div className="overflow-x-auto">
+        <table className="w-full text-left">
           <thead className="border-b border-gray-200">
-            <tr>
-              <th className="px-6 py-3 font-medium text-gray-900" scope="col">
-                Name
-              </th>
-              <th className="px-6 py-3 font-medium text-gray-900" scope="col">
-                Role
-              </th>
-              <th className="px-6 py-3 font-medium text-gray-900" scope="col">
-                Contact
-              </th>
+            <tr className="text-sm text-gray-600">
+              <th className="py-3 px-4 font-medium">Name</th>
+              <th className="py-3 px-4 font-medium">Role</th>
+              <th className="py-3 px-4 font-medium">Contact</th>
             </tr>
           </thead>
           <tbody>
@@ -61,20 +55,22 @@ export function HouseholdMembersSection({
                 key={member.id}
                 className={`${
                   index < allMembers.length - 1 ? 'border-b border-gray-200' : ''
-                } hover:bg-primary/5 transition-colors`}
+                } hover:bg-gray-50`}
               >
-                <td className="px-6 py-4 font-medium text-gray-900">
-                  {member.name}
-                  {member.isHead && (
-                    <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary">
-                      Primary
-                    </span>
-                  )}
+                <td className="py-4 px-4">
+                  <div className="flex items-center space-x-2">
+                    <span className="font-medium text-gray-900">{member.name}</span>
+                    {member.isHead && (
+                      <span className="px-2 py-0.5 text-xs font-semibold text-primary bg-primary/10 rounded-full">
+                        Primary
+                      </span>
+                    )}
+                  </div>
                 </td>
-                <td className="px-6 py-4 text-gray-500">
+                <td className="py-4 px-4 text-gray-600">
                   {member.role}
                 </td>
-                <td className="px-6 py-4 text-gray-500">
+                <td className="py-4 px-4 text-gray-600">
                   {member.contact}
                 </td>
               </tr>
@@ -83,7 +79,7 @@ export function HouseholdMembersSection({
         </table>
 
         {allMembers.length === 0 && (
-          <div className="px-6 py-8 text-center text-gray-500">
+          <div className="py-8 text-center text-gray-500">
             No members found for this household.
           </div>
         )}
