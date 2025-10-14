@@ -28,16 +28,6 @@ export function useCreateHousehold(): UseCreateHouseholdResult {
   // Get tenant from authenticated user (same as HeadAdminDashboard)
   const tenantId = (user as any)?.tenant?.id || session?.tenant?.id
 
-  // Debug: log tenant state
-  useEffect(() => {
-    console.log('🏘️ Tenant info in useCreateHousehold:', {
-      tenantId,
-      user,
-      tenant: (user as any)?.tenant,
-      session,
-    })
-  }, [tenantId, user, session])
-
   // Form state
   const [formData, setFormData] = useState<NewHouseholdFormData>(defaultFormValues)
   const [currentStep, setCurrentStep] = useState(1)
@@ -129,11 +119,9 @@ export function useCreateHousehold(): UseCreateHouseholdResult {
   const createHousehold = useCallback(async (
     submissionData?: NewHouseholdFormData
   ): Promise<ApiResponse<CreateHouseholdResponse>> => {
-    console.log('🚀 Starting createHousehold...')
     const dataToSubmit = submissionData || formData
 
     if (!tenantId) {
-      console.error('❌ No tenant ID found in user session')
       const error = new Error('No tenant selected')
       setError(error)
       setLoading(false)
@@ -146,12 +134,9 @@ export function useCreateHousehold(): UseCreateHouseholdResult {
       }
     }
 
-    console.log('✓ Tenant ID:', tenantId)
-
     // Get pending status ID
     const pendingStatusId = lookupUtils.getPendingStatusId()
     if (!pendingStatusId) {
-      console.error('❌ Pending status ID not found')
       return {
         success: false,
         error: {
@@ -161,20 +146,16 @@ export function useCreateHousehold(): UseCreateHouseholdResult {
       }
     }
 
-    console.log('✓ Pending status ID:', pendingStatusId)
-
     setLoading(true)
     setError(null)
     setProgress(0)
 
     try {
       // Step 1: Check email availability (20% progress)
-      console.log('📧 Checking email availability...')
       setProgress(20)
       const emailAvailable = await checkEmailAvailability(dataToSubmit.householdHead.email)
 
       if (!emailAvailable) {
-        console.error('❌ Email already exists')
         return {
           success: false,
           error: {
@@ -184,10 +165,7 @@ export function useCreateHousehold(): UseCreateHouseholdResult {
         }
       }
 
-      console.log('✓ Email available')
-
       // Step 2: Create auth user account (40% progress)
-      console.log('🔐 Creating auth user account...')
       setProgress(40)
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: dataToSubmit.householdHead.email,
@@ -204,19 +182,14 @@ export function useCreateHousehold(): UseCreateHouseholdResult {
       })
 
       if (authError) {
-        console.error('❌ Auth error:', authError)
         throw new Error(`Authentication error: ${authError.message}`)
       }
 
       if (!authData.user) {
-        console.error('❌ No user data returned')
         throw new Error('Failed to create user account')
       }
 
-      console.log('✓ Auth user created:', authData.user.id)
-
       // Step 3: Transform form data to API format (60% progress)
-      console.log('📝 Transforming form data...')
       setProgress(60)
       const { householdData, headUserData, memberData } = transformFormDataToAPI(
         dataToSubmit,
@@ -237,10 +210,7 @@ export function useCreateHousehold(): UseCreateHouseholdResult {
         role_id: householdHeadRoleId, // User role ID for household_head
       }
 
-      console.log('📦 Data prepared:', { householdData, completeHeadUserData, memberData })
-
       // Step 4: Create household with members using database function (80% progress)
-      console.log('🏠 Creating household in database...')
       setProgress(80)
       const { data: householdResult, error: householdError } = await supabase
         .rpc('create_household_with_members', {
@@ -249,20 +219,15 @@ export function useCreateHousehold(): UseCreateHouseholdResult {
           member_data: memberData,
         })
 
-      console.log('Database result:', { householdResult, householdError })
-
       if (householdError) {
-        console.error('❌ Database error:', householdError)
         throw new Error(`Database error: ${householdError.message}`)
       }
 
       if (!householdResult || !householdResult.success) {
-        console.error('❌ Household creation failed:', householdResult)
         throw new Error(householdResult?.error || 'Failed to create household')
       }
 
       // Step 5: Complete (100% progress)
-      console.log('✅ Household created successfully!')
       setProgress(100)
 
       return {
@@ -309,13 +274,6 @@ export function useCreateHousehold(): UseCreateHouseholdResult {
           AddressInfoSchema.parse(formData.address)
           return true
         case 2:
-          console.log('Validating step 2 with data:', {
-            password: formData.householdHead.password,
-            confirmPassword: formData.householdHead.confirmPassword,
-            passwordLength: formData.householdHead.password.length,
-            confirmPasswordLength: formData.householdHead.confirmPassword.length,
-            match: formData.householdHead.password === formData.householdHead.confirmPassword,
-          })
           HouseholdHeadInfoSchema.parse(formData.householdHead)
           return true
         default:
@@ -323,7 +281,6 @@ export function useCreateHousehold(): UseCreateHouseholdResult {
       }
     } catch (error) {
       // Validation failed
-      console.log('Validation error:', error)
       return false
     }
   }, [currentStep, formData])

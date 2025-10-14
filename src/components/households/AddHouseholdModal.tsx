@@ -30,18 +30,6 @@ export function AddHouseholdModal({
     validateCurrentStep,
   } = createHouseholdHook
 
-  // Debug: log modal state
-  useEffect(() => {
-    if (isOpen) {
-      console.log('🏡 Modal opened with state:', {
-        currentStep,
-        isLastStep,
-        error,
-        loading,
-      })
-    }
-  }, [isOpen, currentStep, isLastStep, error, loading])
-
   // Reset form when modal opens
   useEffect(() => {
     if (isOpen) {
@@ -59,19 +47,14 @@ export function AddHouseholdModal({
 
   // Handle form submission
   const handleSubmit = async () => {
-    console.log('🎯 handleSubmit called')
     if (loading) {
-      console.log('⏸️ Already loading, skipping...')
       return
     }
 
     try {
-      console.log('📤 Calling createHousehold...')
       const result = await createHousehold()
-      console.log('📥 createHousehold result:', result)
 
       if (result.success) {
-        console.log('✅ Success! Creating mock household object...')
         // Mock household object for onSuccess callback
         const mockHousehold = {
           id: result.data?.household_id || '',
@@ -97,15 +80,11 @@ export function AddHouseholdModal({
           updated_at: new Date().toISOString(),
         }
 
-        console.log('📞 Calling onSuccess callback...')
         onSuccess(mockHousehold)
-        console.log('🚪 Closing modal...')
         handleClose()
-      } else {
-        console.error('❌ Result was not successful:', result)
       }
     } catch (error) {
-      console.error('💥 Error submitting household application:', error)
+      console.error('Error submitting household application:', error)
     }
   }
 

@@ -176,8 +176,6 @@ export function useHeadAdminDashboard(villageId: string): HeadAdminDashboardData
     setError(null)
 
     try {
-      console.log('🔍 useHeadAdminDashboard - Starting data fetch for villageId:', villageId)
-
       // Get current month start and date ranges
       const currentMonthStart = getCurrentMonthStart()
       const last30Days = getLast30Days()
@@ -209,9 +207,6 @@ export function useHeadAdminDashboard(villageId: string): HeadAdminDashboardData
 
         if (pendingStatusData && !statusError) {
           pendingStatusId = pendingStatusData.id
-          console.log('✅ Found pending status ID:', pendingStatusId)
-        } else {
-          console.warn('⚠️ No pending status found, will show 0 pending applications')
         }
       }
 
@@ -264,21 +259,12 @@ export function useHeadAdminDashboard(villageId: string): HeadAdminDashboardData
         { count: securityIncidents }
       ] = await Promise.all(fetchPromises)
 
-      console.log('✅ Fetched counts:', {
-        pendingApps,
-        totalHouseholds,
-        householdHistoryCount: householdHistory?.length,
-        securityIncidents
-      })
-
       // Get active rules count
       const { count: activeRules } = await supabase
         .from('village_rules')
         .select('*', { count: 'exact', head: true })
         .eq('tenant_id', villageId)
         .eq('is_active', true)
-
-      console.log('✅ Fetched active rules count:', activeRules)
 
       // Calculate fee collection rate (mock for now)
       const feeCollectionRate = 92
@@ -293,7 +279,6 @@ export function useHeadAdminDashboard(villageId: string): HeadAdminDashboardData
         securityIncidents: securityIncidents || 0,
       }
 
-      console.log('✅ Setting stats:', statsData)
       setStats(statsData)
 
       // Process and set chart data
@@ -329,7 +314,6 @@ export function useHeadAdminDashboard(villageId: string): HeadAdminDashboardData
       const recentActivities = await fetchRecentActivities(villageId)
       setActivities(recentActivities)
 
-      console.log('✅ Dashboard data loaded successfully')
       setLoading(false)
     } catch (err) {
       console.error('Error in fetchDashboardData:', err)

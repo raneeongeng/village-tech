@@ -31,11 +31,6 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
   const userRole = user.role?.code || 'household_head'
   const navigationItems = getNavigationForRole(userRole)
 
-  // Development logging to verify role detection
-  if (process.env.NODE_ENV === 'development') {
-    console.log('Sidebar: User role detected as:', userRole, 'Navigation items count:', navigationItems.length)
-  }
-
   return (
     <aside className="w-64 flex flex-col bg-white border-r border-gray-200 transition-all duration-300">
       {/* Branding Header */}

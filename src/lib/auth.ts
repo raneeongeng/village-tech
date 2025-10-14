@@ -65,7 +65,6 @@ export async function signOut(): Promise<void> {
       sessionStorage.removeItem(CACHE_KEYS.TENANT_INFO)
       // Clear any auth-related localStorage items
       localStorage.removeItem('supabase.auth.token')
-      console.log('🧹 Cleared cached user data')
     }
   } catch (error) {
     if (error instanceof AuthError) {
@@ -129,17 +128,13 @@ async function getUserProfile(userId: string): Promise<UserProfile> {
         const profile = JSON.parse(cachedProfile) as UserProfile
         // Verify the cached profile matches the requested userId
         if (profile.id === userId) {
-          console.log('✅ Using cached user profile')
           return profile
         }
       } catch (e) {
         // Invalid cache, continue to fetch fresh data
-        console.warn('Invalid cached profile, fetching fresh data')
       }
     }
   }
-
-  console.log('📡 Fetching user profile from database...')
   const { data, error } = await supabase
     .from('users')
     .select(`
@@ -193,7 +188,6 @@ async function getUserProfile(userId: string): Promise<UserProfile> {
     if (profile.tenant) {
       sessionStorage.setItem(CACHE_KEYS.TENANT_INFO, JSON.stringify(profile.tenant))
     }
-    console.log('💾 Cached user profile and tenant info')
   }
 
   return profile
@@ -213,7 +207,6 @@ export function getCachedTenantInfo(): { id: string; name: string } | null {
     try {
       return JSON.parse(cachedTenant)
     } catch (e) {
-      console.warn('Invalid cached tenant info')
       return null
     }
   }
@@ -228,7 +221,6 @@ export function clearAuthCache(): void {
   if (typeof window !== 'undefined') {
     sessionStorage.removeItem(CACHE_KEYS.USER_PROFILE)
     sessionStorage.removeItem(CACHE_KEYS.TENANT_INFO)
-    console.log('🧹 Cleared auth cache')
   }
 }
 
