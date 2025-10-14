@@ -31,6 +31,19 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
     const userRole = user.role?.code
     if (!userRole) return
 
+    // Check if this is a specific route that should not sync activeView
+    const isSpecificRouteForSync = (
+      (pathname.startsWith('/villages/') && pathname !== '/villages') ||
+      pathname === '/household-approvals' ||
+      pathname === '/active-households' ||
+      pathname.startsWith('/households/')
+    )
+
+    // Skip activeView sync for routes handled by specific page components
+    if (isSpecificRouteForSync) {
+      return
+    }
+
     // Get navigation items for the user's role
     const navigationItems = getNavigationForRole(userRole as any)
 
@@ -71,7 +84,8 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
   const isSpecificRoute = (
     (pathname.startsWith('/villages/') && pathname !== '/villages') ||
     pathname === '/household-approvals' ||
-    pathname === '/active-households'
+    pathname === '/active-households' ||
+    pathname.startsWith('/households/')
   )
 
   return (

@@ -48,6 +48,28 @@ export interface HouseholdMember {
   created_at: string
 }
 
+export interface HouseholdPermit {
+  id: string
+  household_id: string
+  type: string
+  status: 'active' | 'expired' | 'pending' | 'revoked'
+  issued_at: string
+  expires_at: string | null
+  description?: string
+  permit_number?: string
+}
+
+export interface HouseholdFee {
+  id: string
+  household_id: string
+  fee_type: string
+  amount: number
+  status: 'paid' | 'pending' | 'overdue' | 'waived'
+  due_date: string
+  paid_at?: string | null
+  description?: string
+}
+
 export interface Household {
   id: string
   tenant_id: string
@@ -62,6 +84,8 @@ export interface Household {
   updated_at: string
   member_count?: number
   members?: HouseholdMember[]
+  permits?: HouseholdPermit[]
+  fees?: HouseholdFee[]
 }
 
 // =============================================================================

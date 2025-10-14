@@ -10,6 +10,8 @@ import {
   TableOptions,
   UseHouseholdsOptions,
   UseHouseholdsResult,
+  HouseholdPermit,
+  HouseholdFee,
   HOUSEHOLDS_QUERY,
   PENDING_HOUSEHOLDS_QUERY,
 } from '@/types/household'
@@ -145,30 +147,34 @@ export function useHouseholds(options: UseHouseholdsOptions = {}): UseHouseholds
       }
 
       // Transform data to match expected format
-      const transformedHouseholds: Household[] = households.map((item: any) => ({
-        id: item.id,
-        tenant_id: tenantId,
-        household_head_id: item.household_head.id,
-        household_head: {
-          id: item.household_head.id,
-          email: item.household_head.email,
-          first_name: item.household_head.first_name,
-          middle_name: item.household_head.middle_name,
-          last_name: item.household_head.last_name,
-          is_active: true,
-        },
-        address: item.address,
-        status_id: item.status.id,
-        status: {
-          id: item.status.id,
-          code: item.status.code as 'pending_approval' | 'active' | 'inactive',
-          name: item.status.name,
-          color_code: item.status.color_code,
-        },
-        created_at: item.created_at,
-        updated_at: item.created_at, // Search function doesn't return updated_at
-        member_count: 0, // Will be populated by count if needed
-      }))
+      // Note: No need to validate IDs - search_households function uses SECURITY DEFINER
+      // and already returns valid, verified household data
+      const transformedHouseholds: Household[] = households.map((item: any) => {
+        return {
+          id: item.id,
+          tenant_id: tenantId,
+          household_head_id: item.household_head.id,
+          household_head: {
+            id: item.household_head.id,
+            email: item.household_head.email,
+            first_name: item.household_head.first_name,
+            middle_name: item.household_head.middle_name,
+            last_name: item.household_head.last_name,
+            is_active: true,
+          },
+          address: item.address,
+          status_id: item.status.id,
+          status: {
+            id: item.status.id,
+            code: item.status.code as 'pending_approval' | 'active' | 'inactive',
+            name: item.status.name,
+            color_code: item.status.color_code,
+          },
+          created_at: item.created_at,
+          updated_at: item.created_at, // Search function doesn't return updated_at
+          member_count: item.member_count || 0, // Use member_count from search function
+        }
+      })
 
       setData(transformedHouseholds)
       setPaginationState({
@@ -325,6 +331,7 @@ export function usePendingHouseholds() {
       }
 
       // Transform data to match expected format
+      // Note: No need to validate IDs - search_households function uses SECURITY DEFINER
       const transformedHouseholds: Household[] = households.map((item: any) => ({
         id: item.id,
         tenant_id: tenantId,
@@ -421,6 +428,56 @@ export function useHouseholdDetails(householdId: string | null) {
   const [loading, setLoading] = useState(!!householdId)
   const [error, setError] = useState<Error | null>(null)
 
+  // Mock data generators for permits and fees
+  const generateMockPermits = useCallback((householdId: string): HouseholdPermit[] => {
+    return [
+      {
+        id: `permit-${householdId}-1`,
+        household_id: householdId,
+        type: 'Parking Permit',
+        status: 'active',
+        issued_at: '2024-01-15T00:00:00Z',
+        expires_at: '2024-12-31T23:59:59Z',
+        permit_number: 'PKG-2024-001',
+        description: 'Resident parking permit'
+      },
+      {
+        id: `permit-${householdId}-2`,
+        household_id: householdId,
+        type: 'Pool Pass',
+        status: 'active',
+        issued_at: '2024-03-01T00:00:00Z',
+        expires_at: '2024-09-01T23:59:59Z',
+        permit_number: 'POOL-2024-001',
+        description: 'Access to community pool facilities'
+      }
+    ]
+  }, [])
+
+  const generateMockFees = useCallback((householdId: string): HouseholdFee[] => {
+    return [
+      {
+        id: `fee-${householdId}-1`,
+        household_id: householdId,
+        fee_type: 'HOA Dues',
+        amount: 150.00,
+        status: 'paid',
+        due_date: '2024-06-01T00:00:00Z',
+        paid_at: '2024-05-28T10:30:00Z',
+        description: 'Monthly homeowners association dues'
+      },
+      {
+        id: `fee-${householdId}-2`,
+        household_id: householdId,
+        fee_type: 'Pool Maintenance',
+        amount: 25.00,
+        status: 'pending',
+        due_date: '2024-07-15T00:00:00Z',
+        description: 'Quarterly pool maintenance fee'
+      }
+    ]
+  }, [])
+
   const fetchHouseholdDetails = useCallback(async () => {
     if (!householdId || !tenantId) {
       setLoading(false)
@@ -431,22 +488,71 @@ export function useHouseholdDetails(householdId: string | null) {
     setError(null)
 
     try {
-      const { data, error: fetchError } = await supabase
-        .from('households')
-        .select(HOUSEHOLDS_QUERY)
-        .eq('id', householdId)
-        .eq('tenant_id', tenantId)
-        .single()
+      // Use the get_household_details database function (SECURITY DEFINER)
+      const { data: result, error: fetchError } = await supabase
+        .rpc('get_household_details', {
+          household_uuid: householdId,
+          tenant_uuid: tenantId,
+        })
 
       if (fetchError) {
-        throw new Error('Failed to fetch household details')
+        throw new Error(`Failed to fetch household details: ${fetchError.message}`)
       }
 
-      if (!data) {
-        throw new Error('Household not found')
+      if (!result.success) {
+        throw new Error(result.error || 'Household not found')
       }
 
-      setHousehold(data as unknown as Household)
+      const data = result.data
+
+      // Create enhanced household object with mock permits and fees
+      const enhancedHousehold: Household = {
+        id: data.id,
+        tenant_id: data.tenant_id,
+        household_head_id: data.household_head_id,
+        household_head: {
+          id: data.household_head.id,
+          email: data.household_head.email,
+          first_name: data.household_head.first_name,
+          middle_name: data.household_head.middle_name,
+          last_name: data.household_head.last_name,
+          suffix: data.household_head.suffix,
+          is_active: data.household_head.is_active,
+        },
+        address: data.address,
+        status_id: data.status_id,
+        status: {
+          id: data.status.id,
+          code: data.status.code as 'pending_approval' | 'active' | 'inactive',
+          name: data.status.name,
+          color_code: data.status.color_code,
+        },
+        approved_by: data.approved_by,
+        approved_at: data.approved_at,
+        created_at: data.created_at,
+        updated_at: data.updated_at,
+        member_count: data.member_count || 0,
+        members: data.members?.map((member: any) => ({
+          id: member.id,
+          household_id: member.household_id,
+          user_id: member.user_id,
+          name: member.name,
+          relationship_id: member.relationship_id,
+          relationship: {
+            id: member.relationship.id,
+            code: member.relationship.code as 'head' | 'spouse' | 'child' | 'parent' | 'relative' | 'tenant',
+            name: member.relationship.name,
+            sort_order: 0,
+          },
+          contact_info: member.contact_info || {},
+          is_primary: member.is_primary,
+          created_at: member.created_at,
+        })) || [],
+        permits: generateMockPermits(householdId),
+        fees: generateMockFees(householdId),
+      }
+
+      setHousehold(enhancedHousehold)
     } catch (err) {
       console.error('Error fetching household details:', err)
       setError(err as Error)
@@ -454,7 +560,7 @@ export function useHouseholdDetails(householdId: string | null) {
     } finally {
       setLoading(false)
     }
-  }, [householdId, tenantId])
+  }, [householdId, tenantId, generateMockPermits, generateMockFees])
 
   const refetch = useCallback(async () => {
     await fetchHouseholdDetails()
