@@ -217,7 +217,12 @@ export function getFeatureDescription(itemId: string): string {
  */
 export function isComingSoonFeature(itemId: string): boolean {
   // Exclude implemented features
-  const implementedFeatures = ['dashboard', 'villages']
+  const implementedFeatures = [
+    'dashboard',
+    'villages',
+    'household-approvals',
+    'active-households'
+  ]
   return !implementedFeatures.includes(itemId) && FEATURE_CONFIG.hasOwnProperty(itemId)
 }
 

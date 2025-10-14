@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Village Management Platform</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1791cf",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#111c21",
+                        "foreground-light": "#111827",
+                        "foreground-dark": "#f9fafb",
+                        "subtle-light": "#6b7280",
+                        "subtle-dark": "#9ca3af",
+                        "border-light": "#e5e7eb",
+                        "border-dark": "#374151"
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-foreground-light dark:text-foreground-dark">
+<div class="flex flex-col min-h-screen">
+<header class="sticky top-0 z-10 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-sm border-b border-border-light dark:border-border-dark">
+<div class="container mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex items-center justify-between h-16">
+<div class="flex items-center space-x-8">
+<div class="flex items-center gap-2">
+<svg class="h-8 w-8 text-primary" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5-10-5-10 5z"></path>
+</svg>
+<span class="text-xl font-bold">VillageConnect</span>
+</div>
+<nav class="hidden md:flex items-center space-x-6">
+<a class="text-sm font-medium text-subtle-light dark:text-subtle-dark hover:text-primary dark:hover:text-primary transition-colors" href="#">Dashboard</a>
+<a class="text-sm font-medium text-primary dark:text-primary" href="#">Households</a>
+<a class="text-sm font-medium text-subtle-light dark:text-subtle-dark hover:text-primary dark:hover:text-primary transition-colors" href="#">Residents</a>
+<a class="text-sm font-medium text-subtle-light dark:text-subtle-dark hover:text-primary dark:hover:text-primary transition-colors" href="#">Events</a>
+</nav>
+</div>
+<div class="flex items-center space-x-4">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-subtle-light dark:text-subtle-dark">search</span>
+<input class="bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-lg pl-10 pr-4 py-2 text-sm focus:ring-primary focus:border-primary w-48 transition-all" placeholder="Search..." type="text"/>
+</div>
+<button class="p-2 rounded-full hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors md:hidden">
+<span class="material-symbols-outlined">search</span>
+</button>
+<button class="p-2 rounded-full hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<img alt="User avatar" class="h-10 w-10 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYAL0J9-tzqiC9-PXQR5pM7-d0sJiKs0iZg9wPv2ScHLx7FWpJChaqmyAkyuo2Xb1m0cWo0Z0IGKI0d8BkeJvkBcjoJOiPlp78YTqSmV-t-Z79Hs6OzJgHBZWM94m8nvXi96m7H0PXi60ilRJxbg7JiS7qFdvmeqpOkxZbNm7sHQoWjg7m_ptHRjhFfZy03JtzVqIgW7CW_zIN98nNVitse1T4A2nJZZv6ZRSC3gE8GZQsgWBojuhJQABnYnQcHLkpUCticolJtuA"/>
+</div>
+</div>
+</div>
+</header>
+<main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
+<h1 class="text-3xl font-bold tracking-tight">Registered Households</h1>
+<button class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg shadow-sm hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+<span class="material-symbols-outlined text-base">add</span>
+<span>Add Household</span>
+</button>
+</div>
+<div class="bg-background-light dark:bg-background-dark rounded-xl shadow-sm overflow-hidden border border-border-light dark:border-border-dark">
+<div class="overflow-x-auto">
+<table class="w-full text-sm text-left">
+<thead class="bg-background-light dark:bg-background-dark/50 border-b border-border-light dark:border-border-dark">
+<tr>
+<th class="px-6 py-4 font-medium" scope="col">Household Name</th>
+<th class="px-6 py-4 font-medium hidden md:table-cell" scope="col">Address</th>
+<th class="px-6 py-4 font-medium hidden lg:table-cell" scope="col">Members</th>
+<th class="px-6 py-4 font-medium text-center" scope="col">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-border-light dark:divide-border-dark">
+<tr class="hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors">
+<td class="px-6 py-4 font-medium">The Smiths</td>
+<td class="px-6 py-4 text-subtle-light dark:text-subtle-dark hidden md:table-cell">123 Oak Street, Anytown</td>
+<td class="px-6 py-4 text-subtle-light dark:text-subtle-dark hidden lg:table-cell">4</td>
+<td class="px-6 py-4 text-center">
+<div class="flex items-center justify-center gap-2">
+<button class="text-subtle-light dark:text-subtle-dark hover:text-primary dark:hover:text-primary transition-colors p-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20">
+<span class="material-symbols-outlined text-xl">visibility</span>
+</button>
+<button class="text-subtle-light dark:text-subtle-dark hover:text-primary dark:hover:text-primary transition-colors p-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20">
+<span class="material-symbols-outlined text-xl">toggle_off</span>
+</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors">
+<td class="px-6 py-4 font-medium">The Johnsons</td>
+<td class="px-6 py-4 text-subtle-light dark:text-subtle-dark hidden md:table-cell">456 Maple Avenue, Anytown</td>
+<td class="px-6 py-4 text-subtle-light dark:text-subtle-dark hidden lg:table-cell">2</td>
+<td class="px-6 py-4 text-center">
+<div class="flex items-center justify-center gap-2">
+<button class="text-subtle-light dark:text-subtle-dark hover:text-primary dark:hover:text-primary transition-colors p-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20">
+<span class="material-symbols-outlined text-xl">visibility</span>
+</button>
+<button class="text-subtle-light dark:text-subtle-dark hover:text-primary dark:hover:text-primary transition-colors p-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20">
+<span class="material-symbols-outlined text-xl">toggle_off</span>
+</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors">
+<td class="px-6 py-4 font-medium">The Williams</td>
+<td class="px-6 py-4 text-subtle-light dark:text-subtle-dark hidden md:table-cell">789 Pine Lane, Anytown</td>
+<td class="px-6 py-4 text-subtle-light dark:text-subtle-dark hidden lg:table-cell">3</td>
+<td class="px-6 py-4 text-center">
+<div class="flex items-center justify-center gap-2">
+<button class="text-subtle-light dark:text-subtle-dark hover:text-primary dark:hover:text-primary transition-colors p-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20">
+<span class="material-symbols-outlined text-xl">visibility</span>
+</button>
+<button class="text-subtle-light dark:text-subtle-dark hover:text-primary dark:hover:text-primary transition-colors p-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20">
+<span class="material-symbols-outlined text-xl">toggle_on</span>
+</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors">
+<td class="px-6 py-4 font-medium">The Browns</td>
+<td class="px-6 py-4 text-subtle-light dark:text-subtle-dark hidden md:table-cell">101 Elm Road, Anytown</td>
+<td class="px-6 py-4 text-subtle-light dark:text-subtle-dark hidden lg:table-cell">5</td>
+<td class="px-6 py-4 text-center">
+<div class="flex items-center justify-center gap-2">
+<button class="text-subtle-light dark:text-subtle-dark hover:text-primary dark:hover:text-primary transition-colors p-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20">
+<span class="material-symbols-outlined text-xl">visibility</span>
+</button>
+<button class="text-subtle-light dark:text-subtle-dark hover:text-primary dark:hover:text-primary transition-colors p-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20">
+<span class="material-symbols-outlined text-xl">toggle_off</span>
+</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors">
+<td class="px-6 py-4 font-medium">The Davis</td>
+<td class="px-6 py-4 text-subtle-light dark:text-subtle-dark hidden md:table-cell">222 Cedar Court, Anytown</td>
+<td class="px-6 py-4 text-subtle-light dark:text-subtle-dark hidden lg:table-cell">1</td>
+<td class="px-6 py-4 text-center">
+<div class="flex items-center justify-center gap-2">
+<button class="text-subtle-light dark:text-subtle-dark hover:text-primary dark:hover:text-primary transition-colors p-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20">
+<span class="material-symbols-outlined text-xl">visibility</span>
+</button>
+<button class="text-subtle-light dark:text-subtle-dark hover:text-primary dark:hover:text-primary transition-colors p-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20">
+<span class="material-symbols-outlined text-xl">toggle_on</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="mt-8 flex justify-center">
+<nav aria-label="Pagination" class="flex items-center -space-x-px">
+<a class="relative inline-flex items-center px-2 py-2 rounded-l-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-sm font-medium text-subtle-light dark:text-subtle-dark hover:bg-primary/10 dark:hover:bg-primary/20" href="#">
+<span class="sr-only">Previous</span>
+<span class="material-symbols-outlined text-lg">chevron_left</span>
+</a>
+<a aria-current="page" class="relative z-10 inline-flex items-center px-4 py-2 border border-primary bg-primary/20 dark:bg-primary/30 text-sm font-medium text-primary" href="#"> 1 </a>
+<a class="relative inline-flex items-center px-4 py-2 border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-sm font-medium text-subtle-light dark:text-subtle-dark hover:bg-primary/10 dark:hover:bg-primary/20" href="#"> 2 </a>
+<a class="relative hidden items-center px-4 py-2 border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-sm font-medium text-subtle-light dark:text-subtle-dark hover:bg-primary/10 dark:hover:bg-primary/20 md:inline-flex" href="#"> 3 </a>
+<span class="relative inline-flex items-center px-4 py-2 border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-sm font-medium text-subtle-light dark:text-subtle-dark"> ... </span>
+<a class="relative hidden items-center px-4 py-2 border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-sm font-medium text-subtle-light dark:text-subtle-dark hover:bg-primary/10 dark:hover:bg-primary/20 md:inline-flex" href="#"> 8 </a>
+<a class="relative inline-flex items-center px-2 py-2 rounded-r-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-sm font-medium text-subtle-light dark:text-subtle-dark hover:bg-primary/10 dark:hover:bg-primary/20" href="#">
+<span class="sr-only">Next</span>
+<span class="material-symbols-outlined text-lg">chevron_right</span>
+</a>
+</nav>
+</div>
+</main>
+</div>
+
+</body></html>

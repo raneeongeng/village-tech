@@ -461,31 +461,7 @@ export function ContentRenderer() {
   const { activeView, setActiveView, isComingSoon } = useContentView()
   const pathname = usePathname()
 
-  // Sync content view with URL
-  useEffect(() => {
-    if (!user) return
-
-    const userRole = user.role?.code
-    if (!userRole) return
-
-    // Get navigation items for the user's role
-    const navigationItems = getNavigationForRole(userRole)
-
-    // Find the navigation item that matches the current pathname
-    const matchingItem = navigationItems.find(item => item.href === pathname)
-
-    if (matchingItem) {
-      // Update activeView to match the current URL
-      if (activeView !== matchingItem.id) {
-        setActiveView(matchingItem.id)
-      }
-    } else if (pathname === '/dashboard') {
-      // Default to dashboard view for /dashboard path
-      if (activeView !== 'dashboard') {
-        setActiveView('dashboard')
-      }
-    }
-  }, [pathname, user, activeView, setActiveView])
+  // URL sync logic moved to protected layout for all pages
 
   if (!user) {
     return (

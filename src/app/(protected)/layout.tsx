@@ -3,15 +3,18 @@
 import { useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { LayoutProvider, useLayout } from '@/hooks/useLayout'
-import { ContentViewProvider } from '@/hooks/useContentView'
+import { ContentViewProvider, useContentView } from '@/hooks/useContentView'
+import { TenantProvider } from '@/hooks/useTenant'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { Header } from '@/components/layout/Header'
 import { ContentRenderer } from '@/components/layout/ContentRenderer'
 import { useAuth } from '@/hooks/useAuth'
+import { getNavigationForRole } from '@/lib/config/navigation'
 
 function LayoutContent({ children }: { children: React.ReactNode }) {
   const { sidebarCollapsed, toggleSidebar, isMobile, showMobileSidebar, setShowMobileSidebar } = useLayout()
   const { user, isLoading, isAuthenticated } = useAuth()
+  const { activeView, setActiveView } = useContentView()
   const router = useRouter()
   const pathname = usePathname()
 
@@ -20,6 +23,32 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
       router.push('/login')
     }
   }, [isLoading, isAuthenticated, router])
+
+  // Sync activeView with current URL pathname
+  useEffect(() => {
+    if (!user) return
+
+    const userRole = user.role?.code
+    if (!userRole) return
+
+    // Get navigation items for the user's role
+    const navigationItems = getNavigationForRole(userRole as any)
+
+    // Find the navigation item that matches the current pathname
+    const matchingItem = navigationItems.find(item => item.href === pathname)
+
+    if (matchingItem) {
+      // Update activeView to match the current URL
+      if (activeView !== matchingItem.id) {
+        setActiveView(matchingItem.id)
+      }
+    } else if (pathname === '/dashboard') {
+      // Default to dashboard view for /dashboard path
+      if (activeView !== 'dashboard') {
+        setActiveView('dashboard')
+      }
+    }
+  }, [pathname, user, activeView, setActiveView])
 
   // Show loading spinner while checking authentication
   if (isLoading) {
@@ -38,8 +67,12 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
     return null
   }
 
-  // Check if this is a specific page route (like village details)
-  const isSpecificRoute = pathname.startsWith('/villages/') && pathname !== '/villages'
+  // Check if this is a specific page route that should render children directly
+  const isSpecificRoute = (
+    (pathname.startsWith('/villages/') && pathname !== '/villages') ||
+    pathname === '/household-approvals' ||
+    pathname === '/active-households'
+  )
 
   return (
     <div className="min-h-screen bg-background">
@@ -85,10 +118,12 @@ export default function ProtectedLayout({
   children: React.ReactNode
 }) {
   return (
-    <LayoutProvider>
-      <ContentViewProvider>
-        <LayoutContent>{children}</LayoutContent>
-      </ContentViewProvider>
-    </LayoutProvider>
+    <TenantProvider>
+      <LayoutProvider>
+        <ContentViewProvider>
+          <LayoutContent>{children}</LayoutContent>
+        </ContentViewProvider>
+      </LayoutProvider>
+    </TenantProvider>
   )
 }

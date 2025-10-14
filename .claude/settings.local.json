@@ -16,7 +16,17 @@
       "Bash(do if [ -d \"src/app/$dir\" ])",
       "Bash(then mv \"src/app/$dir\" \"src/app/(protected)/$dir\")",
       "Bash(fi)",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(__NEW_LINE__ BRANCH_NAME=\"002-implement-two-dedicated\")",
+      "Bash(__NEW_LINE__ mkdir -p \"specs/$BRANCH_NAME\")",
+      "Bash(__NEW_LINE__ echo \"Created branch: $BRANCH_NAME\")",
+      "Bash(__NEW_LINE__ echo \"Created directory: specs/$BRANCH_NAME\")",
+      "Bash(ls:*)",
+      "Bash(tail:*)",
+      "Bash(npm run lint:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run dev)"
     ],
     "deny": [],
     "ask": []

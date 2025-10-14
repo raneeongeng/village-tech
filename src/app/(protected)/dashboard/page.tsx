@@ -423,7 +423,7 @@ export default function DashboardPage() {
     if (!userRole) return
 
     // Get navigation items for the user's role
-    const navigationItems = getNavigationForRole(userRole)
+    const navigationItems = getNavigationForRole(userRole as any)
 
     // Find the navigation item that matches the current pathname
     const matchingItem = navigationItems.find(item => item.href === pathname)

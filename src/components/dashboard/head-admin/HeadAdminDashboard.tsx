@@ -20,6 +20,11 @@ export function HeadAdminDashboard() {
   console.log('🔍 HeadAdminDashboard - villageId:', villageId)
   console.log('🔍 HeadAdminDashboard - tenant object:', (user as any)?.tenant)
 
+  // Always call hooks - use empty string as fallback to avoid conditional hook calls
+  const { stats, charts, announcements, activities, loading, error, refetch } = useHeadAdminDashboard(
+    villageId || ''
+  )
+
   // Check if user has a village assigned
   if (!villageId) {
     return (
@@ -37,10 +42,6 @@ export function HeadAdminDashboard() {
       </div>
     )
   }
-
-  const { stats, charts, announcements, activities, loading, error, refetch } = useHeadAdminDashboard(
-    villageId
-  )
 
   console.log('🔍 HeadAdminDashboard - loading:', loading, 'error:', error)
 

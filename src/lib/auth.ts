@@ -58,12 +58,14 @@ export async function signOut(): Promise<void> {
       throw new AuthError(error.message)
     }
 
-    // Clear any cached data or local storage if needed
+    // Clear cached data
     if (typeof window !== 'undefined') {
+      // Clear our cached user profile and tenant info
+      sessionStorage.removeItem(CACHE_KEYS.USER_PROFILE)
+      sessionStorage.removeItem(CACHE_KEYS.TENANT_INFO)
       // Clear any auth-related localStorage items
       localStorage.removeItem('supabase.auth.token')
-      // Clear any session storage items
-      sessionStorage.clear()
+      console.log('🧹 Cleared cached user data')
     }
   } catch (error) {
     if (error instanceof AuthError) {
@@ -107,9 +109,37 @@ export async function getCurrentSession(): Promise<AuthSession | null> {
 }
 
 /**
+ * Cache keys for session storage
+ */
+const CACHE_KEYS = {
+  USER_PROFILE: 'vmp_user_profile',
+  TENANT_INFO: 'vmp_tenant_info',
+}
+
+/**
  * Get user profile with role and tenant information
+ * Uses sessionStorage cache to avoid repeated database queries
  */
 async function getUserProfile(userId: string): Promise<UserProfile> {
+  // Try to get from cache first
+  if (typeof window !== 'undefined') {
+    const cachedProfile = sessionStorage.getItem(CACHE_KEYS.USER_PROFILE)
+    if (cachedProfile) {
+      try {
+        const profile = JSON.parse(cachedProfile) as UserProfile
+        // Verify the cached profile matches the requested userId
+        if (profile.id === userId) {
+          console.log('✅ Using cached user profile')
+          return profile
+        }
+      } catch (e) {
+        // Invalid cache, continue to fetch fresh data
+        console.warn('Invalid cached profile, fetching fresh data')
+      }
+    }
+  }
+
+  console.log('📡 Fetching user profile from database...')
   const { data, error } = await supabase
     .from('users')
     .select(`
@@ -154,7 +184,52 @@ async function getUserProfile(userId: string): Promise<UserProfile> {
     throw new AuthError('User profile not found')
   }
 
-  return data as UserProfile
+  const profile = data as UserProfile
+
+  // Cache the profile in sessionStorage
+  if (typeof window !== 'undefined') {
+    sessionStorage.setItem(CACHE_KEYS.USER_PROFILE, JSON.stringify(profile))
+    // Also cache just the tenant info separately for easy access
+    if (profile.tenant) {
+      sessionStorage.setItem(CACHE_KEYS.TENANT_INFO, JSON.stringify(profile.tenant))
+    }
+    console.log('💾 Cached user profile and tenant info')
+  }
+
+  return profile
+}
+
+/**
+ * Get cached tenant info from sessionStorage
+ * Fast way to access tenant without querying database
+ */
+export function getCachedTenantInfo(): { id: string; name: string } | null {
+  if (typeof window === 'undefined') {
+    return null
+  }
+
+  const cachedTenant = sessionStorage.getItem(CACHE_KEYS.TENANT_INFO)
+  if (cachedTenant) {
+    try {
+      return JSON.parse(cachedTenant)
+    } catch (e) {
+      console.warn('Invalid cached tenant info')
+      return null
+    }
+  }
+
+  return null
+}
+
+/**
+ * Clear cached user data (useful for forcing refresh)
+ */
+export function clearAuthCache(): void {
+  if (typeof window !== 'undefined') {
+    sessionStorage.removeItem(CACHE_KEYS.USER_PROFILE)
+    sessionStorage.removeItem(CACHE_KEYS.TENANT_INFO)
+    console.log('🧹 Cleared auth cache')
+  }
 }
 
 /**
