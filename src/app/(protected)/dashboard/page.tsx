@@ -31,54 +31,197 @@ import { VillageTable as VillageListTable } from '@/components/villages/VillageT
 import { CreateVillageModal } from '@/components/villages/CreateVillageModal'
 import { usePathname } from 'next/navigation'
 import { getNavigationForRole } from '@/lib/config/navigation'
+// Superadmin dashboard charts
+import { FinancialOverviewChart } from '@/components/dashboard/superadmin/FinancialOverviewChart'
+import { VillageStatusChart } from '@/components/dashboard/superadmin/VillageStatusChart'
 
 // Dashboard widgets based on user role
 function SuperAdminDashboard() {
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const { totalVillages, activeVillages, inactiveVillages, refetchAll } = useDashboardStats()
-  const { data: recentVillages, loading: villagesLoading, error: villagesError, refetch: refetchVillages } = useRecentVillages(5)
+  const { data: recentVillages, loading: villagesLoading, error: villagesError, refetch: refetchVillages } = useRecentVillages(4)
+
+  const handleCreateSuccess = () => {
+    refetchAll()
+    refetchVillages()
+  }
+
+  // Mock financial data - replace with real data from API later
+  const financialData = {
+    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+    expectedIncome: [150000, 160000, 155000, 170000, 165000, 175000],
+    currentIncome: [145000, 158000, 150000, 168000, 162000, 170000]
+  }
+
+  // Calculate totals
+  const totalExpected = financialData.expectedIncome.reduce((a, b) => a + b, 0)
+  const totalCurrent = financialData.currentIncome.reduce((a, b) => a + b, 0)
+  const collectionRate = totalExpected > 0 ? ((totalCurrent / totalExpected) * 100).toFixed(1) : '0'
 
   return (
-    <div className="space-y-8">
-      {/* Header with Create New Village Button */}
-      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard Overview</h1>
-        <button className="flex h-10 items-center justify-center gap-2 rounded-lg bg-primary px-5 text-sm font-medium text-white shadow-sm hover:bg-primary/90">
-          <span className="material-icons-outlined text-xl">add</span>
+    <div className="space-y-6">
+      {/* DEBUG: Confirm new code is loaded */}
+      <div className="bg-blue-500 text-white p-4 rounded-lg mb-4 text-center font-bold">
+        ✅ NEW DASHBOARD LOADED - Updated {new Date().toLocaleTimeString()}
+      </div>
+
+      {/* Header with Create New Village Button - Updated Design */}
+      <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
+        <h3 className="text-2xl font-bold text-gray-900">Dashboard Overview</h3>
+        <button
+          onClick={() => setIsCreateModalOpen(true)}
+          className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 font-bold text-white hover:bg-primary/90 shadow-sm w-full md:w-auto justify-center"
+        >
+          <span className="material-icons">add_circle</span>
           Create New Village
         </button>
       </div>
 
       {/* Statistics Cards Grid */}
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        <DashboardStatCard
-          title="Total Villages"
-          value={totalVillages.data ?? 0}
-          loading={totalVillages.loading}
-          error={totalVillages.error}
-          onRetry={() => refetchAll()}
-        />
-        <DashboardStatCard
-          title="Active Villages"
-          value={activeVillages.data ?? 0}
-          loading={activeVillages.loading}
-          error={activeVillages.error}
-          onRetry={() => refetchAll()}
-        />
-        <DashboardStatCard
-          title="Inactive Villages"
-          value={inactiveVillages.data ?? 0}
-          loading={inactiveVillages.loading}
-          error={inactiveVillages.error}
-          onRetry={() => refetchAll()}
+      <div className="grid grid-cols-2 gap-4 md:gap-6 lg:grid-cols-4">
+        {/* Total Villages Card */}
+        <div className="bg-white p-4 rounded-lg shadow-sm flex items-center justify-between">
+          <div>
+            <p className="text-xs md:text-sm font-medium text-gray-600">Total Villages</p>
+            <p className="text-2xl md:text-4xl font-bold text-gray-900">
+              {totalVillages.loading ? '...' : totalVillages.data ?? 0}
+            </p>
+          </div>
+          <div className="bg-primary/10 p-3 rounded-full">
+            <span className="material-icons text-primary text-xl md:text-2xl">holiday_village</span>
+          </div>
+        </div>
+
+        {/* Active Villages Card */}
+        <div className="bg-white p-4 rounded-lg shadow-sm flex items-center justify-between">
+          <div>
+            <p className="text-xs md:text-sm font-medium text-gray-600">Active Villages</p>
+            <p className="text-2xl md:text-4xl font-bold text-gray-900">
+              {activeVillages.loading ? '...' : activeVillages.data ?? 0}
+            </p>
+          </div>
+          <div className="bg-green-100 p-3 rounded-full">
+            <span className="material-icons text-green-500 text-xl md:text-2xl">check_circle</span>
+          </div>
+        </div>
+
+        {/* Inactive Villages Card */}
+        <div className="bg-white p-4 rounded-lg shadow-sm flex items-center justify-between">
+          <div>
+            <p className="text-xs md:text-sm font-medium text-gray-600">Inactive Villages</p>
+            <p className="text-2xl md:text-4xl font-bold text-gray-900">
+              {inactiveVillages.loading ? '...' : inactiveVillages.data ?? 0}
+            </p>
+          </div>
+          <div className="bg-red-100 p-3 rounded-full">
+            <span className="material-icons text-red-500 text-xl md:text-2xl">cancel</span>
+          </div>
+        </div>
+
+        {/* Total Users Card - Mock data for now */}
+        <div className="bg-white p-4 rounded-lg shadow-sm flex items-center justify-between">
+          <div>
+            <p className="text-xs md:text-sm font-medium text-gray-600">Total Users</p>
+            <p className="text-2xl md:text-4xl font-bold text-gray-900">--</p>
+          </div>
+          <div className="bg-blue-100 p-3 rounded-full">
+            <span className="material-icons text-blue-500 text-xl md:text-2xl">group</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Village Financial Overview */}
+      <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
+          <h3 className="text-xl font-bold text-gray-900">Village Financial Overview</h3>
+          <div className="flex items-center gap-2 mt-4 md:mt-0">
+            <select className="text-sm rounded-lg border-gray-300 bg-white text-gray-600 focus:ring-primary focus:border-primary">
+              <option>Last 6 Months</option>
+              <option>Last 12 Months</option>
+              <option>All Time</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Financial Metrics Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+          <div className="bg-primary/10 p-4 rounded-lg flex items-start gap-4">
+            <div className="bg-primary/20 p-2 rounded-full">
+              <span className="material-icons text-primary">account_balance_wallet</span>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">Expected Income</p>
+              <p className="text-2xl font-bold text-gray-900">
+                ₱{totalExpected.toLocaleString()}
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-green-100/70 p-4 rounded-lg flex items-start gap-4">
+            <div className="bg-green-200 p-2 rounded-full">
+              <span className="material-icons text-green-700">paid</span>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">Current Income</p>
+              <p className="text-2xl font-bold text-gray-900">
+                ₱{totalCurrent.toLocaleString()}
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-blue-100/70 p-4 rounded-lg flex items-start gap-4">
+            <div className="bg-blue-200 p-2 rounded-full">
+              <span className="material-icons text-blue-700">receipt_long</span>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">Collection Rate</p>
+              <p className="text-2xl font-bold text-gray-900">{collectionRate}%</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Financial Charts - Two Column Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Financial Overview Bar Chart - Spans 2 columns */}
+          <div className="lg:col-span-2 bg-white p-4 rounded-lg border border-gray-200">
+            <h4 className="text-lg font-semibold text-gray-900 mb-4">Income Comparison</h4>
+            <FinancialOverviewChart
+              expectedIncome={financialData.expectedIncome}
+              currentIncome={financialData.currentIncome}
+              labels={financialData.labels}
+              loading={false}
+            />
+          </div>
+
+          {/* Village Status Doughnut Chart - Spans 1 column */}
+          <div className="lg:col-span-1 bg-white p-4 rounded-lg border border-gray-200">
+            <h4 className="text-lg font-semibold text-gray-900 mb-4">Village Status</h4>
+            <VillageStatusChart
+              active={activeVillages.data ?? 0}
+              inactive={inactiveVillages.data ?? 0}
+              suspended={0}
+              loading={activeVillages.loading || inactiveVillages.loading}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Recently Created Villages */}
+      <div>
+        <h3 className="text-2xl font-bold text-gray-900 mb-4">Recently Created Villages</h3>
+        <VillageTable
+          villages={recentVillages}
+          loading={villagesLoading}
+          error={villagesError}
+          onRetry={refetchVillages}
         />
       </div>
 
-      {/* Recent Villages Table */}
-      <VillageTable
-        villages={recentVillages}
-        loading={villagesLoading}
-        error={villagesError}
-        onRetry={refetchVillages}
+      {/* Create Village Modal */}
+      <CreateVillageModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSuccess={handleCreateSuccess}
       />
     </div>
   )
@@ -522,14 +665,14 @@ export default function DashboardPage() {
 
     // Only show dashboard content if activeView is 'dashboard'
     if (activeView === 'dashboard') {
-      // admin_head uses HeadAdminDashboard which has its own header
-      if (user.role.code === 'admin_head') {
+      // Superadmin and admin_head have their own headers in their dashboard components
+      if (user.role.code === 'superadmin' || user.role.code === 'admin_head') {
         return renderDashboard()
       }
 
       return (
         <>
-          {/* Welcome Header */}
+          {/* Welcome Header - for other roles */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 font-heading">
               Welcome back, {user.first_name}!
