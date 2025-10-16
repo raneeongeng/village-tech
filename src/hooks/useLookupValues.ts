@@ -32,8 +32,58 @@ export function useLookupValues(): UseLookupValuesReturn {
   const error = commonError ? new Error(commonError) :
                 villageStatusesError ? new Error(villageStatusesError) : null
 
-  const getAdminHeadRoleId = useCallback(() => {
-    const adminHeadRole = userRoles.find(role => role.code === 'admin_head')
+  const getAdminHeadRoleId = useCallback(async () => {
+    console.log('[useLookupValues] getAdminHeadRoleId called', { userRoles })
+    if (!userRoles || userRoles.length === 0) {
+      console.log('[useLookupValues] No userRoles available in cache, fetching from database')
+
+      // Fetch directly from database when cache is empty
+      try {
+        // First get the category ID for user_roles
+        const supabase = (await import('@/lib/supabase/client')).supabase
+
+        const { data: category, error: categoryError } = await supabase
+          .from('lookup_categories')
+          .select('id')
+          .eq('code', 'user_roles')
+          .eq('is_active', true)
+          .single()
+
+        if (categoryError || !category) {
+          console.error('[useLookupValues] Error fetching user_roles category:', categoryError)
+          return null
+        }
+
+        // Now get the admin_head role using the category ID
+        const { data, error } = await supabase
+          .from('lookup_values')
+          .select('id, code, name')
+          .eq('category_id', category.id)
+          .eq('code', 'admin_head')
+          .eq('is_active', true)
+          .single()
+
+        if (error) {
+          console.error('[useLookupValues] Error fetching admin_head role from database:', error)
+          return null
+        }
+
+        console.log('[useLookupValues] Found admin_head role from database:', data)
+        return data?.id || null
+      } catch (error) {
+        console.error('[useLookupValues] Exception fetching admin_head role:', error)
+        return null
+      }
+    }
+
+    console.log('[useLookupValues] Available user roles:', userRoles.map(role => ({ id: role.id, code: role.code, name: role.name })))
+    console.log('[useLookupValues] Looking for role with code: admin_head')
+    const adminHeadRole = userRoles.find(role => {
+      console.log(`[useLookupValues] Checking role: ${role.code} === 'admin_head'?`, role.code === 'admin_head')
+      return role.code === 'admin_head'
+    })
+    console.log('[useLookupValues] Found admin_head role:', adminHeadRole)
+    console.log('[useLookupValues] Admin head role ID:', adminHeadRole?.id)
     return adminHeadRole?.id || null
   }, [userRoles])
 

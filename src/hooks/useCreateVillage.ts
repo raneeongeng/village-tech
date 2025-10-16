@@ -63,6 +63,7 @@ export function useCreateVillage(): UseCreateVillageReturn {
   }, [])
 
   const createVillage = useCallback(async (formData: CreateVillageFormData): Promise<CreateVillageResult> => {
+    console.log('[useCreateVillage] Starting village creation process', { formData })
     setCreating(true)
     setError(null)
 
@@ -100,7 +101,10 @@ export function useCreateVillage(): UseCreateVillageReturn {
         )
       }
 
-      // Step 2: Create admin head authentication account
+      // Step 2: Store current session before creating new user
+      const currentSession = await supabase.auth.getSession()
+
+      // Create admin head authentication account
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.adminEmail,
         password: formData.adminPassword,
@@ -115,6 +119,14 @@ export function useCreateVillage(): UseCreateVillageReturn {
           }
         }
       })
+
+      // Restore original session immediately after signup
+      if (currentSession.data.session) {
+        await supabase.auth.setSession({
+          access_token: currentSession.data.session.access_token,
+          refresh_token: currentSession.data.session.refresh_token
+        })
+      }
 
       if (authError) {
         console.error('Error creating admin head authentication:', authError)

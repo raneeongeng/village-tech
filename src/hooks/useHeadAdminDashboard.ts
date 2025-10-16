@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase/client'
 import { useLookup } from '@/contexts/LookupContext'
-import { globalRequestCache, CacheKeys } from '@/lib/cache/global-request-cache'
 
 export interface DashboardStats {
   pendingApps: number

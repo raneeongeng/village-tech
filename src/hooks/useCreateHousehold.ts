@@ -165,8 +165,10 @@ export function useCreateHousehold(): UseCreateHouseholdResult {
         }
       }
 
-      // Step 2: Create auth user account (40% progress)
+      // Step 2: Store current session and create auth user account (40% progress)
       setProgress(40)
+      const currentSession = await supabase.auth.getSession()
+
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: dataToSubmit.householdHead.email,
         password: dataToSubmit.householdHead.password,
@@ -180,6 +182,14 @@ export function useCreateHousehold(): UseCreateHouseholdResult {
           },
         },
       })
+
+      // Restore original session immediately after signup
+      if (currentSession.data.session) {
+        await supabase.auth.setSession({
+          access_token: currentSession.data.session.access_token,
+          refresh_token: currentSession.data.session.refresh_token
+        })
+      }
 
       if (authError) {
         throw new Error(`Authentication error: ${authError.message}`)

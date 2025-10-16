@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase/client'
 import { useLookup } from '@/contexts/LookupContext'
-import { globalRequestCache, CacheKeys } from '@/lib/cache/global-request-cache'
 import { DashboardStats, DataState, DashboardError } from '@/types/dashboard'
 
 // Request deduplication for same-render duplicate calls (React Strict Mode)
@@ -45,27 +44,52 @@ export function useDashboardStats(): UseDashboardStatsReturn {
   }
 
   const fetchTotalVillages = useCallback(async () => {
+    const requestKey = 'total_villages'
+
+    console.log(`[useDashboardStats] fetchTotalVillages called with key: ${requestKey}`)
+
+    // Check if request is already pending
+    if (pendingVillageStatsRequests.has(requestKey)) {
+      console.log(`[useDashboardStats] Request already pending for key: ${requestKey}, waiting for existing request`)
+      try {
+        const result = await pendingVillageStatsRequests.get(requestKey)
+        console.log(`[useDashboardStats] Using cached result for key: ${requestKey}`)
+        return result
+      } catch (error) {
+        console.log(`[useDashboardStats] Cached request failed for key: ${requestKey}, proceeding with new request`)
+        pendingVillageStatsRequests.delete(requestKey)
+      }
+    }
+
+    console.log(`[useDashboardStats] Starting new request for key: ${requestKey}`)
     setTotalVillages(prev => ({ ...prev, loading: true, error: null }))
 
+    // Create the actual async function that will be cached
+    const requestPromise = (async () => {
+      try {
+        console.log(`[useDashboardStats] Making API call for total villages`)
+        const { count, error } = await supabase
+          .from('villages')
+          .select('*', { count: 'exact', head: true })
+
+        if (error) {
+          console.error('Error fetching total villages:', error)
+          throw createError('Failed to fetch total villages count')
+        }
+
+        console.log(`[useDashboardStats] API call completed for total villages: ${count}`)
+        return count || 0
+      } finally {
+        pendingVillageStatsRequests.delete(requestKey)
+        console.log(`[useDashboardStats] Cleaned up pending request for key: ${requestKey}`)
+      }
+    })()
+
+    // Store pending request for deduplication
+    pendingVillageStatsRequests.set(requestKey, requestPromise)
+
     try {
-      const count = await globalRequestCache.executeRequest(
-        CacheKeys.villageStats('total'),
-        async () => {
-          console.log(`[useDashboardStats] Making API call for total villages`)
-          const { count, error } = await supabase
-            .from('villages')
-            .select('*', { count: 'exact', head: true })
-
-          if (error) {
-            console.error('Error fetching total villages:', error)
-            throw createError('Failed to fetch total villages count')
-          }
-
-          return count || 0
-        },
-        5 * 60 * 1000 // Cache for 5 minutes
-      )
-
+      const count = await requestPromise
       setTotalVillages({
         data: count,
         loading: false,

@@ -143,14 +143,27 @@ export function CreateVillageModal({ isOpen, onClose, onSuccess }: CreateVillage
   }
 
   const handleSubmit = async () => {
+    console.log('[CreateVillageModal] handleSubmit called', { formData, lookupLoading })
+
+    // Check if lookup data is still loading
+    if (lookupLoading) {
+      console.log('[CreateVillageModal] Lookup data still loading')
+      setValidationErrors({ submit: 'System data is still loading. Please wait a moment and try again.' })
+      return
+    }
+
     // Set admin role ID if not set
-    const adminRoleId = formData.adminRoleId || getAdminHeadRoleId()
+    const adminRoleId = formData.adminRoleId || await getAdminHeadRoleId()
+    console.log('[CreateVillageModal] Admin role ID:', adminRoleId)
+
     if (!adminRoleId) {
-      setValidationErrors({ adminRoleId: 'Admin head role not found' })
+      console.log('[CreateVillageModal] No admin role ID found')
+      setValidationErrors({ adminRoleId: 'Admin head role not found. Please check system configuration.' })
       return
     }
 
     const submitData = { ...formData, adminRoleId }
+    console.log('[CreateVillageModal] Calling createVillage with data:', submitData)
     const result = await createVillage(submitData)
 
     if (result.success) {
@@ -267,13 +280,18 @@ export function CreateVillageModal({ isOpen, onClose, onSuccess }: CreateVillage
             )}
             <button
               onClick={handleNext}
-              disabled={creating}
+              disabled={creating || lookupLoading}
               className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 disabled:opacity-50"
             >
               {creating ? (
                 <span className="flex items-center gap-2">
                   <span className="animate-spin material-icons-outlined text-sm">refresh</span>
                   Creating...
+                </span>
+              ) : lookupLoading ? (
+                <span className="flex items-center gap-2">
+                  <span className="animate-spin material-icons-outlined text-sm">refresh</span>
+                  Loading...
                 </span>
               ) : currentStep === 5 ? (
                 'Create Village'

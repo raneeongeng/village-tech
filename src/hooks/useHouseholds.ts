@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
-import { globalRequestCache, CacheKeys } from '@/lib/cache/global-request-cache'
 import {
   Household,
   HouseholdFilters,
