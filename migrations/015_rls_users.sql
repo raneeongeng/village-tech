@@ -69,17 +69,27 @@ CREATE POLICY "users_update_own_profile_policy" ON users
         AND tenant_id = (SELECT tenant_id FROM users WHERE id = get_current_user_id())
     );
 
--- Policy for household heads to create their own user account
+-- Drop existing policy if it exists
+DROP POLICY IF EXISTS "household_head_create_account_policy" ON users;
+
+-- Policy for household heads and members to create their own user account during signup
+-- Note: During signup, the user is creating their own record with id = auth.uid()
 CREATE POLICY "household_head_create_account_policy" ON users
     FOR INSERT
     WITH CHECK (
-        tenant_id = get_current_tenant_id()
+        -- User must be creating their own record
+        id = auth.uid()
+        -- Must have a valid tenant_id that exists
+        AND tenant_id IS NOT NULL
+        AND EXISTS (
+            SELECT 1 FROM villages WHERE id = users.tenant_id
+        )
+        -- Must have a valid household role
         AND EXISTS (
             SELECT 1 FROM lookup_values lv
             WHERE lv.id = users.role_id
-            AND lv.code = 'household_head'
+            AND lv.code IN ('household_head', 'household_member')
         )
-        AND id = get_current_user_id()
     );
 
 -- Add comments for documentation
@@ -89,4 +99,4 @@ COMMENT ON POLICY "tenant_users_view_policy" ON users IS 'Users can view other u
 COMMENT ON POLICY "admin_head_manage_users_policy" ON users IS 'Admin heads can manage all users within their tenant';
 COMMENT ON POLICY "admin_officer_manage_users_policy" ON users IS 'Admin officers can manage non-admin users within their tenant';
 COMMENT ON POLICY "users_update_own_profile_policy" ON users IS 'Users can update their own profile but not role or tenant';
-COMMENT ON POLICY "household_head_create_account_policy" ON users IS 'Household heads can create their own user accounts';
+COMMENT ON POLICY "household_head_create_account_policy" ON users IS 'Household heads and members can create their own user accounts during signup';

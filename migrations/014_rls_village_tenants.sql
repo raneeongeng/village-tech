@@ -55,13 +55,21 @@ CREATE POLICY "tenant_admin_update_own_tenant_policy" ON villages
         )
     );
 
--- Function to get current user's tenant_id from JWT
+-- Function to get current user's tenant_id from users table
+-- SECURITY DEFINER bypasses RLS to prevent infinite recursion
 CREATE OR REPLACE FUNCTION get_current_tenant_id()
 RETURNS UUID AS $$
+DECLARE
+    result UUID;
 BEGIN
-    RETURN (auth.jwt() ->> 'tenant_id')::UUID;
+    SELECT tenant_id INTO result
+    FROM users
+    WHERE id = (auth.jwt() ->> 'sub')::UUID
+    LIMIT 1;
+    RETURN result;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = public;
 
 -- Function to get current user's id from JWT
 CREATE OR REPLACE FUNCTION get_current_user_id()

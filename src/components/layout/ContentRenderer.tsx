@@ -605,7 +605,9 @@ export function ContentRenderer() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-lg text-gray-600">Loading user data...</p>
+          <p className="text-sm text-gray-500 mt-2">If this persists, check the browser console (F12) for errors</p>
         </div>
       </div>
     )

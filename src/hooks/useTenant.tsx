@@ -46,9 +46,11 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
 
         // Try to detect tenant from subdomain
         const detectedSubdomain = detectTenantFromSubdomain()
+        console.log('Detected subdomain:', detectedSubdomain)
 
         if (detectedSubdomain) {
           const detectedTenant = await getTenantBySubdomain(detectedSubdomain)
+          console.log('Found tenant for subdomain:', detectedTenant)
 
           if (detectedTenant) {
             setTenant(detectedTenant)

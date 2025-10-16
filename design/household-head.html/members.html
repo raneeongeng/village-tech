@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Village Management Platform - Members</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+      tailwind.config = {
+          darkMode: "class",
+          theme: {
+              extend: {
+                  colors: {
+                      "primary": "#17cf54",
+                      "background-light": "#f6f8f6",
+                      "background-dark": "#112116",
+                  },
+                  fontFamily: {
+                      "display": ["Inter"]
+                  },
+                  borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+              },
+          },
+      }
+    </script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display">
+<div class="flex flex-col min-h-screen">
+<header class="bg-background-light dark:bg-background-dark/50 backdrop-blur-sm sticky top-0 z-10">
+<div class="container mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex items-center justify-between h-16">
+<div class="flex items-center space-x-4">
+<div class="text-primary">
+<svg class="h-8 w-8" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5-10-5-10 5zM2 12l10 5 10-5-10-5-10 5z"></path></svg>
+</div>
+<h1 class="text-xl font-bold text-gray-900 dark:text-white">VillageConnect</h1>
+</div>
+<nav class="hidden md:flex items-center space-x-8">
+<a class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary" href="#">Dashboard</a>
+<a class="text-sm font-bold text-primary dark:text-primary" href="#">Members</a>
+<a class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary" href="#">Payments</a>
+<a class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary" href="#">Reports</a>
+<a class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary" href="#">Settings</a>
+</nav>
+<div class="flex items-center space-x-4">
+<button class="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<img alt="User avatar" class="h-10 w-10 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAIwYg7jptv4mYP5NcnZ4BwXrEX3QpMt8ZvG9wME-uNm4GcEqauiYvzl6kklttxa9KvE3_8EU_oc6z1TGsisesOfjikp4tdvGVediRFRNxEzPfHJX45hMKBOGwlzMxEgBAivRL5_9oYftr83xjzqmiJPovkoKsNwzPOXSfzKgvD6WPL5--kshJiWBJsRD8y9Gre2RZVDAPoYrPIvBojBXUWIySU4nR-x4pWokTygOAfseTHj2xFioVqA1E_m0SI7icKqCUXRF33r7U"/>
+</div>
+</div>
+</div>
+</header>
+<main class="flex-grow">
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+<div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+<div>
+<h2 class="text-3xl font-bold text-gray-900 dark:text-white">Household Members</h2>
+<p class="mt-1 text-base text-gray-500 dark:text-gray-400">Manage your household’s member information.</p>
+</div>
+<button class="mt-4 md:mt-0 flex items-center justify-center px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg shadow-sm hover:bg-primary/80 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+<span class="material-symbols-outlined mr-2">add</span>
+                        Add Member
+                    </button>
+</div>
+<div class="bg-background-light dark:bg-background-dark/50 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+<thead class="bg-gray-50 dark:bg-gray-800/30">
+<tr>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider" scope="col">Full Name</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider" scope="col">Relationship</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider" scope="col">Gender</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider" scope="col">Birthdate / Age</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider" scope="col">Contact Number</th>
+<th class="relative px-6 py-3" scope="col">
+<span class="sr-only">Actions</span>
+</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+<tr>
+<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">Sophia Carter</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">Head</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">Female</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">1985-05-15 (38)</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">555-123-4567</td>
+<td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-4">
+<a class="text-primary hover:text-primary/80" href="#">Edit</a>
+<a class="text-red-600 hover:text-red-800 dark:text-red-500 dark:hover:text-red-400" href="#">Remove</a>
+</td>
+</tr>
+<tr>
+<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">Ethan Carter</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">Spouse</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">Male</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">1983-11-20 (40)</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">555-987-6543</td>
+<td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-4">
+<a class="text-primary hover:text-primary/80" href="#">Edit</a>
+<a class="text-red-600 hover:text-red-800 dark:text-red-500 dark:hover:text-red-400" href="#">Remove</a>
+</td>
+</tr>
+<tr>
+<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">Olivia Carter</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">Child</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">Female</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">2010-08-08 (13)</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400"></td>
+<td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-4">
+<a class="text-primary hover:text-primary/80" href="#">Edit</a>
+<a class="text-red-600 hover:text-red-800 dark:text-red-500 dark:hover:text-red-400" href="#">Remove</a>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</main>
+</div>
+
+</body></html>

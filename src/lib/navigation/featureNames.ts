@@ -221,7 +221,8 @@ export function isComingSoonFeature(itemId: string): boolean {
     'dashboard',
     'villages',
     'household-approvals',
-    'active-households'
+    'active-households',
+    'members'
   ]
   return !implementedFeatures.includes(itemId) && FEATURE_CONFIG.hasOwnProperty(itemId)
 }

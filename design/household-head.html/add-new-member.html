@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Add Member - Village Management Platform</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#17cf54",
+                        "background-light": "#f6f8f6",
+                        "background-dark": "#112116",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .form-select {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2317cf54' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display">
+<div class="flex items-center justify-center min-h-screen p-4">
+<div class="w-full max-w-lg bg-white dark:bg-background-dark rounded-xl shadow-lg border border-primary/20 dark:border-primary/30">
+<div class="p-6 sm:p-8">
+<div class="flex justify-between items-start mb-6">
+<h1 class="text-2xl font-bold text-gray-900 dark:text-white">Add New Member</h1>
+<button class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<form action="#" class="space-y-6">
+<div>
+<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="full-name">Full Name</label>
+<input class="w-full px-4 py-3 bg-background-light dark:bg-background-dark/50 border border-primary/30 dark:border-primary/50 rounded-lg focus:ring-primary focus:border-primary text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500" id="full-name" name="full-name" placeholder="e.g. John Doe" type="text"/>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="relationship">Relationship to Head</label>
+<select class="form-select w-full px-4 py-3 bg-background-light dark:bg-background-dark/50 border border-primary/30 dark:border-primary/50 rounded-lg focus:ring-primary focus:border-primary text-gray-900 dark:text-white" id="relationship" name="relationship">
+<option>Select relationship</option>
+<option>Spouse</option>
+<option>Son</option>
+<option>Daughter</option>
+<option>Parent</option>
+<option>Other</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Gender</label>
+<div class="flex items-center gap-4">
+<label class="flex items-center space-x-2 cursor-pointer">
+<input class="form-radio h-4 w-4 text-primary focus:ring-primary border-primary/30" name="gender" type="radio" value="male"/>
+<span class="text-sm text-gray-700 dark:text-gray-300">Male</span>
+</label>
+<label class="flex items-center space-x-2 cursor-pointer">
+<input class="form-radio h-4 w-4 text-primary focus:ring-primary border-primary/30" name="gender" type="radio" value="female"/>
+<span class="text-sm text-gray-700 dark:text-gray-300">Female</span>
+</label>
+<label class="flex items-center space-x-2 cursor-pointer">
+<input class="form-radio h-4 w-4 text-primary focus:ring-primary border-primary/30" name="gender" type="radio" value="other"/>
+<span class="text-sm text-gray-700 dark:text-gray-300">Other</span>
+</label>
+</div>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="birthdate">Birthdate / Age</label>
+<input class="w-full px-4 py-3 bg-background-light dark:bg-background-dark/50 border border-primary/30 dark:border-primary/50 rounded-lg focus:ring-primary focus:border-primary text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500" id="birthdate" name="birthdate" placeholder="DD/MM/YYYY or Age" type="text"/>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="contact">Contact Number <span class="text-gray-400">(Optional)</span></label>
+<input class="w-full px-4 py-3 bg-background-light dark:bg-background-dark/50 border border-primary/30 dark:border-primary/50 rounded-lg focus:ring-primary focus:border-primary text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500" id="contact" name="contact" placeholder="Enter contact number" type="tel"/>
+</div>
+<div class="flex justify-end items-center gap-4 pt-4">
+<button class="px-6 py-3 rounded-lg text-sm font-semibold bg-background-light dark:bg-primary/20 hover:bg-primary/10 dark:hover:bg-primary/30 border border-primary/30 text-gray-700 dark:text-white" type="button">Cancel</button>
+<button class="px-6 py-3 rounded-lg text-sm font-semibold bg-primary text-white hover:bg-opacity-90" type="submit">Save Member</button>
+</div>
+</form>
+</div>
+</div>
+</div>
+
+
+</body></html>

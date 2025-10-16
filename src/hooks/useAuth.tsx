@@ -2,11 +2,11 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import type { User, AuthSession } from '@/types/auth'
+import type { UserProfile, AuthSession } from '@/types/auth'
 import { getCurrentSession, signOut } from '@/lib/auth'
 
 interface AuthContextType {
-  user: User | null
+  user: UserProfile | null
   session: AuthSession | null
   isLoading: boolean
   isAuthenticated: boolean
@@ -17,18 +17,21 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
+  const [user, setUser] = useState<UserProfile | null>(null)
   const [session, setSession] = useState<AuthSession | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
 
   const refreshSession = async () => {
     try {
+      console.log('Refreshing session...')
       const currentSession = await getCurrentSession()
+      console.log('Session refreshed:', { hasSession: !!currentSession, hasUser: !!currentSession?.user })
       if (currentSession) {
         setSession(currentSession)
         setUser(currentSession.user)
       } else {
+        console.log('No session found, clearing user state')
         setSession(null)
         setUser(null)
       }
@@ -86,7 +89,7 @@ export function useAuth() {
 
 // Mock user data for development - replace with real Supabase data
 export function useMockAuth() {
-  const [mockUser] = useState<User>({
+  const [mockUser] = useState<UserProfile>({
     id: 'mock-user-1',
     email: 'admin@greenville.vmp.app',
     first_name: 'John',
@@ -103,6 +106,15 @@ export function useMockAuth() {
       description: 'Head Administrator with management permissions',
       color_code: '#007bff',
       icon: 'person-gear'
+    },
+    tenant: {
+      id: '1',
+      name: 'Green Village',
+      status: {
+        id: 'status-1',
+        code: 'active',
+        name: 'Active'
+      }
     },
     aud: 'authenticated',
     confirmed_at: '2024-01-01T00:00:00Z',

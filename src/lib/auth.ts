@@ -60,9 +60,10 @@ export async function signOut(): Promise<void> {
 
     // Clear cached data
     if (typeof window !== 'undefined') {
-      // Clear our cached user profile and tenant info
+      // Clear our cached user profile, tenant info, and household info
       sessionStorage.removeItem(CACHE_KEYS.USER_PROFILE)
       sessionStorage.removeItem(CACHE_KEYS.TENANT_INFO)
+      sessionStorage.removeItem(CACHE_KEYS.HOUSEHOLD_INFO)
       // Clear any auth-related localStorage items
       localStorage.removeItem('supabase.auth.token')
     }
@@ -113,6 +114,7 @@ export async function getCurrentSession(): Promise<AuthSession | null> {
 const CACHE_KEYS = {
   USER_PROFILE: 'vmp_user_profile',
   TENANT_INFO: 'vmp_tenant_info',
+  HOUSEHOLD_INFO: 'vmp_household_info',
 }
 
 /**
@@ -148,6 +150,7 @@ async function getUserProfile(userId: string): Promise<UserProfile> {
       last_login_at,
       created_at,
       updated_at,
+      tenant_id,
       tenant:villages!tenant_id(
         id,
         name,
@@ -172,12 +175,22 @@ async function getUserProfile(userId: string): Promise<UserProfile> {
     .single()
 
   if (error) {
-    throw new AuthError('Failed to fetch user profile')
+    console.error('Error fetching user profile:', error)
+    throw new AuthError(`Failed to fetch user profile: ${error.message}`)
   }
 
   if (!data) {
+    console.error('No user data returned for userId:', userId)
     throw new AuthError('User profile not found')
   }
+
+  console.log('User profile loaded:', {
+    userId: data.id,
+    email: data.email,
+    hasTenant: !!data.tenant,
+    hasRole: !!data.role,
+    tenant_id: data.tenant_id
+  })
 
   const profile = data as any as UserProfile
 
@@ -187,6 +200,29 @@ async function getUserProfile(userId: string): Promise<UserProfile> {
     // Also cache just the tenant info separately for easy access
     if (profile.tenant) {
       sessionStorage.setItem(CACHE_KEYS.TENANT_INFO, JSON.stringify(profile.tenant))
+    }
+
+    // For household_head users, fetch and cache their household
+    if (profile.role.code === 'household_head') {
+      supabase
+        .from('households')
+        .select('id, address, status_id')
+        .eq('tenant_id', profile.tenant_id)
+        .eq('household_head_id', profile.id)
+        .limit(1)
+        .then(({ data: households, error }) => {
+          if (!error && households && households.length > 0) {
+            sessionStorage.setItem(CACHE_KEYS.HOUSEHOLD_INFO, JSON.stringify(households[0]))
+            console.log('Cached household info:', households[0].id)
+          } else {
+            console.log('No household found for user')
+            sessionStorage.setItem(CACHE_KEYS.HOUSEHOLD_INFO, 'null')
+          }
+        })
+        .catch(err => {
+          console.error('Error fetching household:', err)
+          sessionStorage.setItem(CACHE_KEYS.HOUSEHOLD_INFO, 'null')
+        })
     }
   }
 
@@ -215,12 +251,34 @@ export function getCachedTenantInfo(): { id: string; name: string } | null {
 }
 
 /**
+ * Get cached household info from sessionStorage
+ * Fast way to access household without querying database
+ */
+export function getCachedHouseholdInfo(): { id: string; address: string; status_id: string } | null {
+  if (typeof window === 'undefined') {
+    return null
+  }
+
+  const cachedHousehold = sessionStorage.getItem(CACHE_KEYS.HOUSEHOLD_INFO)
+  if (cachedHousehold && cachedHousehold !== 'null') {
+    try {
+      return JSON.parse(cachedHousehold)
+    } catch (e) {
+      return null
+    }
+  }
+
+  return null
+}
+
+/**
  * Clear cached user data (useful for forcing refresh)
  */
 export function clearAuthCache(): void {
   if (typeof window !== 'undefined') {
     sessionStorage.removeItem(CACHE_KEYS.USER_PROFILE)
     sessionStorage.removeItem(CACHE_KEYS.TENANT_INFO)
+    sessionStorage.removeItem(CACHE_KEYS.HOUSEHOLD_INFO)
   }
 }
 
