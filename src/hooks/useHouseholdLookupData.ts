@@ -1,144 +1,57 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
-import { supabase } from '@/lib/supabase/client'
-import { LookupValue } from '@/types/village'
+import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useLookup } from '@/contexts/LookupContext'
 import { HouseholdStatus, RelationshipType, UseLookupDataResult } from '@/types/household'
 
 /**
  * Hook for fetching household-specific lookup data
- * Provides household statuses and member relationship types
+ * Now uses optimized global lookup context instead of direct API calls
  */
 export function useHouseholdLookupData(): UseLookupDataResult {
-  const [householdStatuses, setHouseholdStatuses] = useState<HouseholdStatus[]>([])
-  const [relationshipTypes, setRelationshipTypes] = useState<RelationshipType[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<Error | null>(null)
+  // Use cached lookup data from global context
+  const { householdStatuses: globalHouseholdStatuses, relationshipTypes: globalRelationshipTypes, loading, error } = useLookup()
 
-  const fetchLookupData = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-
-    try {
-      // Get household_statuses category
-      const { data: statusCategoryData, error: statusCategoryError } = await supabase
-        .from('lookup_categories')
-        .select('id')
-        .eq('code', 'household_statuses')
-        .single()
-
-      if (statusCategoryError) {
-        console.error('Error fetching household status category:', statusCategoryError)
-        throw new Error('Failed to fetch household status category')
-      }
-
-      // Get household_member_relationships category
-      const { data: relationshipCategoryData, error: relationshipCategoryError } = await supabase
-        .from('lookup_categories')
-        .select('id')
-        .eq('code', 'household_member_relationships')
-        .single()
-
-      if (relationshipCategoryError) {
-        console.error('Error fetching relationship category:', relationshipCategoryError)
-        throw new Error('Failed to fetch household member relationship category')
-      }
-
-      // Fetch household statuses
-      const { data: statusData, error: statusError } = await supabase
-        .from('lookup_values')
-        .select('*')
-        .eq('category_id', statusCategoryData.id)
-        .eq('is_active', true)
-        .order('sort_order')
-
-      if (statusError) {
-        console.error('Error fetching household statuses:', statusError)
-        throw new Error('Failed to fetch household statuses')
-      }
-
-      // Fetch relationship types
-      const { data: relationshipData, error: relationshipError } = await supabase
-        .from('lookup_values')
-        .select('*')
-        .eq('category_id', relationshipCategoryData.id)
-        .eq('is_active', true)
-        .order('sort_order')
-
-      if (relationshipError) {
-        console.error('Error fetching relationship types:', relationshipError)
-        throw new Error('Failed to fetch relationship types')
-      }
-
-      // Transform raw lookup values to typed interfaces
-      const transformedStatuses: HouseholdStatus[] = (statusData || []).map((item: LookupValue) => ({
-        id: item.id,
-        code: item.code as 'pending_approval' | 'active' | 'inactive',
-        name: item.name,
-        color_code: item.color_code,
-      }))
-
-      const transformedRelationships: RelationshipType[] = (relationshipData || []).map((item: LookupValue) => ({
-        id: item.id,
-        code: item.code as 'head' | 'spouse' | 'child' | 'parent' | 'relative' | 'tenant',
-        name: item.name,
-        sort_order: item.sort_order,
-      }))
-
-      setHouseholdStatuses(transformedStatuses)
-      setRelationshipTypes(transformedRelationships)
-      setLoading(false)
-    } catch (err) {
-      console.error('Error in fetchLookupData:', err)
-      setError(err as Error)
-      setLoading(false)
+  // Transform global lookup data to match the expected types
+  const householdStatuses: HouseholdStatus[] = useMemo(() => {
+    if (!globalHouseholdStatuses || globalHouseholdStatuses.length === 0) {
+      return []
     }
-  }, [])
+    return globalHouseholdStatuses.map(item => ({
+      id: item.id,
+      code: item.code as 'pending_approval' | 'active' | 'inactive',
+      name: item.name,
+      color_code: item.color_code,
+    }))
+  }, [globalHouseholdStatuses])
 
-  const refetch = useCallback(async () => {
-    await fetchLookupData()
-  }, [fetchLookupData])
-
-  useEffect(() => {
-    fetchLookupData()
-  }, [fetchLookupData])
+  const relationshipTypes: RelationshipType[] = useMemo(() => {
+    if (!globalRelationshipTypes || globalRelationshipTypes.length === 0) {
+      return []
+    }
+    return globalRelationshipTypes.map(item => ({
+      id: item.id,
+      code: item.code as 'head' | 'spouse' | 'child' | 'parent' | 'relative' | 'tenant',
+      name: item.name,
+      sort_order: item.sort_order,
+    }))
+  }, [globalRelationshipTypes])
 
   return {
     householdStatuses,
     relationshipTypes,
     loading,
-    error,
+    error: error ? new Error(error) : null,
   }
 }
 
 /**
  * Utility functions for working with household lookup data
+ * Now uses cached lookup data instead of making additional API calls
  */
 export function useHouseholdLookupUtils(lookupData: UseLookupDataResult) {
-  // Fetch household_head role ID (for user role, not member relationship)
-  const [householdHeadRoleId, setHouseholdHeadRoleId] = useState<string | null>(null)
-
-  useEffect(() => {
-    const fetchHouseholdHeadRole = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('lookup_values')
-          .select('id')
-          .eq('code', 'household_head')
-          .single()
-
-        if (!error && data) {
-          setHouseholdHeadRoleId(data.id)
-        } else {
-          console.error('Error fetching household_head role:', error)
-        }
-      } catch (err) {
-        console.error('Failed to fetch household_head role ID:', err)
-      }
-    }
-
-    fetchHouseholdHeadRole()
-  }, [])
+  // Get household_head role ID from cached user roles (from global context)
+  const { getUserRoleByCode } = useLookup()
 
   const getPendingStatusId = useCallback(() => {
     const pendingStatus = lookupData.householdStatuses.find(status => status.code === 'pending_approval')
@@ -168,9 +81,11 @@ export function useHouseholdLookupUtils(lookupData: UseLookupDataResult) {
     return lookupData.relationshipTypes.find(rel => rel.code === code) || null
   }, [lookupData.relationshipTypes])
 
+  // Get household_head role ID from cached user roles instead of making API call
   const getHouseholdHeadRoleId = useCallback(() => {
-    return householdHeadRoleId
-  }, [householdHeadRoleId])
+    const householdHeadRole = getUserRoleByCode('household_head')
+    return householdHeadRole?.id || null
+  }, [getUserRoleByCode])
 
   return {
     getPendingStatusId,

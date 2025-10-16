@@ -5,6 +5,8 @@ import { supabase } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
 import { useTenant } from '@/hooks/useTenant'
 import { getCachedHouseholdInfo } from '@/lib/auth'
+import { HouseholdMembersService } from '@/lib/api/services/household-members'
+import { useLookup } from '@/contexts/LookupContext'
 import type { HouseholdMember, RelationshipType, ApiResponse } from '@/types/household'
 
 export interface UseHouseholdMembersResult {
@@ -31,7 +33,6 @@ export interface AddMemberData {
 
 export function useHouseholdMembers() {
   const [members, setMembers] = useState<HouseholdMember[]>([])
-  const [relationshipTypes, setRelationshipTypes] = useState<RelationshipType[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
 
@@ -122,7 +123,7 @@ export function useHouseholdMembers() {
           is_primary,
           created_at,
           relationship_id,
-          relationship:lookup_values!household_members_relationship_fkey (
+          relationship:lookup_values!household_members_relationship_id_fkey (
             id,
             code,
             name,
@@ -147,43 +148,8 @@ export function useHouseholdMembers() {
     }
   }, [user, tenantId, getUserHouseholdId])
 
-  // Fetch relationship types
-  const fetchRelationshipTypes = useCallback(async () => {
-    try {
-      // First get the category ID for household_member_relationships
-      const { data: category, error: categoryError } = await supabase
-        .from('lookup_categories')
-        .select('id')
-        .eq('code', 'household_member_relationships')
-        .single()
-
-      if (categoryError) {
-        console.error('Error fetching relationship category:', categoryError)
-        return
-      }
-
-      if (!category) {
-        console.error('No category found for code: household_member_relationships')
-        return
-      }
-
-      const { data, error } = await supabase
-        .from('lookup_values')
-        .select('id, code, name, sort_order')
-        .eq('category_id', category.id)
-        .eq('is_active', true)
-        .order('sort_order', { ascending: true })
-
-      if (error) {
-        console.error('Error fetching relationship types:', error)
-        return
-      }
-
-      setRelationshipTypes(data || [])
-    } catch (err) {
-      console.error('Error fetching relationship types:', err)
-    }
-  }, [])
+  // Get relationship types from global lookup context instead of individual API calls
+  const { relationshipTypes } = useLookup()
 
   // Add new member
   const addMember = useCallback(async (memberData: AddMemberData): Promise<ApiResponse<HouseholdMember>> => {
@@ -205,32 +171,24 @@ export function useHouseholdMembers() {
       }
 
 
-      // Call API route to create member (this handles both auth user and household_member record)
-      const response = await fetch('/api/household-members', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: memberData.email,
-          password: memberData.password,
-          firstName: memberData.firstName,
-          middleName: memberData.middleName,
-          lastName: memberData.lastName,
-          suffix: memberData.suffix,
-          phone: memberData.phone,
-          tenantId,
-          householdId,
-          relationshipId: memberData.relationshipId,
-          createdBy: user.id
-        })
+      // Use centralized API service to create member
+      const result = await HouseholdMembersService.createMember({
+        email: memberData.email,
+        password: memberData.password,
+        firstName: memberData.firstName,
+        middleName: memberData.middleName,
+        lastName: memberData.lastName,
+        suffix: memberData.suffix,
+        phone: memberData.phone,
+        tenantId,
+        householdId,
+        relationshipId: memberData.relationshipId,
+        createdBy: user.id
       })
 
-      const result = await response.json()
-
-      if (!response.ok || !result.success) {
+      if (!result.success) {
         console.error('Error creating household member:', result.error)
-        return { success: false, error: { message: result.error || 'Failed to create household member' } }
+        return { success: false, error: result.error || { message: 'Failed to create household member' } }
       }
 
       const data = result.data
@@ -290,7 +248,7 @@ export function useHouseholdMembers() {
           is_primary,
           created_at,
           relationship_id,
-          relationship:lookup_values!household_members_relationship_fkey (
+          relationship:lookup_values!household_members_relationship_id_fkey (
             id,
             code,
             name,
@@ -339,11 +297,6 @@ export function useHouseholdMembers() {
       return { success: false, error: { message: errorMessage } }
     }
   }, [user, tenantId, fetchMembers])
-
-  // Initialize relationship types (independent of user/tenant)
-  useEffect(() => {
-    fetchRelationshipTypes()
-  }, [fetchRelationshipTypes])
 
   // Initialize member data (requires user/tenant)
   useEffect(() => {

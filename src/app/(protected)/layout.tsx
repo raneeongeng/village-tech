@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation'
 import { LayoutProvider, useLayout } from '@/hooks/useLayout'
 import { ContentViewProvider, useContentView } from '@/hooks/useContentView'
 import { TenantProvider } from '@/hooks/useTenant'
+import { LookupProvider } from '@/contexts/LookupContext'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { Header } from '@/components/layout/Header'
 import { ContentRenderer } from '@/components/layout/ContentRenderer'
@@ -135,11 +136,13 @@ export default function ProtectedLayout({
 }) {
   return (
     <TenantProvider>
-      <LayoutProvider>
-        <ContentViewProvider>
-          <LayoutContent>{children}</LayoutContent>
-        </ContentViewProvider>
-      </LayoutProvider>
+      <LookupProvider preloadCommon={true}>
+        <LayoutProvider>
+          <ContentViewProvider>
+            <LayoutContent>{children}</LayoutContent>
+          </ContentViewProvider>
+        </LayoutProvider>
+      </LookupProvider>
     </TenantProvider>
   )
 }

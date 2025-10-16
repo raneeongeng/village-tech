@@ -204,13 +204,16 @@ async function getUserProfile(userId: string): Promise<UserProfile> {
 
     // For household_head users, fetch and cache their household
     if (profile.role.code === 'household_head') {
-      supabase
-        .from('households')
-        .select('id, address, status_id')
-        .eq('tenant_id', profile.tenant_id)
-        .eq('household_head_id', profile.id)
-        .limit(1)
-        .then(({ data: households, error }) => {
+      // Use async IIFE to handle the promise properly
+      ;(async () => {
+        try {
+          const { data: households, error } = await supabase
+            .from('households')
+            .select('id, address, status_id')
+            .eq('tenant_id', profile.tenant_id)
+            .eq('household_head_id', profile.id)
+            .limit(1)
+
           if (!error && households && households.length > 0) {
             sessionStorage.setItem(CACHE_KEYS.HOUSEHOLD_INFO, JSON.stringify(households[0]))
             console.log('Cached household info:', households[0].id)
@@ -218,11 +221,11 @@ async function getUserProfile(userId: string): Promise<UserProfile> {
             console.log('No household found for user')
             sessionStorage.setItem(CACHE_KEYS.HOUSEHOLD_INFO, 'null')
           }
-        })
-        .catch(err => {
+        } catch (err: any) {
           console.error('Error fetching household:', err)
           sessionStorage.setItem(CACHE_KEYS.HOUSEHOLD_INFO, 'null')
-        })
+        }
+      })()
     }
   }
 

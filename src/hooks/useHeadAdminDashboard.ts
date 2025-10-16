@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase/client'
+import { useLookup } from '@/contexts/LookupContext'
+import { globalRequestCache, CacheKeys } from '@/lib/cache/global-request-cache'
 
 export interface DashboardStats {
   pendingApps: number
@@ -151,6 +153,9 @@ const fetchRecentActivities = async (villageId: string): Promise<Activity[]> => 
   return mockActivities
 }
 
+// Request deduplication for dashboard data
+const pendingDashboardRequests = new Map<string, Promise<any>>()
+
 export function useHeadAdminDashboard(villageId: string): HeadAdminDashboardData {
   const [stats, setStats] = useState<DashboardStats>({
     pendingApps: 0,
@@ -169,102 +174,134 @@ export function useHeadAdminDashboard(villageId: string): HeadAdminDashboardData
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
 
+  // Use cached lookup data instead of making API calls
+  const { householdStatuses } = useLookup()
+
   const fetchDashboardData = useCallback(async () => {
     if (!villageId) return
 
+    // Create a unique key for request deduplication
+    const requestKey = `dashboard-${villageId}`
+
+    console.log(`[useHeadAdminDashboard] fetchDashboardData called with key: ${requestKey}`)
+
+    // Check if request is already pending
+    if (pendingDashboardRequests.has(requestKey)) {
+      console.log(`[useHeadAdminDashboard] Request already pending for key: ${requestKey}, waiting for existing request`)
+      try {
+        const result = await pendingDashboardRequests.get(requestKey)
+        console.log(`[useHeadAdminDashboard] Using cached result for key: ${requestKey}`)
+        return result
+      } catch (error) {
+        console.log(`[useHeadAdminDashboard] Cached request failed for key: ${requestKey}, proceeding with new request`)
+        // Request failed, continue with new request
+        pendingDashboardRequests.delete(requestKey)
+      }
+    }
+
+    console.log(`[useHeadAdminDashboard] Starting new request for key: ${requestKey}`)
     setLoading(true)
     setError(null)
 
-    try {
-      // Get current month start and date ranges
-      const currentMonthStart = getCurrentMonthStart()
-      const last30Days = getLast30Days()
-      const last6MonthsStart = getLast6MonthsStart()
+    // Create the actual async function that will be cached
+    const requestPromise = (async () => {
+      try {
+        console.log(`[useHeadAdminDashboard] Making dashboard API calls`)
 
-      // Get lookup values for status IDs
-      const { data: statusCategoryData, error: categoryError } = await supabase
-        .from('lookup_categories')
-        .select('id')
-        .eq('code', 'household_statuses')
-        .maybeSingle()
+        // Get current month start and date ranges
+        const currentMonthStart = getCurrentMonthStart()
+        const last30Days = getLast30Days()
+        const last6MonthsStart = getLast6MonthsStart()
 
-      if (categoryError) {
-        console.warn('⚠️ Could not fetch household_statuses category:', categoryError)
-      }
+        // Get pending status ID from cached lookup data instead of API calls
+        const pendingStatus = householdStatuses?.find(status => status.code === 'pending_approval')
+        const pendingStatusId = pendingStatus?.id || ''
 
-      let pendingStatusId = ''
-      if (statusCategoryData && !categoryError) {
-        const { data: pendingStatusData, error: statusError } = await supabase
-          .from('lookup_values')
-          .select('id')
-          .eq('code', 'pending')
-          .eq('category_id', statusCategoryData.id)
-          .maybeSingle()
+        console.log(`[useHeadAdminDashboard] Using cached pending status ID: ${pendingStatusId}`)
 
-        if (statusError) {
-          console.warn('⚠️ Could not fetch pending status:', statusError)
+        // Fetch all dashboard data in parallel
+        const fetchPromises: Promise<any>[] = []
+
+        // Pending applications count - only if we have a pending status ID
+        if (pendingStatusId) {
+          fetchPromises.push(
+            supabase
+              .from('households')
+              .select('*', { count: 'exact', head: true })
+              .eq('tenant_id', villageId)
+              .eq('status_id', pendingStatusId) as any
+          )
+        } else {
+          fetchPromises.push(Promise.resolve({ count: 0 }))
         }
 
-        if (pendingStatusData && !statusError) {
-          pendingStatusId = pendingStatusData.id
-        }
-      }
-
-      // Fetch all dashboard data in parallel
-      const fetchPromises: Promise<any>[] = []
-
-      // Pending applications count - only if we have a pending status ID
-      if (pendingStatusId) {
+        // Total households count
         fetchPromises.push(
           supabase
             .from('households')
             .select('*', { count: 'exact', head: true })
-            .eq('tenant_id', villageId)
-            .eq('status_id', pendingStatusId) as any
+            .eq('tenant_id', villageId) as any
         )
-      } else {
-        fetchPromises.push(Promise.resolve({ count: 0 }))
+
+        // Household growth history
+        fetchPromises.push(
+          supabase
+            .from('households')
+            .select('created_at')
+            .eq('tenant_id', villageId)
+            .gte('created_at', last6MonthsStart) as any
+        )
+
+        // Security incidents count (last 30 days)
+        fetchPromises.push(
+          supabase
+            .from('incident_reports')
+            .select('*', { count: 'exact', head: true })
+            .eq('tenant_id', villageId)
+            .gte('occurred_at', last30Days) as any
+        )
+
+        const [
+          { count: pendingApps },
+          { count: totalHouseholds },
+          { data: householdHistory },
+          { count: securityIncidents }
+        ] = await Promise.all(fetchPromises)
+
+        // Get active rules count
+        const { count: activeRules } = await (supabase
+          .from('village_rules')
+          .select('*', { count: 'exact', head: true })
+          .eq('tenant_id', villageId)
+          .eq('is_active', true) as any)
+
+        console.log(`[useHeadAdminDashboard] API calls completed for key: ${requestKey}`)
+
+        return {
+          pendingApps,
+          totalHouseholds,
+          householdHistory,
+          securityIncidents,
+          activeRules
+        }
+      } finally {
+        // Always clean up the pending request when done
+        pendingDashboardRequests.delete(requestKey)
+        console.log(`[useHeadAdminDashboard] Cleaned up pending request for key: ${requestKey}`)
       }
+    })()
 
-      // Total households count
-      fetchPromises.push(
-        supabase
-          .from('households')
-          .select('*', { count: 'exact', head: true })
-          .eq('tenant_id', villageId) as any
-      )
+    // Store pending request for deduplication
+    pendingDashboardRequests.set(requestKey, requestPromise)
 
-      // Household growth history
-      fetchPromises.push(
-        supabase
-          .from('households')
-          .select('created_at')
-          .eq('tenant_id', villageId)
-          .gte('created_at', last6MonthsStart) as any
-      )
-
-      // Security incidents count (last 30 days)
-      fetchPromises.push(
-        supabase
-          .from('incident_reports')
-          .select('*', { count: 'exact', head: true })
-          .eq('tenant_id', villageId)
-          .gte('occurred_at', last30Days) as any
-      )
-
-      const [
-        { count: pendingApps },
-        { count: totalHouseholds },
-        { data: householdHistory },
-        { count: securityIncidents }
-      ] = await Promise.all(fetchPromises)
-
-      // Get active rules count
-      const { count: activeRules } = await (supabase
-        .from('village_rules')
-        .select('*', { count: 'exact', head: true })
-        .eq('tenant_id', villageId)
-        .eq('is_active', true) as any)
+    try {
+      const {
+        pendingApps,
+        totalHouseholds,
+        householdHistory,
+        securityIncidents,
+        activeRules
+      } = await requestPromise
 
       // Calculate fee collection rate (mock for now)
       const feeCollectionRate = 92
@@ -320,7 +357,7 @@ export function useHeadAdminDashboard(villageId: string): HeadAdminDashboardData
       setError(err as Error)
       setLoading(false)
     }
-  }, [villageId])
+  }, [villageId, householdStatuses])
 
   const refetch = useCallback(async () => {
     await fetchDashboardData()

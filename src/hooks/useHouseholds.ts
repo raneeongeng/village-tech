@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
+import { globalRequestCache, CacheKeys } from '@/lib/cache/global-request-cache'
 import {
   Household,
   HouseholdFilters,
@@ -34,6 +35,9 @@ const DEFAULT_PAGINATION: TableOptions = {
 /**
  * Hook for fetching and managing household data with server-side pagination and filtering
  */
+// Request deduplication for same-render duplicate calls (React Strict Mode)
+const pendingHouseholdRequests = new Map<string, Promise<any>>()
+
 export function useHouseholds(options: UseHouseholdsOptions = {}): UseHouseholdsResult {
   const { user } = useAuth()
   const tenantId = (user as any)?.tenant?.id
@@ -118,24 +122,50 @@ export function useHouseholds(options: UseHouseholdsOptions = {}): UseHouseholds
     setError(null)
 
     try {
-      // Use the search_households database function for server-side pagination
-      const { data: searchResult, error: searchError } = await supabase
-        .rpc('search_households', {
-          tenant_uuid: tenantId,
-          search_term: filters.search || '',
-          status_filter: filters.statusId ? null : statusFilter, // Use statusId if provided, otherwise use statusFilter
-          page_number: pagination.currentPage,
-          page_size: pagination.itemsPerPage,
-        })
+      // Create request key for deduplication (prevent React Strict Mode duplicates)
+      const requestKey = `${tenantId}-${filters.search}-${statusFilter}-${pagination.currentPage}-${pagination.itemsPerPage}`
 
-      if (searchError) {
-        console.error('Search households error:', searchError)
-        throw new Error('Failed to search households')
+      // Check if same request is already pending (deduplication only, no persistent cache)
+      if (pendingHouseholdRequests.has(requestKey)) {
+        console.log(`[useHouseholds] Deduplicating identical request: ${requestKey}`)
+        const result = await pendingHouseholdRequests.get(requestKey)
+        return result
       }
 
-      if (searchResult?.error) {
-        throw new Error(searchResult.error)
-      }
+      // Create promise for this request
+      const requestPromise = (async () => {
+        try {
+          console.log(`[useHouseholds] Making supabase RPC call for search_households`)
+
+          const { data: searchResult, error: searchError } = await supabase
+            .rpc('search_households', {
+              tenant_uuid: tenantId,
+              search_term: filters.search || '',
+              status_filter: filters.statusId ? null : statusFilter,
+              page_number: pagination.currentPage,
+              page_size: pagination.itemsPerPage,
+            })
+
+          if (searchError) {
+            console.error('Search households error:', searchError)
+            throw new Error('Failed to search households')
+          }
+
+          if (searchResult?.error) {
+            throw new Error(searchResult.error)
+          }
+
+          return searchResult
+        } finally {
+          // Clean up immediately after request completes
+          pendingHouseholdRequests.delete(requestKey)
+        }
+      })()
+
+      // Store temporarily for deduplication
+      pendingHouseholdRequests.set(requestKey, requestPromise)
+
+      const searchResult = await requestPromise
 
       // Extract data and pagination info from function result
       const households = searchResult?.data || []
@@ -147,8 +177,6 @@ export function useHouseholds(options: UseHouseholdsOptions = {}): UseHouseholds
       }
 
       // Transform data to match expected format
-      // Note: No need to validate IDs - search_households function uses SECURITY DEFINER
-      // and already returns valid, verified household data
       const transformedHouseholds: Household[] = households.map((item: any) => {
         return {
           id: item.id,
@@ -171,8 +199,8 @@ export function useHouseholds(options: UseHouseholdsOptions = {}): UseHouseholds
             color_code: item.status.color_code,
           },
           created_at: item.created_at,
-          updated_at: item.created_at, // Search function doesn't return updated_at
-          member_count: item.member_count || 0, // Use member_count from search function
+          updated_at: item.created_at,
+          member_count: item.member_count || 0,
         }
       })
 
@@ -233,6 +261,9 @@ export function useHouseholds(options: UseHouseholdsOptions = {}): UseHouseholds
  * This version is specifically optimized to avoid unnecessary lookup API calls
  * and only fetches the pending household data that's actually needed.
  */
+// Request deduplication for same-render duplicate calls (React Strict Mode)
+const pendingPendingHouseholdsRequests = new Map<string, Promise<any>>()
+
 export function usePendingHouseholds() {
   const { user } = useAuth()
   const tenantId = (user as any)?.tenant?.id
@@ -302,24 +333,50 @@ export function usePendingHouseholds() {
     setError(null)
 
     try {
-      // Use the search_households database function specifically for pending status
-      const { data: searchResult, error: searchError } = await supabase
-        .rpc('search_households', {
-          tenant_uuid: tenantId,
-          search_term: filters.search || '',
-          status_filter: 'pending_approval', // Hard-coded to only get pending
-          page_number: pagination.currentPage,
-          page_size: pagination.itemsPerPage,
-        })
+      // Create request key for deduplication (prevent React Strict Mode duplicates)
+      const requestKey = `pending-${tenantId}-${filters.search}-${pagination.currentPage}-${pagination.itemsPerPage}`
 
-      if (searchError) {
-        console.error('Search pending households error:', searchError)
-        throw new Error('Failed to search pending households')
+      // Check if same request is already pending (deduplication only, no persistent cache)
+      if (pendingPendingHouseholdsRequests.has(requestKey)) {
+        console.log(`[usePendingHouseholds] Deduplicating identical request: ${requestKey}`)
+        const result = await pendingPendingHouseholdsRequests.get(requestKey)
+        return result
       }
 
-      if (searchResult?.error) {
-        throw new Error(searchResult.error)
-      }
+      // Create promise for this request
+      const requestPromise = (async () => {
+        try {
+          console.log(`[usePendingHouseholds] Making supabase RPC call for search_households`)
+
+          const { data: searchResult, error: searchError } = await supabase
+            .rpc('search_households', {
+              tenant_uuid: tenantId,
+              search_term: filters.search || '',
+              status_filter: 'pending_approval',
+              page_number: pagination.currentPage,
+              page_size: pagination.itemsPerPage,
+            })
+
+          if (searchError) {
+            console.error('Search pending households error:', searchError)
+            throw new Error('Failed to search pending households')
+          }
+
+          if (searchResult?.error) {
+            throw new Error(searchResult.error)
+          }
+
+          return searchResult
+        } finally {
+          // Clean up immediately after request completes
+          pendingPendingHouseholdsRequests.delete(requestKey)
+        }
+      })()
+
+      // Store temporarily for deduplication
+      pendingPendingHouseholdsRequests.set(requestKey, requestPromise)
+
+      const searchResult = await requestPromise
 
       // Extract data and pagination info from function result
       const households = searchResult?.data || []
@@ -331,7 +388,6 @@ export function usePendingHouseholds() {
       }
 
       // Transform data to match expected format
-      // Note: No need to validate IDs - search_households function uses SECURITY DEFINER
       const transformedHouseholds: Household[] = households.map((item: any) => ({
         id: item.id,
         tenant_id: tenantId,
