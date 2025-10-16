@@ -51,7 +51,7 @@ export class LookupService {
       .eq('is_active', true)
       .order('name')
 
-    pendingRequests.set(cacheKey, request.then(({ data }) => data || []))
+    pendingRequests.set(cacheKey, Promise.resolve(request.then(({ data }) => data || [])))
 
     try {
       const { data, error } = await request
@@ -106,7 +106,7 @@ export class LookupService {
       .eq('is_active', true)
       .single()
 
-    pendingRequests.set(cacheKey, request.then(({ data }) => data || []))
+    pendingRequests.set(cacheKey, Promise.resolve(request.then(({ data }) => data || [])))
 
     try {
       const { data, error } = await request
@@ -175,7 +175,7 @@ export class LookupService {
         .eq('is_active', true)
         .order('sort_order', { ascending: true })
 
-      pendingRequests.set(cacheKey, request.then(({ data }) => data || []))
+      pendingRequests.set(cacheKey, Promise.resolve(request.then(({ data }) => data || [])))
 
       const { data, error } = await request
 

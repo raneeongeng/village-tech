@@ -10,7 +10,7 @@ interface UseLookupValuesReturn {
   loading: boolean
   error: Error | null
   refetch: () => Promise<void>
-  getAdminHeadRoleId: () => string | null
+  getAdminHeadRoleId: () => Promise<string | null>
 }
 
 export function useLookupValues(): UseLookupValuesReturn {

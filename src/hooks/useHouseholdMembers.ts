@@ -123,7 +123,7 @@ export function useHouseholdMembers() {
           is_primary,
           created_at,
           relationship_id,
-          relationship:lookup_values!household_members_relationship_id_fkey (
+          relationship:lookup_values (
             id,
             code,
             name,
@@ -139,7 +139,14 @@ export function useHouseholdMembers() {
         throw new Error(`Failed to fetch household members: ${error.message}`)
       }
 
-      setMembers(data || [])
+      // Transform data to handle potential array relationships
+      const transformedData = (data || []).map(member => ({
+        ...member,
+        relationship: Array.isArray(member.relationship)
+          ? member.relationship[0]
+          : member.relationship
+      }))
+      setMembers(transformedData)
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred'
       setError(new Error(errorMessage))
@@ -248,7 +255,7 @@ export function useHouseholdMembers() {
           is_primary,
           created_at,
           relationship_id,
-          relationship:lookup_values!household_members_relationship_id_fkey (
+          relationship:lookup_values (
             id,
             code,
             name,
@@ -261,10 +268,18 @@ export function useHouseholdMembers() {
         return { success: false, error: { message: error.message } }
       }
 
+      // Transform response to handle potential array relationships
+      const transformedData = {
+        ...data,
+        relationship: Array.isArray(data.relationship)
+          ? data.relationship[0]
+          : data.relationship
+      }
+
       // Refresh the members list
       await fetchMembers()
 
-      return { success: true, data }
+      return { success: true, data: transformedData }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred'
       return { success: false, error: { message: errorMessage } }
