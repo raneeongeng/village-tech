@@ -112,7 +112,7 @@ export default function MembersPage() {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
         <div>
           <h2 className="text-3xl font-bold text-gray-900">Household Members</h2>
-          <p className="mt-1 text-base text-gray-500">Manage your household's member information.</p>
+          <p className="mt-1 text-base text-gray-500">Manage your household&apos;s member information.</p>
         </div>
         <button
           onClick={() => {

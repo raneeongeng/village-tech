@@ -209,7 +209,7 @@ export function useHouseholdMembers() {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred'
       return { success: false, error: { message: errorMessage } }
     }
-  }, [user, tenantId, tenantName, getUserHouseholdId, fetchMembers])
+  }, [user, tenantId, getUserHouseholdId, fetchMembers])
 
   // Update member
   const updateMember = useCallback(async (memberId: string, memberData: Partial<AddMemberData>): Promise<ApiResponse<HouseholdMember>> => {
