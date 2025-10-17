@@ -123,7 +123,7 @@ export function useHouseholdMembers() {
           is_primary,
           created_at,
           relationship_id,
-          relationship:lookup_values (
+          relationship:lookup_values!household_members_relationship_id_fkey (
             id,
             code,
             name,
@@ -255,7 +255,7 @@ export function useHouseholdMembers() {
           is_primary,
           created_at,
           relationship_id,
-          relationship:lookup_values (
+          relationship:lookup_values!household_members_relationship_id_fkey (
             id,
             code,
             name,

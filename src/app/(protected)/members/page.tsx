@@ -348,11 +348,11 @@ export default function MembersPage() {
                     disabled={submitLoading}
                   >
                     <option value="">Select relationship</option>
-                    {relationshipTypes.map((relationship) => (
+                    {relationshipTypes?.map((relationship) => (
                       <option key={relationship.id} value={relationship.id}>
                         {relationship.name}
                       </option>
-                    ))}
+                    )) || null}
                   </select>
                 </div>
 

@@ -95,10 +95,10 @@ export function LookupProvider({ children, preloadCommon = true }: LookupProvide
 
       const result = await LookupService.getCommonLookups()
 
-      if (result.success && result.data) {
-        setHouseholdStatuses(result.data.householdStatuses)
-        setRelationshipTypes(result.data.relationshipTypes)
-        setUserRoles(result.data.userRoles)
+      if (result.success && result.data && typeof result.data === 'object' && !Array.isArray(result.data)) {
+        setHouseholdStatuses(result.data.householdStatuses || [])
+        setRelationshipTypes(result.data.relationshipTypes || [])
+        setUserRoles(result.data.userRoles || [])
       } else {
         throw new Error(result.error?.message || 'Failed to load common lookup data')
       }
