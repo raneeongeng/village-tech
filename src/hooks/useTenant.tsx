@@ -6,6 +6,8 @@ import {
   detectTenantFromSubdomain,
   getTenantBySubdomain,
   getAllTenants,
+  getTenantFromSessionStorage,
+  setTenantInSessionStorage,
 } from '@/lib/utils/tenant'
 
 interface TenantContextType {
@@ -41,8 +43,20 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
       setError(null)
 
       try {
-        // First, load all available tenants
-        await refreshTenants()
+        // First, check for tenant in session storage
+        const sessionTenant = getTenantFromSessionStorage()
+        console.log('Session storage tenant:', sessionTenant)
+
+        if (sessionTenant) {
+          setTenant(sessionTenant)
+          setAvailableTenants([sessionTenant])
+          console.log('Using tenant from session storage:', sessionTenant)
+          return
+        }
+
+        // If no session tenant, load all available tenants
+        const allTenants = await getAllTenants()
+        setAvailableTenants(allTenants)
 
         // Try to detect tenant from subdomain
         const detectedSubdomain = detectTenantFromSubdomain()
@@ -54,8 +68,19 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
 
           if (detectedTenant) {
             setTenant(detectedTenant)
+            setTenantInSessionStorage(detectedTenant)
+            console.log('Tenant set successfully:', detectedTenant)
           } else {
             setError(`Village "${detectedSubdomain}" not found`)
+            console.log('No tenant found for subdomain:', detectedSubdomain)
+          }
+        } else {
+          console.log('No subdomain detected, using first available tenant for development')
+          // For development on localhost, automatically select the first tenant
+          if (allTenants.length > 0) {
+            setTenant(allTenants[0])
+            setTenantInSessionStorage(allTenants[0])
+            console.log('Auto-selected tenant for development:', allTenants[0])
           }
         }
         // If no subdomain detected, tenant selection will be shown
@@ -70,12 +95,19 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
     initializeTenant()
   }, [])
 
+  const setTenantWithStorage = (tenant: Tenant | null) => {
+    setTenant(tenant)
+    if (tenant) {
+      setTenantInSessionStorage(tenant)
+    }
+  }
+
   const value: TenantContextType = {
     tenant,
     availableTenants,
     isLoading,
     error,
-    setTenant,
+    setTenant: setTenantWithStorage,
     refreshTenants,
   }
 

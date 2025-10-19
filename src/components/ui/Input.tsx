@@ -7,14 +7,14 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   helper?: string
 }
 
-export function Input({
+export const Input = React.forwardRef<HTMLInputElement, InputProps>(({
   className,
   label,
   error,
   helper,
   id,
   ...props
-}: InputProps) {
+}, ref) => {
   const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`
 
   return (
@@ -28,6 +28,7 @@ export function Input({
         </label>
       )}
       <input
+        ref={ref}
         id={inputId}
         className={cn(
           'appearance-none block w-full px-4 py-3 rounded-lg',
@@ -44,4 +45,6 @@ export function Input({
       {helper && !error && <p className="text-sm text-gray-500">{helper}</p>}
     </div>
   )
-}
+})
+
+Input.displayName = 'Input'

@@ -146,6 +146,15 @@ export const NAVIGATION_CONFIG: Record<UserRole, RoleNavigationMap> = {
         order: 4
       },
       {
+        id: 'sticker-approvals',
+        label: 'Sticker Approvals',
+        href: '/admin/stickers',
+        icon: 'badge-check',
+        permission: 'manage_households',
+        group: 'management',
+        order: 5
+      },
+      {
         id: 'village-reports',
         label: 'Village Reports',
         href: '/reports',
@@ -213,6 +222,15 @@ export const NAVIGATION_CONFIG: Record<UserRole, RoleNavigationMap> = {
         permission: 'manage_deliveries',
         group: 'operations',
         order: 3
+      },
+      {
+        id: 'sticker-approvals',
+        label: 'Sticker Approvals',
+        href: '/admin/stickers',
+        icon: 'badge-check',
+        permission: 'manage_households',
+        group: 'operations',
+        order: 4
       }
     ]
   },
@@ -282,13 +300,22 @@ export const NAVIGATION_CONFIG: Record<UserRole, RoleNavigationMap> = {
         order: 2
       },
       {
+        id: 'sticker-requests',
+        label: 'Sticker Requests',
+        href: '/sticker-requests',
+        icon: 'badge',
+        permission: 'submit_requests',
+        group: 'services',
+        order: 3
+      },
+      {
         id: 'rules',
         label: 'Village Rules',
         href: '/rules',
         icon: 'book',
         permission: 'view_rules',
         group: 'services',
-        order: 3
+        order: 4
       }
     ]
   },

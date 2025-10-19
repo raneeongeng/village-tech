@@ -104,6 +104,13 @@ const ALL_NAVIGATION_ITEMS: Record<string, NavigationItem> = {
     icon: 'engineering',
     description: 'Construction permit management',
   },
+  'sticker-approvals': {
+    id: 'sticker-approvals',
+    label: 'Sticker Approvals',
+    href: '/admin/stickers',
+    icon: 'approval',
+    description: 'Review and approve sticker requests',
+  },
 
   // Admin Officer specific
   'household-records': {

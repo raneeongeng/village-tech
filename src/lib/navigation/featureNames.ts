@@ -68,6 +68,11 @@ export const FEATURE_CONFIG: Record<string, FeatureConfig> = {
     icon: 'engineering',
     description: 'Manage construction permits and approvals. Handle permit applications, track construction activities, and ensure compliance with community guidelines.'
   },
+  'sticker-approvals': {
+    name: 'Sticker Approvals',
+    icon: 'approval',
+    description: 'Review and approve vehicle and people sticker requests. Process applications, verify documentation, and manage sticker approval workflows.'
+  },
 
   // Admin Officer features
   'household-records': {
@@ -222,7 +227,8 @@ export function isComingSoonFeature(itemId: string): boolean {
     'villages',
     'household-approvals',
     'active-households',
-    'members'
+    'members',
+    'sticker-approvals'
   ]
   return !implementedFeatures.includes(itemId) && FEATURE_CONFIG.hasOwnProperty(itemId)
 }

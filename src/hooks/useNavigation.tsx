@@ -22,14 +22,18 @@ import {
 import { useAuth, useMockAuth } from './useAuth';
 
 export function useNavigation(): UseNavigationReturn {
-  // Use mock auth for development - replace with real useAuth when Supabase is set up
-  const { user } = useMockAuth();
+  // Use real auth - if this causes issues, you can switch back to useMockAuth
+  const { user } = useAuth();
   const pathname = usePathname();
   const [error, setError] = useState<string | null>(null);
 
   const navigation = useMemo(() => {
     try {
+      console.log('useNavigation - User:', user);
+      console.log('useNavigation - User Role:', user?.role);
+
       if (!user?.role) {
+        console.log('useNavigation - No user role found');
         return {
           items: [],
           groups: [],
@@ -40,7 +44,10 @@ export function useNavigation(): UseNavigationReturn {
 
       // Get role-based navigation configuration
       const userRole = user.role?.code as UserRole;
+      console.log('useNavigation - User Role Code:', userRole);
+
       if (!userRole) {
+        console.log('useNavigation - No user role code found');
         return {
           items: [],
           groups: [],

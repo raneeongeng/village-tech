@@ -1,4 +1,5 @@
 import type { Tenant } from '@/types/auth'
+import { supabase } from '@/lib/supabase/client'
 
 /**
  * Detect tenant from subdomain
@@ -67,77 +68,85 @@ export function detectTenantFromHeaders(headers: Headers): string | null {
 }
 
 /**
- * Mock tenant data for development
- * In production, this would fetch from Supabase
+ * Get tenant from session storage
  */
-export const MOCK_TENANTS: Tenant[] = [
-  {
-    id: '1',
-    name: 'Greenville Village',
-    subdomain: 'greenville',
-    is_active: true,
-    created_at: '2024-01-01T00:00:00Z',
-    updated_at: '2024-01-01T00:00:00Z',
-    settings: {
-      allow_registration: true,
-      require_approval: false,
-      branding: {
-        primary_color: '#22574A',
-        secondary_color: '#E8DCCA',
-      },
-    },
-  } as any,
-  {
-    id: '2',
-    name: 'Sunset Heights',
-    subdomain: 'sunset-heights',
-    is_active: true,
-    created_at: '2024-01-01T00:00:00Z',
-    updated_at: '2024-01-01T00:00:00Z',
-    settings: {
-      allow_registration: false,
-      require_approval: true,
-      branding: {
-        primary_color: '#22574A',
-        secondary_color: '#E8DCCA',
-      },
-    },
-  } as any,
-  {
-    id: '3',
-    name: 'Riverside Commons',
-    subdomain: 'riverside',
-    is_active: true,
-    created_at: '2024-01-01T00:00:00Z',
-    updated_at: '2024-01-01T00:00:00Z',
-    settings: {
-      allow_registration: true,
-      require_approval: true,
-      branding: {
-        primary_color: '#22574A',
-        secondary_color: '#E8DCCA',
-      },
-    },
-  } as any,
-]
+export function getTenantFromSessionStorage(): Tenant | null {
+  if (typeof window === 'undefined') return null
+
+  try {
+    const tenantData = sessionStorage.getItem('vmp_tenant_info')
+    if (!tenantData) return null
+
+    return JSON.parse(tenantData) as Tenant
+  } catch (error) {
+    console.error('Failed to parse tenant from session storage:', error)
+    return null
+  }
+}
+
+/**
+ * Set tenant in session storage
+ */
+export function setTenantInSessionStorage(tenant: Tenant): void {
+  if (typeof window === 'undefined') return
+
+  try {
+    sessionStorage.setItem('vmp_tenant_info', JSON.stringify(tenant))
+  } catch (error) {
+    console.error('Failed to save tenant to session storage:', error)
+  }
+}
 
 /**
  * Get tenant by subdomain
  */
 export async function getTenantBySubdomain(subdomain: string): Promise<Tenant | null> {
-  // In production, this would query Supabase
-  // For now, return mock data
-  const tenant = MOCK_TENANTS.find(t => (t as any).subdomain === subdomain)
-  return tenant || null
+  try {
+    const { data, error } = await supabase
+      .from('villages')
+      .select('*')
+      .eq('settings->>subdomain', subdomain)
+      .eq('status_id', (await supabase.from('lookup_values').select('id').eq('code', 'active').single()).data?.id)
+      .single()
+
+    if (error) {
+      console.error('Error fetching tenant by subdomain:', error)
+      return null
+    }
+
+    return data as Tenant
+  } catch (error) {
+    console.error('Failed to fetch tenant by subdomain:', error)
+    return null
+  }
 }
 
 /**
  * Get all available tenants
  */
 export async function getAllTenants(): Promise<Tenant[]> {
-  // In production, this would query Supabase
-  // For now, return mock data
-  return MOCK_TENANTS.filter(t => (t as any).is_active)
+  // First check if we have a tenant in session storage
+  const sessionTenant = getTenantFromSessionStorage()
+  if (sessionTenant) {
+    return [sessionTenant]
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('villages')
+      .select('*')
+      .eq('status_id', (await supabase.from('lookup_values').select('id').eq('code', 'active').single()).data?.id)
+
+    if (error) {
+      console.error('Error fetching tenants:', error)
+      return []
+    }
+
+    return data as Tenant[]
+  } catch (error) {
+    console.error('Failed to fetch tenants:', error)
+    return []
+  }
 }
 
 /**
