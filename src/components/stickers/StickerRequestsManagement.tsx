@@ -2,12 +2,20 @@
 
 import { useState } from 'react'
 import { StickerRequestDetails } from './StickerRequestDetails'
+import { PrintAllModal } from './PrintAllModal'
 import { useStickerRequests } from '@/hooks/useStickerRequests'
+import { useTenant } from '@/hooks/useTenant'
+import { supabase } from '@/lib/supabase/client'
+import { StickerItem } from './StickerCard'
 
 export function StickerRequestsManagement() {
-  const { requests, loading, error, approveRequest, rejectRequest } = useStickerRequests()
+  const { requests, loading, error, approveRequest, rejectRequest, printRequest, completeRequest } = useStickerRequests()
   const [selectedRequest, setSelectedRequest] = useState<string | null>(null)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
+  const [isPrintModalOpen, setIsPrintModalOpen] = useState(false)
+  const [requestStickers, setRequestStickers] = useState<StickerItem[]>([])
+  const [currentRequestId, setCurrentRequestId] = useState<string | null>(null)
+  const { tenant } = useTenant()
 
   const handleApprove = async (requestId: string) => {
     setActionLoading(requestId)
@@ -36,6 +44,130 @@ export function StickerRequestsManagement() {
       }
     } finally {
       setActionLoading(null)
+    }
+  }
+
+  const fetchRequestStickers = async (requestId: string) => {
+    const request = requests.find(r => r.id === requestId)
+    if (!request || !tenant?.id) return []
+
+    try {
+      // Get the household ID from the request data by querying the database
+      const { data: requestData, error: requestError } = await supabase
+        .from('onboarding_requests')
+        .select('request_data')
+        .eq('id', requestId)
+        .single()
+
+      if (requestError || !requestData?.request_data) {
+        console.error('Error fetching request data:', requestError)
+        return []
+      }
+
+      const householdId = requestData.request_data.household_id
+      if (!householdId) return []
+
+      // Get stickers for the household
+      const { data: stickerData, error } = await supabase
+        .rpc('get_household_stickers', {
+          p_tenant_id: tenant.id,
+          p_household_id: householdId
+        })
+
+      if (error) {
+        console.error('Error fetching stickers:', error)
+        return []
+      }
+
+      // Transform to StickerItem format
+      const transformedStickers: StickerItem[] = (stickerData || []).map((sticker: any) => {
+        const isPeopleSticker = sticker.sticker_type === 'People Sticker'
+        return {
+          id: sticker.id,
+          plateNumber: isPeopleSticker
+            ? sticker.member_name || 'N/A'
+            : sticker.sticker_data?.vehicle_info?.plate || 'N/A',
+          stickerCode: sticker.sticker_code,
+          issuedAt: sticker.issued_at,
+          expiresAt: sticker.expires_at,
+          status: sticker.status_name?.toLowerCase() || 'unknown',
+          vehicleInfo: {
+            make: isPeopleSticker
+              ? sticker.sticker_data?.relationship || 'Person'
+              : sticker.sticker_data?.vehicle_info?.make || 'Unknown',
+            model: isPeopleSticker
+              ? sticker.sticker_data?.member_name || 'Unknown'
+              : sticker.sticker_data?.vehicle_info?.model || 'Unknown',
+            color: isPeopleSticker
+              ? 'N/A'
+              : sticker.sticker_data?.vehicle_info?.color || 'Unknown',
+            type: sticker.sticker_type?.toLowerCase().replace(' ', '_') || 'vehicle'
+          }
+        }
+      })
+
+      // Filter to only show vehicle stickers (non-people stickers)
+      return transformedStickers.filter(sticker =>
+        sticker.vehicleInfo?.type !== 'people_sticker' && sticker.vehicleInfo?.type !== 'people'
+      )
+    } catch (err) {
+      console.error('Failed to fetch request stickers:', err)
+      return []
+    }
+  }
+
+  const handlePrint = async (requestId: string) => {
+    const request = requests.find(r => r.id === requestId)
+    if (!request) return
+
+    // If status is approved or ready for printing, show print modal with stickers
+    if (['approved', 'ready for printing'].includes(request.workflow_status.toLowerCase())) {
+      setActionLoading(requestId)
+      try {
+        const stickers = await fetchRequestStickers(requestId)
+        setRequestStickers(stickers)
+        setCurrentRequestId(requestId)
+        setIsPrintModalOpen(true)
+      } finally {
+        setActionLoading(null)
+      }
+    } else {
+      // Otherwise, mark as printed
+      setActionLoading(requestId)
+      try {
+        const result = await printRequest(requestId)
+        if (result.success) {
+          console.log('Request marked as printed successfully')
+        } else {
+          console.error('Failed to mark as printed:', result.error)
+        }
+      } finally {
+        setActionLoading(null)
+      }
+    }
+  }
+
+  const handleComplete = async (requestId: string) => {
+    setActionLoading(requestId)
+    try {
+      const result = await completeRequest(requestId)
+      if (result.success) {
+        console.log('Request completed successfully')
+      } else {
+        console.error('Failed to complete:', result.error)
+      }
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
+  const handlePrintComplete = async (requestId: string) => {
+    const result = await printRequest(requestId)
+    if (result.success) {
+      console.log('Request marked as printed successfully')
+    } else {
+      console.error('Failed to mark as printed:', result.error)
+      throw new Error(result.error)
     }
   }
 
@@ -106,6 +238,8 @@ export function StickerRequestsManagement() {
             request={selectedRequestData}
             onApprove={handleApprove}
             onReject={handleReject}
+            onPrint={handlePrint}
+            onComplete={handleComplete}
             showActions={true}
           />
         </div>
@@ -149,7 +283,7 @@ export function StickerRequestsManagement() {
                         onClick={() => setSelectedRequest(request.id)}
                         className="text-blue-600 hover:text-blue-900 text-sm font-medium"
                       >
-                        Review →
+                        {['approved', 'ready for printing'].includes(request.workflow_status.toLowerCase()) ? 'Print →' : 'Review →'}
                       </button>
                     </div>
                   </div>
@@ -159,6 +293,18 @@ export function StickerRequestsManagement() {
           </ul>
         </div>
       )}
+
+      {/* Print All Modal */}
+      <PrintAllModal
+        isOpen={isPrintModalOpen}
+        onClose={() => {
+          setIsPrintModalOpen(false)
+          setCurrentRequestId(null)
+        }}
+        stickers={requestStickers}
+        requestId={currentRequestId || undefined}
+        onPrintComplete={handlePrintComplete}
+      />
     </div>
   )
 }

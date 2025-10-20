@@ -132,14 +132,34 @@ export function useStickerRequests() {
     }
   }
 
-  const completeRequest = async (requestId: string, stickerRecordId: string) => {
+  const printRequest = async (requestId: string) => {
     try {
       const { error } = await supabase
-        .rpc('complete_onboarding_request', {
-          p_request_id: requestId,
-          p_target_table: 'vehicle_stickers',
-          p_target_record_id: stickerRecordId,
-          p_reviewer_id: user?.id
+        .rpc('mark_sticker_request_printed', {
+          p_request_id: requestId
+        })
+
+      if (error) {
+        throw error
+      }
+
+      // Refresh the requests list
+      await fetchRequests()
+      return { success: true }
+    } catch (err) {
+      console.error('Failed to mark request as printed:', err)
+      return {
+        success: false,
+        error: err instanceof Error ? err.message : 'Failed to mark as printed'
+      }
+    }
+  }
+
+  const completeRequest = async (requestId: string) => {
+    try {
+      const { error } = await supabase
+        .rpc('mark_sticker_request_completed', {
+          p_request_id: requestId
         })
 
       if (error) {
@@ -169,6 +189,7 @@ export function useStickerRequests() {
     refetch: fetchRequests,
     approveRequest,
     rejectRequest,
+    printRequest,
     completeRequest
   }
 }

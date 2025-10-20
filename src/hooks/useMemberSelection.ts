@@ -109,20 +109,18 @@ export function useMemberSelection() {
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
       const filePath = `people-sticker-docs/${tenant.id}/${memberId}/${documentType}-${fileName}`
 
+      // Set upload progress to 50% when starting upload
+      setUploadProgress(prev => ({
+        ...prev,
+        [memberId]: {
+          ...prev[memberId],
+          [documentType]: 50
+        }
+      }))
+
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('documents')
-        .upload(filePath, file, {
-          onUploadProgress: (progress) => {
-            const percentage = Math.round((progress.loaded / progress.total) * 100)
-            setUploadProgress(prev => ({
-              ...prev,
-              [memberId]: {
-                ...prev[memberId],
-                [documentType]: percentage
-              }
-            }))
-          }
-        })
+        .upload(filePath, file)
 
       if (uploadError) {
         throw uploadError
@@ -133,14 +131,25 @@ export function useMemberSelection() {
         .from('documents')
         .getPublicUrl(filePath)
 
-      // Clear upload progress
-      setUploadProgress(prev => {
-        const updated = { ...prev }
-        if (updated[memberId]) {
-          delete updated[memberId][documentType]
+      // Set upload progress to 100% before clearing
+      setUploadProgress(prev => ({
+        ...prev,
+        [memberId]: {
+          ...prev[memberId],
+          [documentType]: 100
         }
-        return updated
-      })
+      }))
+
+      // Clear upload progress after a short delay
+      setTimeout(() => {
+        setUploadProgress(prev => {
+          const updated = { ...prev }
+          if (updated[memberId]) {
+            delete updated[memberId][documentType]
+          }
+          return updated
+        })
+      }, 500)
 
       return {
         success: true,

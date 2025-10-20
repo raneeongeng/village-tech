@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { StickerCard, type StickerItem } from './StickerCard'
 import { StickerRequestModal } from './StickerRequestModal'
 import { PeopleStickerRequestModal } from './PeopleStickerRequestModal'
+import { PrintAllModal } from './PrintAllModal'
 import { useAuth } from '@/hooks/useAuth'
 import { useTenant } from '@/hooks/useTenant'
 import { getCachedHouseholdInfo } from '@/lib/auth'
@@ -22,6 +23,7 @@ export function StickerList({ onRequestSuccess, onRequestError }: StickerListPro
   const [error, setError] = useState<string | null>(null)
   const [isVehicleStickerModalOpen, setIsVehicleStickerModalOpen] = useState(false)
   const [isPeopleStickerModalOpen, setIsPeopleStickerModalOpen] = useState(false)
+  const [isPrintAllModalOpen, setIsPrintAllModalOpen] = useState(false)
 
   // Load household's stickers
   useEffect(() => {
@@ -55,28 +57,32 @@ export function StickerList({ onRequestSuccess, onRequestError }: StickerListPro
         }
 
         // Transform RPC data to match StickerItem interface
-        const transformedStickers: StickerItem[] = (apiStickers || []).map((sticker: any) => ({
-          id: sticker.id,
-          plateNumber: sticker.sticker_type === 'People Sticker'
-            ? sticker.member_name || 'N/A'
-            : sticker.sticker_data?.plate || sticker.sticker_data?.vehicle_plate || 'N/A',
-          stickerCode: sticker.sticker_code,
-          issuedAt: sticker.issued_at,
-          expiresAt: sticker.expires_at,
-          status: sticker.status_name?.toLowerCase() || 'unknown',
-          vehicleInfo: {
-            make: sticker.sticker_type === 'People Sticker'
-              ? sticker.sticker_data?.relationship || 'Person'
-              : sticker.sticker_data?.make || sticker.sticker_data?.vehicle_make || 'Unknown',
-            model: sticker.sticker_type === 'People Sticker'
-              ? sticker.sticker_data?.member_name || 'Unknown'
-              : sticker.sticker_data?.model || sticker.sticker_data?.vehicle_model || 'Unknown',
-            color: sticker.sticker_type === 'People Sticker'
-              ? 'N/A'
-              : sticker.sticker_data?.color || sticker.sticker_data?.vehicle_color || 'Unknown',
-            type: sticker.sticker_type?.toLowerCase() || 'vehicle'
+        const transformedStickers: StickerItem[] = (apiStickers || []).map((sticker: any) => {
+          const isPeopleSticker = sticker.sticker_type === 'People Sticker'
+
+          return {
+            id: sticker.id,
+            plateNumber: isPeopleSticker
+              ? sticker.member_name || 'N/A'
+              : sticker.sticker_data?.vehicle_info?.plate || 'N/A',
+            stickerCode: sticker.sticker_code,
+            issuedAt: sticker.issued_at,
+            expiresAt: sticker.expires_at,
+            status: sticker.status_name?.toLowerCase() || 'unknown',
+            vehicleInfo: {
+              make: isPeopleSticker
+                ? sticker.sticker_data?.relationship || 'Person'
+                : sticker.sticker_data?.vehicle_info?.make || 'Unknown',
+              model: isPeopleSticker
+                ? sticker.sticker_data?.member_name || 'Unknown'
+                : sticker.sticker_data?.vehicle_info?.model || 'Unknown',
+              color: isPeopleSticker
+                ? 'N/A'
+                : sticker.sticker_data?.vehicle_info?.color || 'Unknown',
+              type: sticker.sticker_type?.toLowerCase().replace(' ', '_') || 'vehicle'
+            }
           }
-        }))
+        })
 
         setStickers(transformedStickers)
         setError(null)
@@ -107,6 +113,16 @@ export function StickerList({ onRequestSuccess, onRequestError }: StickerListPro
     setIsPeopleStickerModalOpen(false)
     onRequestSuccess?.()
   }
+
+  const handlePrintAll = () => {
+    setIsPrintAllModalOpen(true)
+  }
+
+  // Check if there are issued stickers (stickers with codes)
+  const issuedStickers = stickers.filter(sticker =>
+    sticker.stickerCode && sticker.stickerCode !== 'N/A'
+  )
+  const hasIssuedStickers = issuedStickers.length > 0
 
   if (isLoading) {
     return (
@@ -139,34 +155,36 @@ export function StickerList({ onRequestSuccess, onRequestError }: StickerListPro
   }
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-12">
         <div>
-          <h2 className="text-3xl font-bold text-text">Sticker Requests</h2>
-          <p className="text-gray-600 mt-1">Request vehicle stickers or people stickers for your household</p>
+          <h1 className="text-4xl font-bold text-gray-900">Sticker Requests</h1>
+          <p className="mt-2 text-lg text-gray-600">Request vehicle or people stickers for your household.</p>
         </div>
-        <div className="flex flex-col sm:flex-row gap-3">
-          <button
-            onClick={() => setIsVehicleStickerModalOpen(true)}
-            className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold shadow-sm hover:bg-blue-700 transition-colors"
-          >
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-            </svg>
-            <span>Vehicle Sticker</span>
-          </button>
+        <div className="mt-4 sm:mt-0 flex items-center gap-3">
+          {hasIssuedStickers && (
+            <button
+              onClick={handlePrintAll}
+              className="flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-white text-primary border-2 border-primary font-bold shadow-soft hover:bg-primary hover:text-white transition-colors"
+            >
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+              </svg>
+              Print All Stickers
+            </button>
+          )}
           <button
             onClick={() => setIsPeopleStickerModalOpen(true)}
-            className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-green-600 text-white font-semibold shadow-sm hover:bg-green-700 transition-colors"
+            className="flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-primary text-white font-bold shadow-soft hover:bg-primary/90 transition-colors"
           >
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
-            <span>People Stickers</span>
+            Request Sticker
           </button>
         </div>
-      </div>
+      </header>
 
       {/* Stickers List */}
       {stickers.length === 0 ? (
@@ -179,29 +197,20 @@ export function StickerList({ onRequestSuccess, onRequestError }: StickerListPro
           <h3 className="text-lg font-medium text-gray-900 mb-2">No stickers yet</h3>
           <p className="text-gray-600 mb-6">Request vehicle stickers or people stickers for your household.</p>
 
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <button
-              onClick={() => setIsVehicleStickerModalOpen(true)}
-              className="flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-              </svg>
-              Request Vehicle Sticker
-            </button>
+          <div className="flex justify-center">
             <button
               onClick={() => setIsPeopleStickerModalOpen(true)}
-              className="flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              className="flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
             >
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
-              Request People Stickers
+              Request Sticker
             </button>
           </div>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {stickers.map((sticker) => (
             <StickerCard
               key={sticker.id}
@@ -213,18 +222,33 @@ export function StickerList({ onRequestSuccess, onRequestError }: StickerListPro
       )}
 
       {/* Request Modals */}
-      <StickerRequestModal
-        isOpen={isVehicleStickerModalOpen}
-        onClose={() => setIsVehicleStickerModalOpen(false)}
-        onSuccess={handleVehicleStickerSuccess}
-        onError={onRequestError}
-      />
-
       <PeopleStickerRequestModal
         isOpen={isPeopleStickerModalOpen}
         onClose={() => setIsPeopleStickerModalOpen(false)}
         onSuccess={handlePeopleStickerSuccess}
         onError={onRequestError}
+        onSwitchToVehicle={() => {
+          setIsPeopleStickerModalOpen(false)
+          setIsVehicleStickerModalOpen(true)
+        }}
+      />
+
+      <StickerRequestModal
+        isOpen={isVehicleStickerModalOpen}
+        onClose={() => setIsVehicleStickerModalOpen(false)}
+        onSuccess={handleVehicleStickerSuccess}
+        onError={onRequestError}
+        onSwitchToPeople={() => {
+          setIsVehicleStickerModalOpen(false)
+          setIsPeopleStickerModalOpen(true)
+        }}
+      />
+
+      {/* Print All Modal */}
+      <PrintAllModal
+        isOpen={isPrintAllModalOpen}
+        onClose={() => setIsPrintAllModalOpen(false)}
+        stickers={stickers}
       />
     </div>
   )

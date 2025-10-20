@@ -1,8 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { PeopleStickerRequestDetails } from './PeopleStickerRequestDetails'
+import { PrintAllModal } from './PrintAllModal'
 import { usePeopleStickerRequests } from '@/hooks/usePeopleStickerRequests'
+import { useTenant } from '@/hooks/useTenant'
+import { supabase } from '@/lib/supabase/client'
+import { StickerItem } from './StickerCard'
 
 export function PeopleStickerRequestsManagement() {
   const {
@@ -12,12 +16,18 @@ export function PeopleStickerRequestsManagement() {
     approveAllMembers,
     approveBulkMembers,
     approveIndividualMember,
-    rejectRequest
+    rejectRequest,
+    printRequest,
+    completeRequest
   } = usePeopleStickerRequests()
 
   const [selectedRequest, setSelectedRequest] = useState<string | null>(null)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
   const [notifications, setNotifications] = useState<Array<{ id: string; type: 'success' | 'error'; message: string }>>([])
+  const [isPrintModalOpen, setIsPrintModalOpen] = useState(false)
+  const [requestStickers, setRequestStickers] = useState<StickerItem[]>([])
+  const [currentRequestId, setCurrentRequestId] = useState<string | null>(null)
+  const { tenant } = useTenant()
 
   const showNotification = (type: 'success' | 'error', message: string) => {
     const id = Math.random().toString(36).substring(2)
@@ -84,6 +94,137 @@ export function PeopleStickerRequestsManagement() {
       }
     } finally {
       setActionLoading(null)
+    }
+  }
+
+  const fetchRequestStickers = async (requestId: string) => {
+    const request = requests.find(r => r.request_id === requestId)
+    if (!request || !tenant?.id) return []
+
+    try {
+      // Get the household ID from the request data by querying the database
+      const { data: requestData, error: requestError } = await supabase
+        .from('onboarding_requests')
+        .select('request_data')
+        .eq('id', requestId)
+        .single()
+
+      if (requestError || !requestData?.request_data) {
+        console.error('Error fetching request data:', requestError)
+        return []
+      }
+
+      const householdId = requestData.request_data.household_id
+      if (!householdId) return []
+
+      // Get stickers for the household
+      const { data: stickerData, error } = await supabase
+        .rpc('get_household_stickers', {
+          p_tenant_id: tenant.id,
+          p_household_id: householdId
+        })
+
+      if (error) {
+        console.error('Error fetching stickers:', error)
+        return []
+      }
+
+      // Transform to StickerItem format
+      const transformedStickers: StickerItem[] = (stickerData || []).map((sticker: any) => {
+        const isPeopleSticker = sticker.sticker_type === 'People Sticker'
+        return {
+          id: sticker.id,
+          plateNumber: isPeopleSticker
+            ? sticker.member_name || 'N/A'
+            : sticker.sticker_data?.vehicle_info?.plate || 'N/A',
+          stickerCode: sticker.sticker_code,
+          issuedAt: sticker.issued_at,
+          expiresAt: sticker.expires_at,
+          status: sticker.status_name?.toLowerCase() || 'unknown',
+          vehicleInfo: {
+            make: isPeopleSticker
+              ? sticker.sticker_data?.relationship || 'Person'
+              : sticker.sticker_data?.vehicle_info?.make || 'Unknown',
+            model: isPeopleSticker
+              ? sticker.sticker_data?.member_name || 'Unknown'
+              : sticker.sticker_data?.vehicle_info?.model || 'Unknown',
+            color: isPeopleSticker
+              ? 'N/A'
+              : sticker.sticker_data?.vehicle_info?.color || 'Unknown',
+            type: sticker.sticker_type?.toLowerCase().replace(' ', '_') || 'people'
+          }
+        }
+      })
+
+      // Filter to only show stickers that belong to the requested members
+      return transformedStickers.filter(sticker => {
+        if (sticker.vehicleInfo?.type === 'people_sticker' || sticker.vehicleInfo?.type === 'people') {
+          return request.selected_members.some(member =>
+            member.member_name === sticker.plateNumber ||
+            member.member_name === sticker.vehicleInfo?.model
+          )
+        }
+        return false
+      })
+    } catch (err) {
+      console.error('Failed to fetch request stickers:', err)
+      return []
+    }
+  }
+
+  const handlePrint = async (requestId: string) => {
+    const request = requests.find(r => r.request_id === requestId)
+    if (!request) return
+
+    // If status is approved or ready for printing, show print modal with stickers
+    if (['approved', 'ready for printing'].includes(request.workflow_status.toLowerCase())) {
+      setActionLoading(requestId)
+      try {
+        const stickers = await fetchRequestStickers(requestId)
+        setRequestStickers(stickers)
+        setCurrentRequestId(requestId)
+        setIsPrintModalOpen(true)
+      } finally {
+        setActionLoading(null)
+      }
+    } else {
+      // Otherwise, mark as printed
+      setActionLoading(requestId)
+      try {
+        const result = await printRequest(requestId)
+        if (result.success) {
+          showNotification('success', 'Request marked as printed successfully')
+        } else {
+          showNotification('error', result.error || 'Failed to mark as printed')
+        }
+      } finally {
+        setActionLoading(null)
+      }
+    }
+  }
+
+  const handleComplete = async (requestId: string) => {
+    setActionLoading(requestId)
+    try {
+      const result = await completeRequest(requestId)
+      if (result.success) {
+        showNotification('success', 'Request completed successfully')
+        setSelectedRequest(null) // Return to list view
+      } else {
+        showNotification('error', result.error || 'Failed to complete request')
+      }
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
+  const handlePrintComplete = async (requestId: string) => {
+    const result = await printRequest(requestId)
+    if (result.success) {
+      showNotification('success', 'Request marked as printed successfully')
+    } else {
+      showNotification('error', result.error || 'Failed to mark as printed')
+      throw new Error(result.error)
     }
   }
 
@@ -199,6 +340,8 @@ export function PeopleStickerRequestsManagement() {
             onApproveBulk={handleApproveBulk}
             onApproveIndividual={handleApproveIndividual}
             onReject={handleReject}
+            onPrint={handlePrint}
+            onComplete={handleComplete}
             showActions={true}
           />
         </div>
@@ -243,7 +386,11 @@ export function PeopleStickerRequestsManagement() {
                         disabled={actionLoading === request.request_id}
                         className="text-blue-600 hover:text-blue-900 text-sm font-medium disabled:opacity-50"
                       >
-                        {actionLoading === request.request_id ? 'Processing...' : 'Review →'}
+                        {actionLoading === request.request_id
+                          ? 'Processing...'
+                          : ['approved', 'ready for printing'].includes(request.workflow_status.toLowerCase())
+                            ? 'Print →'
+                            : 'Review →'}
                       </button>
                     </div>
                   </div>
@@ -253,6 +400,18 @@ export function PeopleStickerRequestsManagement() {
           </ul>
         </div>
       )}
+
+      {/* Print All Modal */}
+      <PrintAllModal
+        isOpen={isPrintModalOpen}
+        onClose={() => {
+          setIsPrintModalOpen(false)
+          setCurrentRequestId(null)
+        }}
+        stickers={requestStickers}
+        requestId={currentRequestId || undefined}
+        onPrintComplete={handlePrintComplete}
+      />
     </div>
   )
 }

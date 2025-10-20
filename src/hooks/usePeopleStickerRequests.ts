@@ -136,6 +136,52 @@ export function usePeopleStickerRequests() {
     return approveRequest(requestId) // No member IDs means approve all
   }
 
+  const printRequest = async (requestId: string) => {
+    try {
+      const { error } = await supabase
+        .rpc('mark_sticker_request_printed', {
+          p_request_id: requestId
+        })
+
+      if (error) {
+        throw error
+      }
+
+      // Refresh the requests list
+      await fetchRequests()
+      return { success: true }
+    } catch (err) {
+      console.error('Failed to mark request as printed:', err)
+      return {
+        success: false,
+        error: err instanceof Error ? err.message : 'Failed to mark as printed'
+      }
+    }
+  }
+
+  const completeRequest = async (requestId: string) => {
+    try {
+      const { error } = await supabase
+        .rpc('mark_sticker_request_completed', {
+          p_request_id: requestId
+        })
+
+      if (error) {
+        throw error
+      }
+
+      // Refresh the requests list
+      await fetchRequests()
+      return { success: true }
+    } catch (err) {
+      console.error('Failed to complete request:', err)
+      return {
+        success: false,
+        error: err instanceof Error ? err.message : 'Failed to complete request'
+      }
+    }
+  }
+
   useEffect(() => {
     fetchRequests()
   }, [tenant?.id])
@@ -149,6 +195,8 @@ export function usePeopleStickerRequests() {
     rejectRequest,
     approveIndividualMember,
     approveBulkMembers,
-    approveAllMembers
+    approveAllMembers,
+    printRequest,
+    completeRequest
   }
 }

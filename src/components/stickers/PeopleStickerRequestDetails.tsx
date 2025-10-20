@@ -25,6 +25,8 @@ interface PeopleStickerRequestDetailsProps {
   onApproveBulk?: (requestId: string, memberIds: string[]) => void
   onApproveIndividual?: (requestId: string, memberId: string) => void
   onReject?: (requestId: string, reason: string) => void
+  onPrint?: (requestId: string) => void
+  onComplete?: (requestId: string) => void
   showActions?: boolean
 }
 
@@ -34,38 +36,11 @@ export function PeopleStickerRequestDetails({
   onApproveBulk,
   onApproveIndividual,
   onReject,
+  onPrint,
+  onComplete,
   showActions = false
 }: PeopleStickerRequestDetailsProps) {
-  const [selectedMemberIds, setSelectedMemberIds] = useState<Set<string>>(new Set())
   const [expandedDocuments, setExpandedDocuments] = useState<Set<string>>(new Set())
-
-  const handleMemberSelection = (memberId: string, selected: boolean) => {
-    const newSelection = new Set(selectedMemberIds)
-    if (selected) {
-      newSelection.add(memberId)
-    } else {
-      newSelection.delete(memberId)
-    }
-    setSelectedMemberIds(newSelection)
-  }
-
-  const handleSelectAll = () => {
-    if (selectedMemberIds.size === request.selected_members.length) {
-      setSelectedMemberIds(new Set())
-    } else {
-      setSelectedMemberIds(new Set(request.selected_members.map(m => m.member_id)))
-    }
-  }
-
-  const handleApproveSelected = () => {
-    if (selectedMemberIds.size === 0) return
-
-    if (selectedMemberIds.size === request.selected_members.length) {
-      onApproveAll?.(request.request_id)
-    } else {
-      onApproveBulk?.(request.request_id, Array.from(selectedMemberIds))
-    }
-  }
 
   const handleReject = () => {
     const reason = prompt('Please provide a reason for rejection:')
@@ -84,6 +59,18 @@ export function PeopleStickerRequestDetails({
     setExpandedDocuments(newExpanded)
   }
 
+  const handlePrint = () => {
+    if (onPrint) {
+      onPrint(request.request_id)
+    }
+  }
+
+  const handleComplete = () => {
+    if (onComplete) {
+      onComplete(request.request_id)
+    }
+  }
+
   const getStatusBadgeColor = (status: string) => {
     switch (status.toLowerCase()) {
       case 'submitted':
@@ -92,12 +79,36 @@ export function PeopleStickerRequestDetails({
         return 'bg-blue-100 text-blue-800'
       case 'approved':
         return 'bg-green-100 text-green-800'
+      case 'ready_for_printing':
+      case 'ready for printing':
+        return 'bg-orange-100 text-orange-800'
+      case 'printed':
+        return 'bg-indigo-100 text-indigo-800'
       case 'rejected':
         return 'bg-red-100 text-red-800'
       case 'completed':
         return 'bg-purple-100 text-purple-800'
       default:
         return 'bg-gray-100 text-gray-800'
+    }
+  }
+
+  // Helper function to determine which actions to show based on status
+  const getAvailableActions = () => {
+    const status = request.workflow_status.toLowerCase()
+
+    switch (status) {
+      case 'submitted':
+      case 'under_review':
+        return { canApprove: true, canReject: true, canPrint: false, canComplete: false }
+      case 'approved':
+      case 'ready_for_printing':
+      case 'ready for printing':
+        return { canApprove: false, canReject: true, canPrint: true, canComplete: false }
+      case 'printed':
+        return { canApprove: false, canReject: false, canPrint: false, canComplete: true }
+      default:
+        return { canApprove: false, canReject: false, canPrint: false, canComplete: false }
     }
   }
 
@@ -151,28 +162,6 @@ export function PeopleStickerRequestDetails({
         )}
       </div>
 
-      {/* Member Selection for Admin Actions */}
-      {showActions && (
-        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <div className="flex items-center justify-between mb-3">
-            <h4 className="font-medium text-blue-900">Admin Actions</h4>
-            <div className="flex items-center space-x-2">
-              <label className="flex items-center space-x-2 text-sm text-blue-700">
-                <input
-                  type="checkbox"
-                  checked={selectedMemberIds.size === request.selected_members.length && request.selected_members.length > 0}
-                  onChange={handleSelectAll}
-                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                />
-                <span>Select All Members</span>
-              </label>
-            </div>
-          </div>
-          <p className="text-sm text-blue-700">
-            {selectedMemberIds.size} of {request.selected_members.length} members selected for approval
-          </p>
-        </div>
-      )}
 
       {/* Selected Members List */}
       <div className="mb-6">
@@ -181,22 +170,10 @@ export function PeopleStickerRequestDetails({
           {request.selected_members.map((member) => (
             <div
               key={member.member_id}
-              className={`border rounded-lg p-4 transition-all ${
-                selectedMemberIds.has(member.member_id)
-                  ? 'border-blue-300 bg-blue-50'
-                  : 'border-gray-200'
-              }`}
+              className="border rounded-lg p-4 border-gray-200"
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-start space-x-3">
-                  {showActions && (
-                    <input
-                      type="checkbox"
-                      checked={selectedMemberIds.has(member.member_id)}
-                      onChange={(e) => handleMemberSelection(member.member_id, e.target.checked)}
-                      className="mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                    />
-                  )}
                   <div className="flex-1">
                     <h5 className="font-medium text-gray-900">{member.member_name}</h5>
                     <p className="text-sm text-gray-500">{member.relationship}</p>
@@ -233,14 +210,6 @@ export function PeopleStickerRequestDetails({
                       {expandedDocuments.has(member.member_id) ? 'Hide' : 'View'} Documents
                     </button>
                   )}
-                  {showActions && (
-                    <button
-                      onClick={() => onApproveIndividual?.(request.request_id, member.member_id)}
-                      className="px-3 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-full hover:bg-green-200 transition-colors"
-                    >
-                      Approve Individual
-                    </button>
-                  )}
                 </div>
               </div>
 
@@ -275,30 +244,45 @@ export function PeopleStickerRequestDetails({
       </div>
 
       {/* Action Buttons */}
-      {showActions && (
-        <div className="flex justify-end space-x-3 pt-4 border-t">
-          <button
-            onClick={handleReject}
-            className="px-4 py-2 text-sm font-medium text-red-700 bg-red-50 border border-red-300 rounded-lg hover:bg-red-100 transition-colors"
-          >
-            Reject Request
-          </button>
-          {selectedMemberIds.size > 0 && (
-            <button
-              onClick={handleApproveSelected}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Approve Selected ({selectedMemberIds.size})
-            </button>
-          )}
-          <button
-            onClick={() => onApproveAll?.(request.request_id)}
-            className="px-4 py-2 text-sm font-medium text-white bg-green-600 border border-green-600 rounded-lg hover:bg-green-700 transition-colors"
-          >
-            Approve All Members
-          </button>
-        </div>
-      )}
+      {showActions && (() => {
+        const actions = getAvailableActions()
+        return (
+          <div className="flex justify-end space-x-3 pt-4 border-t">
+            {actions.canReject && (
+              <button
+                onClick={handleReject}
+                className="px-4 py-2 text-sm font-medium text-red-700 bg-red-50 border border-red-300 rounded-lg hover:bg-red-100 transition-colors"
+              >
+                Reject Request
+              </button>
+            )}
+            {actions.canApprove && (
+              <button
+                onClick={() => onApproveAll?.(request.request_id)}
+                className="px-4 py-2 text-sm font-medium text-white bg-green-600 border border-green-600 rounded-lg hover:bg-green-700 transition-colors"
+              >
+                Approve
+              </button>
+            )}
+            {actions.canPrint && (
+              <button
+                onClick={handlePrint}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                🖨️ Print Stickers
+              </button>
+            )}
+            {actions.canComplete && (
+              <button
+                onClick={handleComplete}
+                className="px-4 py-2 text-sm font-medium text-white bg-purple-600 border border-purple-600 rounded-lg hover:bg-purple-700 transition-colors"
+              >
+                ✅ Mark as Completed
+              </button>
+            )}
+          </div>
+        )
+      })()}
     </div>
   )
 }

@@ -24,7 +24,7 @@ interface StickerCardProps {
 
 export function StickerCard({ sticker, onRenew, className = '' }: StickerCardProps) {
   const formatDate = (dateString: string | null) => {
-    if (!dateString) return 'N/A'
+    if (!dateString) return '-'
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
@@ -35,80 +35,65 @@ export function StickerCard({ sticker, onRenew, className = '' }: StickerCardPro
   const canRenew = sticker.status === 'expired' || sticker.status === 'active'
   const isPending = sticker.status === 'pending'
 
+  // Adaptive content based on sticker type
+  const isPeopleSticker = sticker.vehicleInfo?.type === 'people_sticker' || sticker.vehicleInfo?.type === 'people'
+
+  const getCardTitle = () => {
+    if (isPeopleSticker) {
+      // For people stickers: member name
+      return sticker.vehicleInfo?.model || sticker.plateNumber || 'Unknown Person'
+    } else {
+      // For vehicle stickers: vehicle make/model
+      return sticker.vehicleInfo ? `${sticker.vehicleInfo.make} ${sticker.vehicleInfo.model}` : sticker.plateNumber
+    }
+  }
+
+  const getCardSubtitle = () => {
+    if (isPeopleSticker) {
+      // For people stickers: relationship/role
+      return sticker.vehicleInfo?.make || 'Household Member'
+    } else {
+      // For vehicle stickers: plate number
+      return sticker.plateNumber || 'Vehicle'
+    }
+  }
+
   return (
-    <div className={`bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden ${className}`}>
-      <div className="p-4 sm:p-6">
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4 items-center">
-          {/* Plate Number */}
-          <div className="col-span-2 sm:col-span-1 md:col-span-1">
-            <p className="text-sm text-gray-500 mb-1">Plate Number</p>
-            <p className="font-semibold text-lg text-text">{sticker.plateNumber}</p>
-            {sticker.vehicleInfo && (
-              <p className="text-xs text-gray-400 mt-1">
-                {sticker.vehicleInfo.make} {sticker.vehicleInfo.model}
-              </p>
-            )}
+    <div className={`bg-white rounded-2xl shadow-soft p-6 flex flex-col justify-between ${className}`}>
+      <div>
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <p className="text-xl font-bold text-gray-800">{getCardTitle()}</p>
+            <p className="text-sm text-gray-500 mt-1">{getCardSubtitle()}</p>
           </div>
-
-          {/* Sticker Code */}
-          <div className="col-span-2 sm:col-span-1 md:col-span-1">
-            <p className="text-sm text-gray-500 mb-1">Sticker Code</p>
-            <p className="font-mono text-base text-text">
-              {sticker.stickerCode || 'N/A'}
-            </p>
-          </div>
-
-          {/* Issued At - Hidden on small screens */}
-          <div className="hidden md:block">
-            <p className="text-sm text-gray-500 mb-1">Issued At</p>
-            <p className="text-base text-text">{formatDate(sticker.issuedAt)}</p>
-          </div>
-
-          {/* Expires At - Hidden on small screens */}
-          <div className="hidden md:block">
-            <p className="text-sm text-gray-500 mb-1">Expires At</p>
-            <p className="text-base text-text">{formatDate(sticker.expiresAt)}</p>
-          </div>
-
-          {/* Status */}
-          <div className="col-span-1 self-center">
-            <p className="text-sm text-gray-500 md:hidden mb-1">Status</p>
-            <StickerStatusBadge status={sticker.status} />
-          </div>
-
-          {/* Actions */}
-          <div className="col-span-1 flex justify-end">
-            {canRenew && onRenew ? (
-              <button
-                onClick={() => onRenew(sticker.id)}
-                className="text-primary font-semibold text-sm hover:underline transition-colors"
-              >
-                Renew Sticker
-              </button>
-            ) : (
-              <button
-                disabled
-                className="text-gray-400 text-sm cursor-not-allowed"
-              >
-                {isPending ? 'Pending...' : 'Renew Sticker'}
-              </button>
-            )}
-          </div>
+          <StickerStatusBadge status={sticker.status} />
         </div>
 
-        {/* Mobile-only: Show dates on small screens */}
-        <div className="md:hidden mt-4 pt-4 border-t border-gray-100">
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <p className="text-gray-500">Issued At</p>
-              <p className="text-text">{formatDate(sticker.issuedAt)}</p>
-            </div>
-            <div>
-              <p className="text-gray-500">Expires At</p>
-              <p className="text-text">{formatDate(sticker.expiresAt)}</p>
-            </div>
+        <div className="space-y-4 text-sm text-gray-600">
+          <p className="font-mono text-gray-500">{sticker.stickerCode || 'N/A'}</p>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:gap-6">
+            <p>Issued At: <span className="font-medium text-gray-900">{formatDate(sticker.issuedAt)}</span></p>
+            <p>Expires At: <span className="font-medium text-gray-900">{formatDate(sticker.expiresAt)}</span></p>
           </div>
         </div>
+      </div>
+
+      <div className="mt-6 flex justify-end">
+        {canRenew && onRenew ? (
+          <button
+            onClick={() => onRenew(sticker.id)}
+            className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+          >
+            Renew Sticker
+          </button>
+        ) : (
+          <button
+            disabled
+            className="text-sm font-medium text-gray-400 cursor-not-allowed"
+          >
+            {isPending ? 'Pending...' : 'Renew Sticker'}
+          </button>
+        )}
       </div>
     </div>
   )

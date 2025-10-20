@@ -19,6 +19,7 @@ import {
 import { useAuth } from '@/hooks/useAuth'
 import { useTenant } from '@/hooks/useTenant'
 import { useHouseholdMembers } from '@/hooks/useHouseholdMembers'
+import { getCachedHouseholdInfo } from '@/lib/auth'
 import { supabase } from '@/lib/supabase/client'
 
 interface PeopleStickerRequestModalProps {
@@ -26,13 +27,15 @@ interface PeopleStickerRequestModalProps {
   onClose: () => void
   onSuccess?: () => void
   onError?: (error: string) => void
+  onSwitchToVehicle?: () => void
 }
 
 export function PeopleStickerRequestModal({
   isOpen,
   onClose,
   onSuccess,
-  onError
+  onError,
+  onSwitchToVehicle
 }: PeopleStickerRequestModalProps) {
   const { user } = useAuth()
   const { tenant } = useTenant()
@@ -151,10 +154,19 @@ export function PeopleStickerRequestModal({
     setSelectableMembers(updatedMembers)
 
     try {
-      // Upload file to Supabase Storage
-      const fileExt = file.name.split('.').pop()
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
-      const filePath = `people-sticker-docs/${tenant?.id}/${memberId}/${documentType}-${fileName}`
+      // Generate secure upload path using the database function
+      const { data: securePathData, error: pathError } = await supabase.rpc('generate_upload_url', {
+        p_user_id: user?.id,
+        p_tenant_id: tenant?.id,
+        p_file_name: `${documentType}-${file.name}`,
+        p_file_type: 'people-sticker-docs'
+      })
+
+      if (pathError || !securePathData) {
+        throw pathError || new Error('Failed to generate secure upload path')
+      }
+
+      const filePath = securePathData
 
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('documents')
@@ -164,17 +176,23 @@ export function PeopleStickerRequestModal({
         throw uploadError
       }
 
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
+      // Get signed URL (bucket is private)
+      const { data: signedUrlData, error: urlError } = await supabase.storage
         .from('documents')
-        .getPublicUrl(filePath)
+        .createSignedUrl(filePath, 60 * 60 * 24 * 7) // 7 days expiry
+
+      if (urlError || !signedUrlData) {
+        throw urlError || new Error('Failed to get signed URL')
+      }
+
+      const fileUrl = signedUrlData.signedUrl
 
       // Update upload results
       setUploadResults(prev => ({
         ...prev,
         [memberId]: {
           ...prev[memberId],
-          [`${documentType}_document_url`]: publicUrl
+          [`${documentType}_document_url`]: fileUrl
         }
       }))
 
@@ -210,7 +228,8 @@ export function PeopleStickerRequestModal({
     setUploadResults(prev => {
       const updated = { ...prev }
       if (updated[memberId]) {
-        delete updated[memberId][`${documentType}_document_url`]
+        const propertyName = documentType === 'id' ? 'id_document_url' : 'photo_url'
+        delete updated[memberId][propertyName]
       }
       return updated
     })
@@ -247,11 +266,17 @@ export function PeopleStickerRequestModal({
       const selectedMembers = getSelectedMembersForSubmission(formData.members)
       const apiMembers = transformToApiFormat(selectedMembers, uploadResults)
 
+      // Get household ID from cached info
+      const householdInfo = getCachedHouseholdInfo()
+      if (!householdInfo?.id) {
+        throw new Error('Household information not found. Please refresh and try again.')
+      }
+
       // Submit people sticker request
       const { data, error } = await supabase.rpc('submit_people_sticker_request', {
         p_tenant_id: tenantId,
         p_requester_id: user.id,
-        p_household_id: user.household_id || tenantId,
+        p_household_id: householdInfo.id,
         p_selected_members: apiMembers,
         p_remarks: formData.remarks || null,
       })
@@ -270,7 +295,8 @@ export function PeopleStickerRequestModal({
 
     } catch (error) {
       console.error('Failed to submit people sticker request:', error)
-      onError?.(`Failed to submit people sticker request: ${error.message || 'Please try again.'}`)
+      const errorMessage = error instanceof Error ? error.message : 'Please try again.'
+      onError?.(`Failed to submit people sticker request: ${errorMessage}`)
     } finally {
       setIsSubmitting(false)
     }
@@ -306,14 +332,27 @@ export function PeopleStickerRequestModal({
                 Select household members who need personal identification stickers
               </p>
             </div>
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
-            >
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
+            <div className="flex items-center gap-3">
+              {onSwitchToVehicle && (
+                <button
+                  onClick={onSwitchToVehicle}
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                >
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14a3 3 0 01-3 3h-8a3 3 0 01-3-3V9a3 3 0 013-3h8a3 3 0 013 3v5zM6 20a1 1 0 100-2 1 1 0 000 2zM18 20a1 1 0 100-2 1 1 0 000 2z" />
+                  </svg>
+                  Switch to Vehicle
+                </button>
+              )}
+              <button
+                onClick={onClose}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">

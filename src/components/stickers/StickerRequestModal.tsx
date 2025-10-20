@@ -16,6 +16,7 @@ import {
 import { useAuth } from '@/hooks/useAuth'
 import { useTenant } from '@/hooks/useTenant'
 import { useHouseholdMembers } from '@/hooks/useHouseholdMembers'
+import { getCachedHouseholdInfo } from '@/lib/auth'
 import { supabase } from '@/lib/supabase/client'
 
 interface StickerRequestModalProps {
@@ -23,9 +24,10 @@ interface StickerRequestModalProps {
   onClose: () => void
   onSuccess?: () => void
   onError?: (error: string) => void
+  onSwitchToPeople?: () => void
 }
 
-export function StickerRequestModal({ isOpen, onClose, onSuccess, onError }: StickerRequestModalProps) {
+export function StickerRequestModal({ isOpen, onClose, onSuccess, onError, onSwitchToPeople }: StickerRequestModalProps) {
   const { user } = useAuth()
   const { tenant } = useTenant()
   const { members: householdMembers, loading: isLoadingMembers, error: membersError } = useHouseholdMembers()
@@ -132,10 +134,19 @@ export function StickerRequestModal({ isOpen, onClose, onSuccess, onError }: Sti
     setIsSubmitting(true)
 
     try {
-      // Upload file to Supabase Storage
-      const fileExt = selectedFile.name.split('.').pop()
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
-      const filePath = `sticker-proofs/${tenantId}/${fileName}`
+      // Generate secure upload path using the database function
+      const { data: securePathData, error: pathError } = await supabase.rpc('generate_upload_url', {
+        p_user_id: user.id,
+        p_tenant_id: tenantId,
+        p_file_name: selectedFile.name,
+        p_file_type: 'sticker-proofs'
+      })
+
+      if (pathError || !securePathData) {
+        throw pathError || new Error('Failed to generate secure upload path')
+      }
+
+      const filePath = securePathData
 
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('documents')
@@ -145,23 +156,35 @@ export function StickerRequestModal({ isOpen, onClose, onSuccess, onError }: Sti
         throw uploadError
       }
 
-      // Get public URL for the uploaded file
-      const { data: { publicUrl } } = supabase.storage
+      // Get signed URL for the uploaded file (bucket is private)
+      const { data: signedUrlData, error: urlError } = await supabase.storage
         .from('documents')
-        .getPublicUrl(filePath)
+        .createSignedUrl(filePath, 60 * 60 * 24 * 7) // 7 days expiry
+
+      if (urlError || !signedUrlData) {
+        throw urlError || new Error('Failed to get signed URL')
+      }
+
+      const fileUrl = signedUrlData.signedUrl
+
+      // Get household ID from cached info
+      const householdInfo = getCachedHouseholdInfo()
+      if (!householdInfo?.id) {
+        throw new Error('Household information not found. Please refresh and try again.')
+      }
 
       // Submit vehicle sticker request using the database function
       const { data, error } = await supabase.rpc('submit_vehicle_sticker_request', {
         p_tenant_id: tenantId,
         p_requester_id: user.id,
-        p_household_id: user.household_id || tenantId,
+        p_household_id: householdInfo.id,
         p_household_member_id: formData.householdMemberId,
         p_vehicle_type: formData.vehicleType,
         p_vehicle_make: formData.make,
         p_vehicle_model: formData.model,
         p_vehicle_plate: formData.plateNumber,
         p_vehicle_color: formData.color,
-        p_proof_file_url: publicUrl,
+        p_proof_file_url: fileUrl,
         p_remarks: formData.remarks || null,
       })
 
@@ -177,7 +200,8 @@ export function StickerRequestModal({ isOpen, onClose, onSuccess, onError }: Sti
       onSuccess?.()
     } catch (error) {
       console.error('Failed to submit sticker request:', error)
-      onError?.(`Failed to submit sticker request: ${error.message || 'Please try again.'}`)
+      const errorMessage = error instanceof Error ? error.message : 'Please try again.'
+      onError?.(`Failed to submit sticker request: ${errorMessage}`)
     } finally {
       setIsSubmitting(false)
     }
@@ -200,17 +224,35 @@ export function StickerRequestModal({ isOpen, onClose, onSuccess, onError }: Sti
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-2xl font-bold text-text">
-              Request Vehicle Sticker
-            </h3>
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
-            >
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
+            <div>
+              <h3 className="text-2xl font-bold text-text">
+                Request Vehicle Sticker
+              </h3>
+              <p className="text-sm text-gray-500 mt-1">
+                Register a vehicle for access stickers
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              {onSwitchToPeople && (
+                <button
+                  onClick={onSwitchToPeople}
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                >
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                  Switch to People
+                </button>
+              )}
+              <button
+                onClick={onClose}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
           </div>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-h-[70vh] overflow-y-auto">

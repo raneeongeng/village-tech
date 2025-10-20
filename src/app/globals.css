@@ -45,3 +45,10 @@ body {
     @apply appearance-none block w-full px-4 py-3 rounded-lg bg-white/50 border border-gray-300 placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
   }
 }
+
+/* Custom utility classes */
+@layer utilities {
+  .shadow-soft {
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+  }
+}
