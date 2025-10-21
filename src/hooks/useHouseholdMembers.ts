@@ -5,7 +5,6 @@ import { supabase } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
 import { useTenant } from '@/hooks/useTenant'
 import { getCachedHouseholdInfo } from '@/lib/auth'
-import { HouseholdMembersService } from '@/lib/api/services/household-members'
 import { useLookup } from '@/contexts/LookupContext'
 import type { HouseholdMember, RelationshipType, ApiResponse } from '@/types/household'
 
@@ -177,33 +176,114 @@ export function useHouseholdMembers() {
         }
       }
 
+      // Step 1: Store current session before creating new user
+      const currentSession = await supabase.auth.getSession()
 
-      // Use centralized API service to create member
-      const result = await HouseholdMembersService.createMember({
+      // Step 2: Create auth user account with skip_auto_insert
+      const { data: authData, error: authError } = await supabase.auth.signUp({
         email: memberData.email,
         password: memberData.password,
-        firstName: memberData.firstName,
-        middleName: memberData.middleName,
-        lastName: memberData.lastName,
-        suffix: memberData.suffix,
-        phone: memberData.phone,
-        tenantId,
-        householdId,
-        relationshipId: memberData.relationshipId,
-        createdBy: user.id
+        options: {
+          emailRedirectTo: undefined, // No email confirmation
+          data: {
+            skip_auto_insert: 'true', // We'll handle the user record insertion manually
+            first_name: memberData.firstName,
+            middle_name: memberData.middleName || '',
+            last_name: memberData.lastName,
+            suffix: memberData.suffix || '',
+            phone: memberData.phone || '',
+          }
+        }
       })
 
-      if (!result.success) {
-        console.error('Error creating household member:', result.error)
-        return { success: false, error: result.error || { message: 'Failed to create household member' } }
+      // Step 3: Restore original session immediately after signup
+      if (currentSession.data.session) {
+        await supabase.auth.setSession({
+          access_token: currentSession.data.session.access_token,
+          refresh_token: currentSession.data.session.refresh_token
+        })
       }
 
-      const data = result.data
+      if (authError) {
+        console.error('Error creating auth user:', authError)
+        return { success: false, error: { message: `Failed to create user account: ${authError.message}` } }
+      }
+
+      if (!authData.user?.id) {
+        return { success: false, error: { message: 'Failed to create user account - no user ID returned' } }
+      }
+
+      // Step 4: Use database function to create household member with proper RLS handling
+      const { data: functionResult, error: functionError } = await supabase
+        .rpc('add_household_member', {
+          member_data: {
+            auth_user_id: authData.user.id,
+            email: memberData.email,
+            first_name: memberData.firstName,
+            middle_name: memberData.middleName || null,
+            last_name: memberData.lastName,
+            suffix: memberData.suffix || null,
+            phone: memberData.phone || '',
+            relationship_id: memberData.relationshipId
+          },
+          household_uuid: householdId,
+          tenant_uuid: tenantId,
+          created_by_uuid: user.id
+        })
+
+      if (functionError) {
+        console.error('Error calling add_household_member function:', functionError)
+        return { success: false, error: { message: `Failed to add household member: ${functionError.message}` } }
+      }
+
+      if (!functionResult.success) {
+        console.error('Database function returned error:', functionResult.error)
+        return { success: false, error: { message: functionResult.error } }
+      }
+
+      // Step 5: Fetch the created member with full details for return
+      const { data: newMember, error: fetchError } = await supabase
+        .from('household_members')
+        .select(`
+          id,
+          household_id,
+          user_id,
+          name,
+          contact_info,
+          photo_url,
+          is_primary,
+          created_at,
+          relationship_id,
+          relationship:lookup_values!household_members_relationship_id_fkey (
+            id,
+            code,
+            name,
+            sort_order
+          )
+        `)
+        .eq('id', functionResult.member_id)
+        .single()
+
+      if (fetchError) {
+        console.error('Error fetching created member:', fetchError)
+        // Member was created successfully, but we couldn't fetch details
+        // This is not a critical error, just refresh the list
+        await fetchMembers()
+        return { success: true, data: undefined }
+      }
+
+      // Transform response to handle potential array relationships
+      const transformedData = {
+        ...newMember,
+        relationship: Array.isArray(newMember.relationship)
+          ? newMember.relationship[0]
+          : newMember.relationship
+      }
 
       // Refresh the members list
       await fetchMembers()
 
-      return { success: true, data }
+      return { success: true, data: transformedData }
     } catch (err) {
       console.error('Error in addMember:', err)
       const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred'
@@ -293,14 +373,22 @@ export function useHouseholdMembers() {
     }
 
     try {
-      const { error } = await supabase
-        .from('household_members')
-        .delete()
-        .eq('id', memberId)
-        .eq('tenant_id', tenantId)
+      // Use database function to remove household member with proper RLS handling
+      const { data: functionResult, error: functionError } = await supabase
+        .rpc('remove_household_member', {
+          member_uuid: memberId,
+          tenant_uuid: tenantId,
+          removed_by_uuid: user.id
+        })
 
-      if (error) {
-        return { success: false, error: { message: error.message } }
+      if (functionError) {
+        console.error('Error calling remove_household_member function:', functionError)
+        return { success: false, error: { message: `Failed to remove household member: ${functionError.message}` } }
+      }
+
+      if (!functionResult.success) {
+        console.error('Database function returned error:', functionResult.error)
+        return { success: false, error: { message: functionResult.error } }
       }
 
       // Refresh the members list
