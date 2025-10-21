@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { StickerList } from '@/components/stickers/StickerList'
+import { OnboardingRequestList } from '@/components/onboarding/OnboardingRequestList'
 
 export default function StickerRequestsPage() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
@@ -91,6 +92,11 @@ export default function StickerRequestsPage() {
           onRequestSuccess={handleRequestSuccess}
           onRequestError={handleRequestError}
         />
+
+        {/* Onboarding Requests Section */}
+        <div className="mt-12">
+          <OnboardingRequestList />
+        </div>
       </main>
     </div>
   )

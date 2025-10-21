@@ -40,7 +40,8 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
       pathname.startsWith('/households/') ||
       pathname === '/members' ||
       pathname === '/sticker-requests' ||
-      pathname === '/admin/stickers'
+      pathname === '/admin/stickers' ||
+      pathname === '/users'
     )
 
     // Skip activeView sync for routes handled by specific page components
@@ -92,7 +93,8 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
     pathname.startsWith('/households/') ||
     pathname === '/members' ||
     pathname === '/sticker-requests' ||
-    pathname === '/admin/stickers'
+    pathname === '/admin/stickers' ||
+    pathname === '/users'
   )
 
   return (

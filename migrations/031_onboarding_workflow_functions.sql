@@ -149,13 +149,13 @@ BEGIN
     RETURN QUERY
     SELECT
         req.id,
-        rt.code,
-        rt.name,
-        u.email,
+        rt.code::TEXT,
+        rt.name::TEXT,
+        u.email::TEXT,
         req.submitted_at,
         req.request_data,
-        ws.code,
-        ws.name
+        ws.code::TEXT,
+        ws.name::TEXT
     FROM onboarding_requests req
     JOIN lookup_values rt ON req.request_type_id = rt.id
     JOIN lookup_categories rtc ON rt.category_id = rtc.id AND rtc.code = 'request_types'

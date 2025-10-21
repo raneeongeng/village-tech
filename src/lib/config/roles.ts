@@ -21,6 +21,7 @@ export const USER_ROLES: Record<UserRole, RolePermissions> = {
     role: 'admin_head',
     permissions: [
       'manage_households',
+      'manage_users',
       'manage_fees',
       'manage_security',
       'manage_rules',
@@ -32,6 +33,7 @@ export const USER_ROLES: Record<UserRole, RolePermissions> = {
       'dashboard',
       'household-approvals',
       'active-households',
+      'users',
       'fees-management',
       'payment-status',
       'rules',
@@ -39,7 +41,7 @@ export const USER_ROLES: Record<UserRole, RolePermissions> = {
       'construction-permits',
       'sticker-approvals',
     ],
-    restricted_routes: ['villages', 'users'],
+    restricted_routes: ['villages'],
   },
 
   admin_officer: {

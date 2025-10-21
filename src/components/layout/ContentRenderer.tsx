@@ -678,6 +678,7 @@ export function ContentRenderer() {
       }
     }
 
+
     if (isComingSoon) {
       return renderComingSoon()
     }

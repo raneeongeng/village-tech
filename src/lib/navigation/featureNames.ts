@@ -225,6 +225,7 @@ export function isComingSoonFeature(itemId: string): boolean {
   const implementedFeatures = [
     'dashboard',
     'villages',
+    'users',
     'household-approvals',
     'active-households',
     'members',
